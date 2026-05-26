@@ -20,7 +20,6 @@ return new class extends Migration
             $table->date('tgl_lahir');
             $table->string('jabatan');
             $table->string('agama');
-            $table->string('email')->nullable();
             $table->string('nomor_wa')->nullable();
             $table->text('alamat')->nullable();
             $table->timestamps();
