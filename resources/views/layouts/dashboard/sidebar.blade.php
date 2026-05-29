@@ -52,53 +52,19 @@
       {{-- Data Siswa --}}
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('siswa.*') ? '' : 'collapsed' }}"
-           data-bs-target="#siswa-nav" data-bs-toggle="collapse" href="#">
+           href="#">
           <i class="bi bi-person-lines-fill"></i>
           <span>Data Siswa</span>
-          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="siswa-nav"
-            class="nav-content collapse {{ request()->routeIs('siswa.*') ? 'show' : '' }}"
-            data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
-              <i class="bi bi-circle"></i><span>Daftar Siswa</span>
-            </a>
-          </li>
-          @if ($isAdmin)
-            <li>
-              <a href="#" class="{{ request()->routeIs('siswa.create') ? 'active' : '' }}">
-                <i class="bi bi-circle"></i><span>Tambah Siswa</span>
-              </a>
-            </li>
-          @endif
-        </ul>
       </li>
 
       {{-- Data Guru --}}
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('guru.*') ? '' : 'collapsed' }}"
-           data-bs-target="#guru-nav" data-bs-toggle="collapse" href="#">
+           href="{{ route('guru.index') }}">
           <i class="bi bi-person-badge"></i>
           <span>Data Guru</span>
-          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="guru-nav"
-            class="nav-content collapse {{ request()->routeIs('guru.*') ? 'show' : '' }}"
-            data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" class="{{ request()->routeIs('guru.index') ? 'active' : '' }}">
-              <i class="bi bi-circle"></i><span>Daftar Guru</span>
-            </a>
-          </li>
-          @if ($isAdmin)
-            <li>
-              <a href="#" class="{{ request()->routeIs('guru.create') ? 'active' : '' }}">
-                <i class="bi bi-circle"></i><span>Tambah Guru</span>
-              </a>
-            </li>
-          @endif
-        </ul>
       </li>
 
       {{-- Data Kelas --}}
@@ -130,27 +96,10 @@
       {{-- Data Pegawai --}}
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('pegawai.*') ? '' : 'collapsed' }}"
-           data-bs-target="#pegawai-nav" data-bs-toggle="collapse" href="#">
+           href="{{ route('pegawai.index') }}">
           <i class="bi bi-people"></i>
           <span>Data Pegawai</span>
-          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="pegawai-nav"
-            class="nav-content collapse {{ request()->routeIs('pegawai.*') ? 'show' : '' }}"
-            data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{{ route('pegawai.index') }}" class="{{ request()->routeIs('pegawai.index') ? 'active' : '' }}">
-              <i class="bi bi-circle"></i><span>Daftar Pegawai</span>
-            </a>
-          </li>
-          @if ($isAdmin)
-            <li>
-              <a href="{{ route('pegawai.create') }}" class="{{ request()->routeIs('pegawai.create') ? 'active' : '' }}">
-                <i class="bi bi-circle"></i><span>Tambah Pegawai</span>
-              </a>
-            </li>
-          @endif
-        </ul>
       </li>
 
     @endif {{-- end isManajemen --}}
@@ -167,27 +116,10 @@
       @if ($isManajemen)
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}"
-             data-bs-target="#mapel-nav" data-bs-toggle="collapse" href="#">
+             href="#">
             <i class="bi bi-book"></i>
             <span>Mata Pelajaran</span>
-            <i class="bi bi-chevron-down ms-auto"></i>
           </a>
-          <ul id="mapel-nav"
-              class="nav-content collapse {{ request()->routeIs('matapelajaran.*') ? 'show' : '' }}"
-              data-bs-parent="#sidebar-nav">
-            <li>
-              <a href="#" class="{{ request()->routeIs('matapelajaran.index') ? 'active' : '' }}">
-                <i class="bi bi-circle"></i><span>Daftar Mapel</span>
-              </a>
-            </li>
-            @if ($isAdmin)
-              <li>
-                <a href="#" class="{{ request()->routeIs('matapelajaran.create') ? 'active' : '' }}">
-                  <i class="bi bi-circle"></i><span>Tambah Mapel</span>
-                </a>
-              </li>
-            @endif
-          </ul>
         </li>
       @endif
 
@@ -272,27 +204,10 @@
       {{-- Ekstrakurikuler --}}
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}"
-           data-bs-target="#ekskul-nav" data-bs-toggle="collapse" href="#">
+           href="#">
           <i class="bi bi-trophy"></i>
           <span>Ekstrakurikuler</span>
-          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="ekskul-nav"
-            class="nav-content collapse {{ request()->routeIs('ekstrakurikuler.*') ? 'show' : '' }}"
-            data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" class="{{ request()->routeIs('ekstrakurikuler.index') ? 'active' : '' }}">
-              <i class="bi bi-circle"></i><span>Daftar Ekskul</span>
-            </a>
-          </li>
-          @if ($isAdmin)
-            <li>
-              <a href="#" class="{{ request()->routeIs('ekstrakurikuler.create') ? 'active' : '' }}">
-                <i class="bi bi-circle"></i><span>Tambah Ekskul</span>
-              </a>
-            </li>
-          @endif
-        </ul>
       </li>
 
     @endif {{-- end isAkademik --}}

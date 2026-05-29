@@ -3,63 +3,108 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guru;
+use App\Models\Pegawai;
+use App\Http\Requests\StoreGuruRequest;
+use App\Http\Requests\UpdateGuruRequest;
+use App\DataTables\GuruDataTable;
 use Illuminate\Http\Request;
 
 class GuruController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar guru (DataTables).
      */
-    public function index()
+    public function index(GuruDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.guru.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Tampilkan form tambah guru.
      */
     public function create()
     {
-        //
+        // Hanya ambil pegawai yang jabatannya berkaitan dengan guru/kepala sekolah atau belum terdaftar sebagai guru
+        $pegawais = Pegawai::whereDoesntHave('guru')->orderBy('nama_pegawai')->get();
+
+        return view('pages.guru.create', compact('pegawais'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data guru baru ke database.
      */
-    public function store(Request $request)
+    public function store(StoreGuruRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $guru = Guru::create($validated);
+        
+        // Ambil nama pegawai untuk notifikasi
+        $nama = $guru->pegawai ? $guru->pegawai->nama_pegawai : $guru->nip_guru;
+
+        alert()->success(
+            'Berhasil!',
+            'Guru <strong>' . e($nama) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('guru.index');
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail guru (redirect ke edit).
      */
     public function show(Guru $guru)
     {
-        //
+        return redirect()->route('guru.edit', $guru);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Tampilkan form edit guru.
      */
     public function edit(Guru $guru)
     {
-        //
+        // Ambil pegawai yang belum menjadi guru, ATAU yang sedang di-edit saat ini
+        $pegawais = Pegawai::whereDoesntHave('guru')
+            ->orWhere('id', $guru->pegawai_id)
+            ->orderBy('nama_pegawai')
+            ->get();
+
+        return view('pages.guru.edit', compact('guru', 'pegawais'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data guru di database.
      */
-    public function update(Request $request, Guru $guru)
+    public function update(UpdateGuruRequest $request, Guru $guru)
     {
-        //
+        $validated = $request->validated();
+
+        $guru->update($validated);
+
+        $nama = $guru->pegawai ? $guru->pegawai->nama_pegawai : $guru->nip_guru;
+
+        alert()->success(
+            'Diperbarui!',
+            'Data guru <strong>' . e($nama) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('guru.index');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data guru dari database.
      */
     public function destroy(Guru $guru)
     {
-        //
+        $nama = $guru->pegawai ? $guru->pegawai->nama_pegawai : $guru->nip_guru;
+        
+        $guru->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Data guru <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('guru.index');
     }
 }

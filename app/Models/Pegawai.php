@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 class Pegawai extends Model
 {
     use HasFactory;
@@ -43,5 +45,13 @@ class Pegawai extends Model
         return [
             'tgl_lahir' => 'date',
         ];
+    }
+
+    /**
+     * Hubungan HasOne dengan model Guru.
+     */
+    public function guru(): HasOne
+    {
+        return $this->hasOne(Guru::class, 'pegawai_id');
     }
 }
