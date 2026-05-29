@@ -3,63 +3,92 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
+use App\Http\Requests\StorePegawaiRequest;
+use App\Http\Requests\UpdatePegawaiRequest;
+use App\DataTables\PegawaiDataTable;
 use Illuminate\Http\Request;
 
 class PegawaiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar pegawai (DataTables).
      */
-    public function index()
+    public function index(PegawaiDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.pegawai.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Tampilkan form tambah pegawai.
      */
     public function create()
     {
-        //
+        return view('pages.pegawai.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data pegawai baru ke database.
      */
-    public function store(Request $request)
+    public function store(StorePegawaiRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        Pegawai::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Data pegawai <strong>' . e($validated['nama_pegawai']) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('pegawai.index');
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail pegawai (redirect ke edit).
      */
     public function show(Pegawai $pegawai)
     {
-        //
+        return redirect()->route('pegawai.edit', $pegawai);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Tampilkan form edit pegawai.
      */
     public function edit(Pegawai $pegawai)
     {
-        //
+        return view('pages.pegawai.edit', compact('pegawai'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data pegawai di database.
      */
-    public function update(Request $request, Pegawai $pegawai)
+    public function update(UpdatePegawaiRequest $request, Pegawai $pegawai)
     {
-        //
+        $validated = $request->validated();
+
+        $pegawai->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Data pegawai <strong>' . e($pegawai->nama_pegawai) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('pegawai.index');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data pegawai dari database.
      */
     public function destroy(Pegawai $pegawai)
     {
-        //
+        $nama = $pegawai->nama_pegawai;
+        $pegawai->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Data pegawai <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('pegawai.index');
     }
 }

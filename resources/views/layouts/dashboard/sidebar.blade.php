@@ -139,13 +139,13 @@
             class="nav-content collapse {{ request()->routeIs('pegawai.*') ? 'show' : '' }}"
             data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" class="{{ request()->routeIs('pegawai.index') ? 'active' : '' }}">
+            <a href="{{ route('pegawai.index') }}" class="{{ request()->routeIs('pegawai.index') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Daftar Pegawai</span>
             </a>
           </li>
           @if ($isAdmin)
             <li>
-              <a href="#" class="{{ request()->routeIs('pegawai.create') ? 'active' : '' }}">
+              <a href="{{ route('pegawai.create') }}" class="{{ request()->routeIs('pegawai.create') ? 'active' : '' }}">
                 <i class="bi bi-circle"></i><span>Tambah Pegawai</span>
               </a>
             </li>
