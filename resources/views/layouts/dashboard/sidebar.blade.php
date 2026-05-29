@@ -1,193 +1,398 @@
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
+{{-- ======= Sidebar ======= --}}
+<aside id="sidebar" class="sidebar">
 
-    <ul class="sidebar-nav" id="sidebar-nav">
+  @php
+      $role  = Auth::user()->roles ?? '';
+      $name  = Auth::user()->name  ?? 'Pengguna';
 
-      <!-- Dashboard -->
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('dashboard') ? '' : 'collapsed' }}" href="{{ route('dashboard') }}">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
+      $isAdmin    = $role === 'admin';
+      $isKepsek   = $role === 'kepala sekolah';
+      $isGuru     = $role === 'guru';
+      $isWali     = $role === 'wali kelas';
+      $isSiswa    = $role === 'siswa';
+      $isOrangTua = $role === 'orang tua';
 
-      {{-- Hanya tampil untuk Admin & Kepala Sekolah --}}
-      @if(in_array(Auth::user()->roles ?? '', ['admin', 'kepala sekolah']))
+      // Kelompok peran
+      $isManajemen = in_array($role, ['admin', 'kepala sekolah']);
+      $isAkademik  = in_array($role, ['admin', 'kepala sekolah', 'guru', 'wali kelas']);
+      $isPersonal  = in_array($role, ['siswa', 'orang tua']);
+  @endphp
+
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    {{-- ═══════════════════════════════
+         DASHBOARD (semua role)
+    ═══════════════════════════════ --}}
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('dashboard') ? '' : 'collapsed' }}"
+         href="{{ route('dashboard') }}">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    {{-- ═══════════════════════════════
+         MANAJEMEN DATA
+         Hanya: admin, kepala sekolah
+    ═══════════════════════════════ --}}
+    @if ($isManajemen)
       <li class="nav-heading">Manajemen Data</li>
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#siswa-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-person-lines-fill"></i><span>Data Siswa</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="siswa-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Daftar Siswa</span></a>
-          </li>
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Tambah Siswa</span></a>
-          </li>
-        </ul>
-      </li><!-- End Siswa Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#guru-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-person-badge"></i><span>Data Guru</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="guru-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Daftar Guru</span></a>
-          </li>
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Tambah Guru</span></a>
-          </li>
-        </ul>
-      </li><!-- End Guru Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#kelas-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-building"></i><span>Data Kelas</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="kelas-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Daftar Kelas</span></a>
-          </li>
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Wali Kelas</span></a>
-          </li>
-        </ul>
-      </li><!-- End Kelas Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#pegawai-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-people"></i><span>Data Pegawai</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="pegawai-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Daftar Pegawai</span></a>
-          </li>
-        </ul>
-      </li><!-- End Pegawai Nav -->
+      {{-- Manajemen User: hanya admin --}}
+      @if ($isAdmin)
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('user.*') ? '' : 'collapsed' }}"
+             href="{{ route('user.index') }}">
+            <i class="bi bi-person-gear"></i>
+            <span>Manajemen User</span>
+          </a>
+        </li>
       @endif
 
-      {{-- Akademik: Admin, Guru, Wali Kelas --}}
-      @if(in_array(Auth::user()->roles ?? '', ['admin', 'guru', 'wali kelas', 'kepala sekolah']))
+      {{-- Data Siswa --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('siswa.*') ? '' : 'collapsed' }}"
+           data-bs-target="#siswa-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-person-lines-fill"></i>
+          <span>Data Siswa</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="siswa-nav"
+            class="nav-content collapse {{ request()->routeIs('siswa.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="#" class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Daftar Siswa</span>
+            </a>
+          </li>
+          @if ($isAdmin)
+            <li>
+              <a href="#" class="{{ request()->routeIs('siswa.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Tambah Siswa</span>
+              </a>
+            </li>
+          @endif
+        </ul>
+      </li>
+
+      {{-- Data Guru --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('guru.*') ? '' : 'collapsed' }}"
+           data-bs-target="#guru-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-person-badge"></i>
+          <span>Data Guru</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="guru-nav"
+            class="nav-content collapse {{ request()->routeIs('guru.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="#" class="{{ request()->routeIs('guru.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Daftar Guru</span>
+            </a>
+          </li>
+          @if ($isAdmin)
+            <li>
+              <a href="#" class="{{ request()->routeIs('guru.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Tambah Guru</span>
+              </a>
+            </li>
+          @endif
+        </ul>
+      </li>
+
+      {{-- Data Kelas --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('kelas.*') ? '' : 'collapsed' }}"
+           data-bs-target="#kelas-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-building"></i>
+          <span>Data Kelas</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="kelas-nav"
+            class="nav-content collapse {{ request()->routeIs('kelas.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="#" class="{{ request()->routeIs('kelas.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Daftar Kelas</span>
+            </a>
+          </li>
+          @if ($isAdmin)
+            <li>
+              <a href="#" class="{{ request()->routeIs('walikelas.*') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Penugasan Wali Kelas</span>
+              </a>
+            </li>
+          @endif
+        </ul>
+      </li>
+
+      {{-- Data Pegawai --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('pegawai.*') ? '' : 'collapsed' }}"
+           data-bs-target="#pegawai-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-people"></i>
+          <span>Data Pegawai</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="pegawai-nav"
+            class="nav-content collapse {{ request()->routeIs('pegawai.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="#" class="{{ request()->routeIs('pegawai.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Daftar Pegawai</span>
+            </a>
+          </li>
+          @if ($isAdmin)
+            <li>
+              <a href="#" class="{{ request()->routeIs('pegawai.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Tambah Pegawai</span>
+              </a>
+            </li>
+          @endif
+        </ul>
+      </li>
+
+    @endif {{-- end isManajemen --}}
+
+
+    {{-- ═══════════════════════════════
+         AKADEMIK
+         Hanya: admin, kepala sekolah, guru, wali kelas
+    ═══════════════════════════════ --}}
+    @if ($isAkademik)
       <li class="nav-heading">Akademik</li>
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#nilai-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-journal-check"></i><span>Nilai</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="nilai-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Input Nilai</span></a>
-          </li>
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Rekap Nilai</span></a>
-          </li>
-        </ul>
-      </li><!-- End Nilai Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#absensi-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-calendar-check"></i><span>Kehadiran</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="absensi-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Input Kehadiran</span></a>
-          </li>
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Rekap Kehadiran</span></a>
-          </li>
-        </ul>
-      </li><!-- End Kehadiran Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#mapel-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-book"></i><span>Mata Pelajaran</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="mapel-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Daftar Mapel</span></a>
-          </li>
-        </ul>
-      </li><!-- End Mata Pelajaran Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#ekskul-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-trophy"></i><span>Ekstrakurikuler</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="ekskul-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Daftar Ekskul</span></a>
-          </li>
-        </ul>
-      </li><!-- End Ekskul Nav -->
+      {{-- Mata Pelajaran: admin & kepala sekolah (view) --}}
+      @if ($isManajemen)
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}"
+             data-bs-target="#mapel-nav" data-bs-toggle="collapse" href="#">
+            <i class="bi bi-book"></i>
+            <span>Mata Pelajaran</span>
+            <i class="bi bi-chevron-down ms-auto"></i>
+          </a>
+          <ul id="mapel-nav"
+              class="nav-content collapse {{ request()->routeIs('matapelajaran.*') ? 'show' : '' }}"
+              data-bs-parent="#sidebar-nav">
+            <li>
+              <a href="#" class="{{ request()->routeIs('matapelajaran.index') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Daftar Mapel</span>
+              </a>
+            </li>
+            @if ($isAdmin)
+              <li>
+                <a href="#" class="{{ request()->routeIs('matapelajaran.create') ? 'active' : '' }}">
+                  <i class="bi bi-circle"></i><span>Tambah Mapel</span>
+                </a>
+              </li>
+            @endif
+          </ul>
+        </li>
       @endif
 
-      {{-- Siswa & Orang Tua --}}
-      @if(in_array(Auth::user()->roles ?? '', ['siswa', 'orang tua']))
-      <li class="nav-heading">Akademik Saya</li>
-
+      {{-- Nilai --}}
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#">
+        <a class="nav-link {{ request()->routeIs('nilai.*') ? '' : 'collapsed' }}"
+           data-bs-target="#nilai-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-journal-check"></i>
-          <span>Nilai Saya</span>
+          <span>Nilai</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
+        <ul id="nilai-nav"
+            class="nav-content collapse {{ request()->routeIs('nilai.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          @if (in_array($role, ['admin', 'guru', 'wali kelas']))
+            <li>
+              <a href="#" class="{{ request()->routeIs('nilai.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Input Nilai</span>
+              </a>
+            </li>
+          @endif
+          <li>
+            <a href="#" class="{{ request()->routeIs('nilai.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Rekap Nilai</span>
+            </a>
+          </li>
+        </ul>
       </li>
 
+      {{-- Kehadiran --}}
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#">
+        <a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}"
+           data-bs-target="#kehadiran-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-calendar-check"></i>
-          <span>Kehadiran Saya</span>
+          <span>Kehadiran</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="kehadiran-nav"
+            class="nav-content collapse {{ request()->routeIs('kehadiran.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          @if (in_array($role, ['admin', 'guru', 'wali kelas']))
+            <li>
+              <a href="#" class="{{ request()->routeIs('kehadiran.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Input Kehadiran</span>
+              </a>
+            </li>
+          @endif
+          <li>
+            <a href="#" class="{{ request()->routeIs('kehadiran.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Rekap Kehadiran</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      {{-- Catatan Siswa: guru & wali kelas --}}
+      @if (in_array($role, ['admin', 'guru', 'wali kelas']))
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}"
+             data-bs-target="#catatan-nav" data-bs-toggle="collapse" href="#">
+            <i class="bi bi-chat-square-text"></i>
+            <span>Catatan Siswa</span>
+            <i class="bi bi-chevron-down ms-auto"></i>
+          </a>
+          <ul id="catatan-nav"
+              class="nav-content collapse {{ request()->routeIs('catatansiswa.*') ? 'show' : '' }}"
+              data-bs-parent="#sidebar-nav">
+            <li>
+              <a href="#" class="{{ request()->routeIs('catatansiswa.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Buat Catatan</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="{{ request()->routeIs('catatansiswa.index') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Daftar Catatan</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      @endif
+
+      {{-- Ekstrakurikuler --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}"
+           data-bs-target="#ekskul-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-trophy"></i>
+          <span>Ekstrakurikuler</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="ekskul-nav"
+            class="nav-content collapse {{ request()->routeIs('ekstrakurikuler.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="#" class="{{ request()->routeIs('ekstrakurikuler.index') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Daftar Ekskul</span>
+            </a>
+          </li>
+          @if ($isAdmin)
+            <li>
+              <a href="#" class="{{ request()->routeIs('ekstrakurikuler.create') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Tambah Ekskul</span>
+              </a>
+            </li>
+          @endif
+        </ul>
+      </li>
+
+    @endif {{-- end isAkademik --}}
+
+
+    {{-- ═══════════════════════════════
+         AKADEMIK SAYA
+         Hanya: siswa, orang tua
+    ═══════════════════════════════ --}}
+    @if ($isPersonal)
+      <li class="nav-heading">
+        {{ $isSiswa ? 'Akademik Saya' : 'Akademik Anak' }}
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('nilai-saya.*') ? '' : 'collapsed' }}" href="#">
+          <i class="bi bi-journal-check"></i>
+          <span>{{ $isSiswa ? 'Nilai Saya' : 'Nilai Anak' }}</span>
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#">
+        <a class="nav-link {{ request()->routeIs('kehadiran-saya.*') ? '' : 'collapsed' }}" href="#">
+          <i class="bi bi-calendar-check"></i>
+          <span>{{ $isSiswa ? 'Kehadiran Saya' : 'Kehadiran Anak' }}</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('catatan-saya.*') ? '' : 'collapsed' }}" href="#">
+          <i class="bi bi-chat-square-text"></i>
+          <span>{{ $isSiswa ? 'Catatan Saya' : 'Catatan Anak' }}</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('ekskul-saya.*') ? '' : 'collapsed' }}" href="#">
           <i class="bi bi-trophy"></i>
           <span>Ekstrakurikuler</span>
         </a>
       </li>
-      @endif
 
-      <!-- Pengumuman - semua role -->
-      <li class="nav-heading">Informasi</li>
+    @endif {{-- end isPersonal --}}
 
+
+    {{-- ═══════════════════════════════
+         INFORMASI (semua role)
+    ═══════════════════════════════ --}}
+    <li class="nav-heading">Informasi</li>
+
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="#">
+        <i class="bi bi-megaphone"></i>
+        <span>Pengumuman</span>
+      </a>
+    </li>
+
+    {{-- Tahun Ajaran & Semester: hanya admin & kepala sekolah --}}
+    @if ($isManajemen)
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#">
-          <i class="bi bi-megaphone"></i>
-          <span>Pengumuman</span>
+        <a class="nav-link {{ request()->routeIs('tahunajaran.*', 'semester.*') ? '' : 'collapsed' }}"
+           data-bs-target="#tahun-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-calendar3"></i>
+          <span>Tahun Ajaran</span>
+          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#tahun-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-calendar3"></i><span>Tahun Ajaran</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="tahun-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <ul id="tahun-nav"
+            class="nav-content collapse {{ request()->routeIs('tahunajaran.*', 'semester.*') ? 'show' : '' }}"
+            data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Semester</span></a>
+            <a href="#" class="{{ request()->routeIs('tahunajaran.*') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Tahun Ajaran</span>
+            </a>
           </li>
           <li>
-            <a href="#"><i class="bi bi-circle"></i><span>Tahun Ajaran</span></a>
+            <a href="#" class="{{ request()->routeIs('semester.*') ? 'active' : '' }}">
+              <i class="bi bi-circle"></i><span>Semester</span>
+            </a>
           </li>
         </ul>
       </li>
+    @endif
 
-      <!-- Keluar -->
-      <li class="nav-heading">Akun</li>
 
-      <li class="nav-item">
-        <form method="POST" action="{{ route('logout') }}" id="sidebarLogout">
-          @csrf
-          <a class="nav-link collapsed" href="#"
-             onclick="event.preventDefault(); document.getElementById('sidebarLogout').submit();">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Keluar</span>
-          </a>
-        </form>
-      </li>
+    {{-- ═══════════════════════════════
+         AKUN (semua role)
+    ═══════════════════════════════ --}}
+    <li class="nav-heading">Akun</li>
 
-    </ul>
+    <li class="nav-item">
+      <form method="POST" action="{{ route('logout') }}" id="sidebarLogout">
+        @csrf
+        <a class="nav-link collapsed" href="#"
+           onclick="event.preventDefault(); document.getElementById('sidebarLogout').submit();">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Keluar</span>
+        </a>
+      </form>
+    </li>
 
-  </aside><!-- End Sidebar -->
+  </ul>
+
+</aside>{{-- End Sidebar --}}

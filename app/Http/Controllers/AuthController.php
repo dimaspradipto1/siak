@@ -16,6 +16,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
+
         return view('layouts.auth.login');
     }
 
@@ -30,14 +31,19 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->route('dashboard')
-                ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
+
+            $nama = Auth::user()->name;
+            $role = ucwords(Auth::user()->roles);
+
+            toast('Selamat datang, ' . $nama . '! Anda login sebagai ' . $role . '.', 'success');
+
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()
             ->withInput($request->only('email'))
             ->withErrors([
-                'email' => 'Email atau password salah.',
+                'email' => 'Email atau password yang Anda masukkan salah.',
             ]);
     }
 
@@ -49,7 +55,9 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login')
-            ->with('success', 'Anda berhasil logout.');
+
+        toast('Anda berhasil keluar dari sistem. Sampai jumpa!', 'info');
+
+        return redirect()->route('login');
     }
 }
