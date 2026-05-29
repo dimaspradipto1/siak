@@ -10,22 +10,33 @@ use Symfony\Component\HttpFoundation\Response;
 class Checkrole
 {
     /**
+     * Daftar role yang diizinkan mengakses sistem.
+     */
+    protected array $allowedRoles = [
+        'admin',
+        'guru',
+        'wali kelas',
+        'kepala sekolah',
+        'siswa',
+        'orang tua',
+    ];
+
+    /**
      * Handle an incoming request.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (
-            Auth::user()->roles == 'admin' ||
-            Auth::user()->roles == 'guru' ||
-            Auth::user()->roles == 'wali kelas' ||
-            Auth::user()->roles == 'kepala sekolah' ||
-            Auth::user()->roles == 'siswa' ||
-            Auth::user()->roles == 'orang tua'
-        ) {
-            return $next($request);
+        if (!Auth::check()) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Silakan login terlebih dahulu.']);
         }
+
+        if (!in_array(Auth::user()->roles, $this->allowedRoles)) {
+            abort(403, 'Akses ditolak. Role Anda tidak memiliki izin.');
+        }
+
         return $next($request);
     }
 }
