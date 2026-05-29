@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\DataTables\UserDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -14,11 +15,9 @@ class UserController extends Controller
     /**
      * Tampilkan daftar pengguna (DataTables).
      */
-    public function index()
+    public function index(UserDataTable $dataTable)
     {
-        $users = User::latest()->get();
-
-        return view('pages.user.index', compact('users'));
+        return $dataTable->render('pages.user.index');
     }
 
     /**
