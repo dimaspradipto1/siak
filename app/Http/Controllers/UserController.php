@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     /**
      * Tampilkan daftar pengguna (DataTables).
      */

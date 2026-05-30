@@ -38,11 +38,13 @@ class OrangTua extends Model
 
         static::created(function ($orangTua) {
             if (!$orangTua->user_id) {
-                $username = $orangTua->nomor_wa ?: 'ortu_' . $orangTua->id;
+                $rawUsername = $orangTua->nomor_wa ?: 'ortu_' . $orangTua->id;
+                $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($rawUsername));
+                
                 $user = User::create([
                     'name' => 'Ortu dari ' . ($orangTua->nama_ayah ?? 'Siswa'),
                     'username' => $username,
-                    'email' => $username . '@ortu.siak.com',
+                    'email' => $username . '@gmail.com',
                     'password' => \Illuminate\Support\Facades\Hash::make('password'),
                     'roles' => 'orang tua',
                     'is_active' => true,

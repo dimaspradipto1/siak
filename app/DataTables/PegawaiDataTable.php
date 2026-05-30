@@ -28,6 +28,7 @@ class PegawaiDataTable extends DataTable
                 return $pegawai->nomor_wa ?: '-';
             })
             ->addColumn('action', function($pegawai) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('pegawai.edit', $pegawai->id) . '" class="btn btn-warning btn-sm" title="Edit">

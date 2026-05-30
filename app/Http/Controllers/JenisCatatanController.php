@@ -9,6 +9,7 @@ use App\DataTables\JenisCatatanDataTable;
 
 class JenisCatatanController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(JenisCatatanDataTable $dataTable)
     {
         return $dataTable->render('pages.jenis-catatan.index');

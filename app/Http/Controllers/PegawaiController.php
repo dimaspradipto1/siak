@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class PegawaiController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     /**
      * Tampilkan daftar pegawai (DataTables).
      */

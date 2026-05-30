@@ -32,6 +32,7 @@ class CatatanSiswaDataTable extends DataTable
                 return $c->guru && $c->guru->pegawai ? $c->guru->pegawai->nama_pegawai : '-';
             })
             ->addColumn('action', function ($c) {
+                if (in_array(auth()->user()->roles, ['siswa', 'orang tua'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('catatansiswa.edit', $c->id) . '" class="btn btn-warning btn-sm" title="Edit">

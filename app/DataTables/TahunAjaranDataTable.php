@@ -31,6 +31,7 @@ class TahunAjaranDataTable extends DataTable
                 return $badge;
             })
             ->addColumn('action', function ($tahunAjaran) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('tahun-ajaran.edit', $tahunAjaran->id) . '" class="btn btn-warning btn-sm" title="Edit">

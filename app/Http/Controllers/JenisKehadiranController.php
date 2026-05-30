@@ -9,6 +9,7 @@ use App\DataTables\JenisKehadiranDataTable;
 
 class JenisKehadiranController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(JenisKehadiranDataTable $dataTable)
     {
         return $dataTable->render('pages.jenis-kehadiran.index');

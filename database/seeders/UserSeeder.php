@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Guru',
+                'name'      => 'Budi Santoso, S.Pd.',
                 'email'     => 'guru@gmail.com',
                 'password'  => Hash::make('guru1234'),
                 'roles'     => 'guru',
@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Wali Kelas',
+                'name'      => 'Siti Aminah, S.Pd.',
                 'email'     => 'walikelas@gmail.com',
                 'password'  => Hash::make('walikelas1234'),
                 'roles'     => 'wali kelas',
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Kepala Sekolah',
+                'name'      => 'Drs. H. Rahmat Hidayat, M.Pd.',
                 'email'     => 'kepsek@gmail.com',
                 'password'  => Hash::make('kepsek1234'),
                 'roles'     => 'kepala sekolah',
@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Siswa',
+                'name'      => 'Ahmad Dani',
                 'email'     => 'siswa@gmail.com',
                 'password'  => Hash::make('siswa1234'),
                 'roles'     => 'siswa',
@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Orang Tua',
+                'name'      => 'Suparman',
                 'email'     => 'orangtua@gmail.com',
                 'password'  => Hash::make('orangtua1234'),
                 'roles'     => 'orang tua',

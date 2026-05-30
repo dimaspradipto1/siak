@@ -10,6 +10,7 @@ use App\DataTables\PengumumanDataTable;
 
 class PengumumanController extends Controller
 {
+    use \App\Traits\AuthorizeTransactionData;
     public function index(PengumumanDataTable $dataTable)
     {
         return $dataTable->render('pages.pengumuman.index');

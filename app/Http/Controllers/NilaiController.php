@@ -10,9 +10,15 @@ use App\Models\TahunAjaran;
 use App\Http\Requests\StoreNilaiRequest;
 use App\Http\Requests\UpdateNilaiRequest;
 use App\DataTables\NilaiDataTable;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\NilaiExport;
+use App\Imports\NilaiImport;
+use App\Exports\NilaiTemplateExport;
 
 class NilaiController extends Controller
 {
+    use \App\Traits\AuthorizeTransactionData;
     public function index(NilaiDataTable $dataTable)
     {
         return $dataTable->render('pages.nilai.index');
@@ -20,7 +26,7 @@ class NilaiController extends Controller
 
     public function create()
     {
-        $siswas = Siswa::with('kelas')->get();
+        $siswas = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $mapels = MataPelajaran::all();
         $semesters = Semester::all();
         $tahunAjarans = TahunAjaran::all();
@@ -47,7 +53,7 @@ class NilaiController extends Controller
 
     public function edit(Nilai $nilai)
     {
-        $siswas = Siswa::with('kelas')->get();
+        $siswas = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $mapels = MataPelajaran::all();
         $semesters = Semester::all();
         $tahunAjarans = TahunAjaran::all();
@@ -77,5 +83,31 @@ class NilaiController extends Controller
         );
 
         return redirect()->route('nilai.index');
+    }
+
+    public function export()
+    {
+        return Excel::download(new NilaiExport, 'Data_Nilai_' . date('Y-m-d') . '.xlsx');
+    }
+
+    public function template()
+    {
+        return Excel::download(new NilaiTemplateExport, 'Template_Import_Nilai.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|mimes:csv,xls,xlsx'
+        ]);
+
+        try {
+            Excel::import(new NilaiImport, $request->file('file_excel'));
+            alert()->success('Berhasil!', 'Data Nilai berhasil diimpor.');
+        } catch (\Exception $e) {
+            alert()->error('Gagal!', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+
+        return back();
     }
 }

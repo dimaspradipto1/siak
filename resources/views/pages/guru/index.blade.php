@@ -18,6 +18,7 @@
                     <div class="card-body pt-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="card-title mb-0">Daftar Guru</h5>
+                            @if(in_array(auth()->user()->roles, ['admin', 'kepala sekolah']))
                             <div class="d-flex gap-2">
                                 <a href="{{ route('guru.template') }}" class="btn btn-secondary btn-sm" title="Download Template Import">
                                     <i class="bi bi-download"></i> Template
@@ -32,6 +33,7 @@
                                     <i class="bi bi-plus-circle-fill"></i> Tambah Data
                                 </a>
                             </div>
+                            @endif
                         </div>
                         <div class="table-responsive">
                             {{ $dataTable->table(['class' => 'table table-bordered table-hover align-middle', 'style' => 'width:100%']) }}

@@ -20,9 +20,11 @@
                     <div class="card-body pt-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="card-title mb-0">Daftar Semester</h5>
+                            @if(in_array(auth()->user()->roles, ['admin', 'kepala sekolah']))
                             <a href="{{ route('semester.create') }}" class="btn btn-primary btn-sm">
                                 <i class="bi bi-plus-circle-fill"></i> Tambah Semester
                             </a>
+                            @endif
                         </div>
                         <div class="table-responsive">
                             {{ $dataTable->table(['class' => 'table table-bordered table-hover align-middle', 'style' => 'width:100%']) }}

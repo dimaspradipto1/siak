@@ -29,6 +29,7 @@ class SiswaDataTable extends DataTable
                 return $siswa->ekstrakurikuler ? $siswa->ekstrakurikuler->nama_ekskul : '-';
             })
             ->addColumn('action', function ($siswa) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('siswa.edit', $siswa->id) . '" class="btn btn-warning btn-sm" title="Edit">

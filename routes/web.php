@@ -65,6 +65,9 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::resource('matapelajaran', MataPelajaranController::class);
     Route::resource('jeniskehadiran', JenisKehadiranController::class);
     Route::resource('kehadiran', KehadiranController::class);
+    Route::get('nilai/export', [NilaiController::class, 'export'])->name('nilai.export');
+    Route::post('nilai/import', [NilaiController::class, 'import'])->name('nilai.import');
+    Route::get('nilai/template', [NilaiController::class, 'template'])->name('nilai.template');
     Route::resource('nilai', NilaiController::class);
     Route::resource('jeniscatatan', JenisCatatanController::class);
     Route::resource('catatansiswa', CatatanSiswaController::class);

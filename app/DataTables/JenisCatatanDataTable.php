@@ -17,6 +17,7 @@ class JenisCatatanDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->addColumn('action', function ($jenis) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('jeniscatatan.edit', $jenis->id) . '" class="btn btn-warning btn-sm" title="Edit">

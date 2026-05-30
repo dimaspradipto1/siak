@@ -26,7 +26,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="siswa_id" class="form-label fw-semibold">Pilih Siswa <span class="text-danger">*</span></label>
-                                    <select id="siswa_id" name="siswa_id" class="form-select @error('siswa_id') is-invalid @enderror">
+                                    <select id="siswa_id" name="siswa_id" class="form-select select2 @error('siswa_id') is-invalid @enderror">
                                         <option value="" disabled selected>-- Pilih Siswa --</option>
                                         @foreach($siswas as $siswa)
                                             <option value="{{ $siswa->id }}" {{ old('siswa_id') == $siswa->id ? 'selected' : '' }}>{{ $siswa->nama_siswa }} ({{ $siswa->kelas->nama_kelas ?? '-' }})</option>
@@ -36,7 +36,7 @@
                                 </div>
                                 <div class="col-md-6 mt-3 mt-md-0">
                                     <label for="mata_pelajaran_id" class="form-label fw-semibold">Mata Pelajaran <span class="text-danger">*</span></label>
-                                    <select id="mata_pelajaran_id" name="mata_pelajaran_id" class="form-select @error('mata_pelajaran_id') is-invalid @enderror">
+                                    <select id="mata_pelajaran_id" name="mata_pelajaran_id" class="form-select select2 @error('mata_pelajaran_id') is-invalid @enderror">
                                         <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
                                         @foreach($mapels as $mapel)
                                             <option value="{{ $mapel->id }}" {{ old('mata_pelajaran_id') == $mapel->id ? 'selected' : '' }}>{{ $mapel->nama_mata_pelajaran }}</option>

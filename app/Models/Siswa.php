@@ -47,10 +47,11 @@ class Siswa extends Model
 
         static::created(function ($siswa) {
             if (!$siswa->user_id) {
+                $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($siswa->nisn));
                 $user = User::create([
                     'name' => $siswa->nama_siswa,
-                    'username' => $siswa->nisn,
-                    'email' => $siswa->nisn . '@siswa.siak.com',
+                    'username' => $username,
+                    'email' => $username . '@gmail.com',
                     'password' => \Illuminate\Support\Facades\Hash::make('password'),
                     'roles' => 'siswa',
                     'is_active' => true,

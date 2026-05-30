@@ -17,6 +17,7 @@ class OrangTuaDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->addColumn('action', function ($orangTua) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('orang-tua.edit', $orangTua->id) . '" class="btn btn-warning btn-sm" title="Edit">

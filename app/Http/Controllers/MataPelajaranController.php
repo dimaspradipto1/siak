@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class MataPelajaranController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(MataPelajaranDataTable $dataTable)
     {
         return $dataTable->render('pages.mata-pelajaran.index');

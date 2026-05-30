@@ -31,6 +31,7 @@ class SemesterDataTable extends DataTable
                 return $badge;
             })
             ->addColumn('action', function ($semester) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('semester.edit', $semester->id) . '" class="btn btn-warning btn-sm" title="Edit">

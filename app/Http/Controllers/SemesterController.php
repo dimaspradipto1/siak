@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 class SemesterController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     /**
      * Tampilkan daftar semester (DataTables).
      */

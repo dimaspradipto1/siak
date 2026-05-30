@@ -9,6 +9,7 @@ use App\DataTables\EkstrakurikulerDataTable;
 
 class EkstrakurikulerController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(EkstrakurikulerDataTable $dataTable)
     {
         return $dataTable->render('pages.ekstrakurikuler.index');

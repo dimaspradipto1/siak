@@ -26,6 +26,7 @@ class WaliKelasDataTable extends DataTable
                 return $waliKelas->tahunAjaran ? $waliKelas->tahunAjaran->nama_tahun_ajaran : '-';
             })
             ->addColumn('action', function ($waliKelas) {
+                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('walikelas.edit', $waliKelas->id) . '" class="btn btn-warning btn-sm" title="Edit">

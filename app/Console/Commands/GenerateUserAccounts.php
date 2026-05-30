@@ -30,10 +30,11 @@ class GenerateUserAccounts extends Command
         // Siswa
         $siswas = \App\Models\Siswa::query()->whereNull('user_id')->get();
         foreach ($siswas as $siswa) {
+            $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($siswa->nisn));
             $user = \App\Models\User::create([
                 'name' => $siswa->nama_siswa,
-                'username' => $siswa->nisn,
-                'email' => $siswa->nisn . '@siswa.siak.com', // fallback email
+                'username' => $username,
+                'email' => $username . '@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'roles' => 'siswa',
                 'is_active' => true,
@@ -46,11 +47,12 @@ class GenerateUserAccounts extends Command
         $pegawais = \App\Models\Pegawai::query()->whereNull('user_id')->get();
         foreach ($pegawais as $pegawai) {
             $role = $pegawai->guru ? 'guru' : 'pegawai'; // Simplification
-            $username = $pegawai->nip ?: 'pegawai_' . $pegawai->id;
+            $rawUsername = $pegawai->nip ?: 'pegawai_' . $pegawai->id;
+            $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($rawUsername));
             $user = \App\Models\User::create([
                 'name' => $pegawai->nama_pegawai,
                 'username' => $username,
-                'email' => $username . '@siak.com',
+                'email' => $username . '@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'roles' => $role,
                 'is_active' => true,
@@ -62,11 +64,12 @@ class GenerateUserAccounts extends Command
         // Orang Tua
         $orangTuas = \App\Models\OrangTua::query()->whereNull('user_id')->get();
         foreach ($orangTuas as $ot) {
-            $username = $ot->nomor_wa ?: 'ortu_' . $ot->id;
+            $rawUsername = $ot->nomor_wa ?: 'ortu_' . $ot->id;
+            $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($rawUsername));
             $user = \App\Models\User::create([
                 'name' => 'Ortu dari ' . ($ot->siswa->first()->nama_siswa ?? 'Siswa'),
                 'username' => $username,
-                'email' => $username . '@ortu.siak.com',
+                'email' => $username . '@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'roles' => 'orang tua',
                 'is_active' => true,

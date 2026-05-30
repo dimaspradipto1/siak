@@ -9,6 +9,7 @@ use App\DataTables\OrangTuaDataTable;
 
 class OrangTuaController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(OrangTuaDataTable $dataTable)
     {
         return $dataTable->render('pages.orang-tua.index');

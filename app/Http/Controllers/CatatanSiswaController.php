@@ -14,6 +14,7 @@ use App\DataTables\CatatanSiswaDataTable;
 
 class CatatanSiswaController extends Controller
 {
+    use \App\Traits\AuthorizeTransactionData;
     public function index(CatatanSiswaDataTable $dataTable)
     {
         return $dataTable->render('pages.catatan-siswa.index');

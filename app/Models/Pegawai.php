@@ -67,11 +67,13 @@ class Pegawai extends Model
 
         static::created(function ($pegawai) {
             if (!$pegawai->user_id) {
-                $username = $pegawai->nip ?: 'pegawai_' . $pegawai->id;
+                $rawUsername = $pegawai->nip ?: 'pegawai_' . $pegawai->id;
+                $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($rawUsername));
+                
                 $user = User::create([
                     'name' => $pegawai->nama_pegawai,
                     'username' => $username,
-                    'email' => $username . '@siak.com',
+                    'email' => $username . '@gmail.com',
                     'password' => \Illuminate\Support\Facades\Hash::make('password'),
                     'roles' => 'pegawai', // Default, can be updated later if they become a Guru
                     'is_active' => true,

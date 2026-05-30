@@ -9,6 +9,7 @@ use App\DataTables\KelasDataTable;
 
 class KelasController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(KelasDataTable $dataTable)
     {
         return $dataTable->render('pages.kelas.index');

@@ -12,6 +12,7 @@ use App\DataTables\WaliKelasDataTable;
 
 class WaliKelasController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(WaliKelasDataTable $dataTable)
     {
         return $dataTable->render('pages.wali-kelas.index');

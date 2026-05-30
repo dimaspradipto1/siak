@@ -12,6 +12,7 @@ use App\DataTables\KehadiranDataTable;
 
 class KehadiranController extends Controller
 {
+    use \App\Traits\AuthorizeTransactionData;
     public function index(KehadiranDataTable $dataTable)
     {
         return $dataTable->render('pages.kehadiran.index');
@@ -19,7 +20,7 @@ class KehadiranController extends Controller
 
     public function create()
     {
-        $siswas = Siswa::with('kelas')->get();
+        $siswas = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $mapels = MataPelajaran::all();
         $jenisKehadirans = JenisKehadiran::all();
         return view('pages.kehadiran.create', compact('siswas', 'mapels', 'jenisKehadirans'));
@@ -45,7 +46,7 @@ class KehadiranController extends Controller
 
     public function edit(Kehadiran $kehadiran)
     {
-        $siswas = Siswa::with('kelas')->get();
+        $siswas = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
         $mapels = MataPelajaran::all();
         $jenisKehadirans = JenisKehadiran::all();
         return view('pages.kehadiran.edit', compact('kehadiran', 'siswas', 'mapels', 'jenisKehadirans'));

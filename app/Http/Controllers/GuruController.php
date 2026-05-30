@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 class GuruController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     /**
      * Tampilkan daftar guru (DataTables).
      */

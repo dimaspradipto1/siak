@@ -27,6 +27,7 @@ class PengumumanDataTable extends DataTable
                 return \Carbon\Carbon::parse($p->created_at)->locale('id')->translatedFormat('l, d F Y');
             })
             ->addColumn('action', function ($p) {
+                if (in_array(auth()->user()->roles, ['siswa', 'orang tua'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('pengumuman.edit', $p->id) . '" class="btn btn-warning btn-sm" title="Edit">

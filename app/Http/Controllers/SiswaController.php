@@ -9,9 +9,15 @@ use App\Models\Ekstrakurikuler;
 use App\Http\Requests\StoreSiswaRequest;
 use App\Http\Requests\UpdateSiswaRequest;
 use App\DataTables\SiswaDataTable;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SiswaExport;
+use App\Imports\SiswaImport;
+use App\Exports\SiswaTemplateExport;
 
 class SiswaController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     public function index(SiswaDataTable $dataTable)
     {
         return $dataTable->render('pages.siswa.index');

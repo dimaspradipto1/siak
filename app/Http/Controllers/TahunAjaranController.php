@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class TahunAjaranController extends Controller
 {
+    use \App\Traits\AuthorizeMasterData;
     /**
      * Tampilkan daftar tahun ajaran (DataTables).
      */
