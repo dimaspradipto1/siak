@@ -24,12 +24,20 @@ class AuthController extends Controller
      * Proses login pengguna.
      * Validasi ditangani otomatis oleh LoginRequest.
      */
-    public function loginProses(LoginRequest $request)
+    public function loginProses(\Illuminate\Http\Request $request)
     {
-        $credentials = $request->only('email', 'password');
-        $remember    = $request->boolean('remember');
+        $request->validate([
+            'login' => 'required',
+            'password' => 'required',
+        ]);
 
-        if (Auth::attempt($credentials, $remember)) {
+        $login = $request->input('login');
+        $password = $request->input('password');
+        $remember = $request->boolean('remember');
+
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$fieldType => $login, 'password' => $password], $remember)) {
             $request->session()->regenerate();
 
             $nama = Auth::user()->name;
@@ -41,9 +49,9 @@ class AuthController extends Controller
         }
 
         return back()
-            ->withInput($request->only('email'))
+            ->withInput($request->only('login'))
             ->withErrors([
-                'email' => 'Email atau password yang Anda masukkan salah.',
+                'login' => 'Email/Username atau password yang Anda masukkan salah.',
             ]);
     }
 

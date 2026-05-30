@@ -57,13 +57,22 @@ class CatatanSiswaDataTable extends DataTable
         $user = auth()->user();
         if ($user && $user->roles === 'siswa') {
             $query->whereHas('siswa', function($q) use ($user) {
-                $q->where('nisn', $user->username);
+                $q->where('user_id', $user->id);
             });
         } elseif ($user && $user->roles === 'orang tua') {
             $query->whereHas('siswa.orangTua', function($q) use ($user) {
                 $q->where('user_id', $user->id);
             });
+        } elseif ($user && in_array($user->roles, ['guru', 'wali kelas'])) {
+            $guruId = $user->pegawai->guru->id ?? null;
+            if ($guruId) {
+                $kelasIds = \App\Models\WaliKelas::where('guru_id', $guruId)->pluck('kelas_id');
+                $query->whereHas('siswa', function($q) use ($kelasIds) {
+                    $q->whereIn('kelas_id', $kelasIds);
+                });
+            }
         }
+
         return $query;
     }
 

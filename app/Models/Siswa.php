@@ -14,6 +14,7 @@ class Siswa extends Model
     protected $table = 'siswas';
 
     protected $fillable = [
+        'user_id',
         'orang_tua_id',
         'kelas_id',
         'ekstrakurikuler_id',
@@ -30,9 +31,34 @@ class Siswa extends Model
         'foto',
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function orangTua(): BelongsTo
     {
         return $this->belongsTo(OrangTua::class, 'orang_tua_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($siswa) {
+            if (!$siswa->user_id) {
+                $user = User::create([
+                    'name' => $siswa->nama_siswa,
+                    'username' => $siswa->nisn,
+                    'email' => $siswa->nisn . '@siswa.siak.com',
+                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'roles' => 'siswa',
+                    'is_active' => true,
+                ]);
+                $siswa->user_id = $user->id;
+                $siswa->saveQuietly();
+            }
+        });
     }
 
     public function kelas(): BelongsTo

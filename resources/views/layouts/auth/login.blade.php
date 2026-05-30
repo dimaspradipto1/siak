@@ -404,23 +404,23 @@
             <form id="loginForm" method="POST" action="{{ route('loginProses') }}" novalidate>
                 @csrf
 
-                <!-- Email -->
+                <!-- Username/Email -->
                 <div class="form-group">
-                    <label for="email">Alamat Email</label>
+                    <label for="login">Email atau Username</label>
                     <div class="input-wrapper">
                         <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            class="form-control @error('email') is-invalid @enderror"
-                            value="{{ old('email') }}"
-                            placeholder="nama@sekolah.sch.id"
-                            autocomplete="email"
+                            type="text"
+                            id="login"
+                            name="login"
+                            class="form-control @error('login') is-invalid @enderror"
+                            value="{{ old('login') }}"
+                            placeholder="Email atau Username"
+                            autocomplete="username"
                             required
                         >
-                        <i class="bi bi-envelope input-icon"></i>
+                        <i class="bi bi-person input-icon"></i>
                     </div>
-                    @error('email')
+                    @error('login')
                         <div class="error-text"><i class="bi bi-exclamation-circle"></i> {{ $message }}</div>
                     @enderror
                 </div>
