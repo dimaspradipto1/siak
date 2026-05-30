@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Guru extends Model
 {
@@ -38,9 +39,17 @@ class Guru extends Model
     }
 
     /**
+     * Hubungan HasMany dengan model CatatanSiswa.
+     */
+    public function catatanSiswa(): HasMany
+    {
+        return $this->hasMany(CatatanSiswa::class, 'guru_id');
+    }
+
+    /**
      * Hubungan HasMany dengan model WaliKelas.
      */
-    public function waliKelas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function waliKelas(): HasMany
     {
         return $this->hasMany(WaliKelas::class, 'guru_id');
     }

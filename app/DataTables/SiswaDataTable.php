@@ -16,6 +16,9 @@ class SiswaDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
+            ->editColumn('tanggal_lahir', function($siswa) {
+                return $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->locale('id')->translatedFormat('d F Y') : '-';
+            })
             ->addColumn('kelas_nama', function ($siswa) {
                 return $siswa->kelas ? $siswa->kelas->nama_kelas : '-';
             })
@@ -81,7 +84,7 @@ class SiswaDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
+                  ->addClass('text-start'),
         ];
     }
 

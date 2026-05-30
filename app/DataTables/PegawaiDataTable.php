@@ -22,7 +22,7 @@ class PegawaiDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->editColumn('tgl_lahir', function($pegawai) {
-                return $pegawai->tgl_lahir ? $pegawai->tgl_lahir->format('d-m-Y') : '-';
+                return $pegawai->tgl_lahir ? \Carbon\Carbon::parse($pegawai->tgl_lahir)->locale('id')->translatedFormat('d F Y') : '-';
             })
             ->editColumn('nomor_wa', function($pegawai) {
                 return $pegawai->nomor_wa ?: '-';
@@ -92,7 +92,7 @@ class PegawaiDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
+                  ->addClass('text-start'),
         ];
     }
 

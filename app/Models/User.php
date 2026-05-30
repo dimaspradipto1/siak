@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -47,6 +49,16 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function guru(): HasOne
+    {
+        return $this->hasOne(Guru::class);
+    }
+
+    public function pengumuman(): HasMany
+    {
+        return $this->hasMany(Pengumuman::class, 'user_id');
+    }
 
     /**
      * Get the attributes that should be cast.

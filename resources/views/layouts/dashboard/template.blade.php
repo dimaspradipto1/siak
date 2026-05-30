@@ -32,10 +32,20 @@
   {{-- SweetAlert2 CSS --}}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+  {{-- Select2 CSS --}}
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
   <!-- Template Main CSS File -->
   <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
 
-  
+  <style>
+    /* Override DataTables default alignments */
+    table.dataTable th,
+    table.dataTable td {
+        text-align: left !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -75,6 +85,16 @@
 
   {{-- SweetAlert Flash Messages via realrashid/sweet-alert --}}
   @include('sweetalert::alert')
+
+  {{-- Select2 JS --}}
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          $('.select2').select2({
+              theme: 'bootstrap-5'
+          });
+      });
+  </script>
 
   @stack('script')
   

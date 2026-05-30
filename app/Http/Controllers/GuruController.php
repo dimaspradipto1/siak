@@ -94,6 +94,34 @@ class GuruController extends Controller
     /**
      * Hapus data guru dari database.
      */
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GuruExport, 'Data_Guru_'.date('Ymd').'.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\GuruImport, $request->file('file'));
+
+        alert()->success('Berhasil!', 'Data Guru berhasil diimport.');
+        return redirect()->route('guru.index');
+    }
+
+    public function template()
+    {
+        $headers = [['NIP Pegawai', 'NIP Guru', 'Golongan', 'Pendidikan Terakhir']];
+        $export = new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
+            protected $data;
+            public function __construct(array $data) { $this->data = $data; }
+            public function array(): array { return $this->data; }
+        };
+        return \Maatwebsite\Excel\Facades\Excel::download($export, 'Template_Import_Guru.xlsx');
+    }
+
     public function destroy(Guru $guru)
     {
         $nama = $guru->pegawai ? $guru->pegawai->nama_pegawai : $guru->nip_guru;

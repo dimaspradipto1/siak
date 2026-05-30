@@ -16,6 +16,9 @@ class KehadiranDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
+            ->editColumn('tanggal', function ($k) {
+                return \Carbon\Carbon::parse($k->tanggal)->locale('id')->translatedFormat('l, d F Y');
+            })
             ->addColumn('siswa', function ($k) {
                 return $k->siswa ? $k->siswa->nama_siswa : '-';
             })
@@ -50,7 +53,18 @@ class KehadiranDataTable extends DataTable
 
     public function query(Kehadiran $model): QueryBuilder
     {
-        return $model->newQuery()->with(['siswa.kelas', 'mataPelajaran', 'jenisKehadiran']);
+        $query = $model->newQuery()->with(['siswa.kelas', 'mataPelajaran', 'jenisKehadiran']);
+        $user = auth()->user();
+        if ($user && $user->roles === 'siswa') {
+            $query->whereHas('siswa', function($q) use ($user) {
+                $q->where('nisn', $user->username);
+            });
+        } elseif ($user && $user->roles === 'orang tua') {
+            $query->whereHas('siswa.orangTua', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+        return $query;
     }
 
     public function html(): HtmlBuilder
@@ -73,7 +87,7 @@ class KehadiranDataTable extends DataTable
 
     public function getColumns(): array
     {
-        return [
+        $columns = [
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
             Column::make('tanggal')->title('Tanggal'),
             Column::make('siswa')->title('Siswa')->searchable(false)->orderable(false),
@@ -81,12 +95,17 @@ class KehadiranDataTable extends DataTable
             Column::make('mapel')->title('Mata Pelajaran')->searchable(false)->orderable(false),
             Column::make('status')->title('Status Kehadiran')->searchable(false)->orderable(false),
             Column::make('keterangan')->title('Keterangan'),
-            Column::computed('action')
+        ];
+
+        if (!in_array(auth()->user()->roles, ['siswa', 'orang tua'])) {
+            $columns[] = Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
-        ];
+                  ->addClass('text-start');
+        }
+
+        return $columns;
     }
 
     protected function filename(): string

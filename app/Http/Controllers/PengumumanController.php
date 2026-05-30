@@ -3,63 +3,70 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Http\Requests\StorePengumumanRequest;
+use App\Http\Requests\UpdatePengumumanRequest;
+use App\DataTables\PengumumanDataTable;
 
 class PengumumanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(PengumumanDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.pengumuman.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $users = User::all();
+        return view('pages.pengumuman.create', compact('users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StorePengumumanRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $validated['user_id'] = auth()->id(); // assign to current user
+        $pengumuman = Pengumuman::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Pengumuman berhasil dipublikasikan.'
+        );
+
+        return redirect()->route('pengumuman.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Pengumuman $pengumuman)
     {
-        //
+        return redirect()->route('pengumuman.edit', $pengumuman);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Pengumuman $pengumuman)
     {
-        //
+        return view('pages.pengumuman.edit', compact('pengumuman'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Pengumuman $pengumuman)
+    public function update(UpdatePengumumanRequest $request, Pengumuman $pengumuman)
     {
-        //
+        $validated = $request->validated();
+        $pengumuman->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Pengumuman berhasil diperbarui.'
+        );
+
+        return redirect()->route('pengumuman.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Pengumuman $pengumuman)
     {
-        //
+        $pengumuman->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Pengumuman berhasil dihapus.'
+        );
+
+        return redirect()->route('pengumuman.index');
     }
 }

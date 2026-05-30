@@ -3,63 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\JenisCatatan;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreJenisCatatanRequest;
+use App\Http\Requests\UpdateJenisCatatanRequest;
+use App\DataTables\JenisCatatanDataTable;
 
 class JenisCatatanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(JenisCatatanDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.jenis-catatan.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('pages.jenis-catatan.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreJenisCatatanRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $jenis = JenisCatatan::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Jenis Catatan <strong>' . e($jenis->nama_jenis_catatan) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('jeniscatatan.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(JenisCatatan $jenisCatatan)
+    public function show(JenisCatatan $jeniscatatan)
     {
-        //
+        return redirect()->route('jeniscatatan.edit', $jeniscatatan);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(JenisCatatan $jenisCatatan)
+    public function edit(JenisCatatan $jeniscatatan)
     {
-        //
+        return view('pages.jenis-catatan.edit', compact('jeniscatatan'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, JenisCatatan $jenisCatatan)
+    public function update(UpdateJenisCatatanRequest $request, JenisCatatan $jeniscatatan)
     {
-        //
+        $validated = $request->validated();
+        $jeniscatatan->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Jenis Catatan <strong>' . e($jeniscatatan->nama_jenis_catatan) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('jeniscatatan.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(JenisCatatan $jenisCatatan)
+    public function destroy(JenisCatatan $jeniscatatan)
     {
-        //
+        $nama = $jeniscatatan->nama_jenis_catatan;
+        $jeniscatatan->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Jenis Catatan <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('jeniscatatan.index');
     }
 }

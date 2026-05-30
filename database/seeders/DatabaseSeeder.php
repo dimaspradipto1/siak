@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
            JenisKehadiranSeeder::class,
            KehadiranSeeder::class,
            NilaiSeeder::class,
+           JenisCatatanSeeder::class,
+           CatatanSiswaSeeder::class,
+           PengumumanSeeder::class,
        ]);
     }
 }

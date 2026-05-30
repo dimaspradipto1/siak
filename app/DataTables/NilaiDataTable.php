@@ -52,7 +52,18 @@ class NilaiDataTable extends DataTable
 
     public function query(Nilai $model): QueryBuilder
     {
-        return $model->newQuery()->with(['siswa.kelas', 'mataPelajaran', 'semester', 'tahunAjaran']);
+        $query = $model->newQuery()->with(['siswa.kelas', 'mataPelajaran', 'semester', 'tahunAjaran']);
+        $user = auth()->user();
+        if ($user && $user->roles === 'siswa') {
+            $query->whereHas('siswa', function($q) use ($user) {
+                $q->where('nisn', $user->username);
+            });
+        } elseif ($user && $user->roles === 'orang tua') {
+            $query->whereHas('siswa.orangTua', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+        return $query;
     }
 
     public function html(): HtmlBuilder
@@ -75,7 +86,7 @@ class NilaiDataTable extends DataTable
 
     public function getColumns(): array
     {
-        return [
+        $columns = [
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
             Column::make('siswa')->title('Siswa')->searchable(false)->orderable(false),
             Column::make('kelas')->title('Kelas')->searchable(false)->orderable(false),
@@ -83,12 +94,17 @@ class NilaiDataTable extends DataTable
             Column::make('semester_ta')->title('Semester (TA)')->searchable(false)->orderable(false),
             Column::make('nilai')->title('Nilai'),
             Column::make('predikat')->title('Predikat'),
-            Column::computed('action')
+        ];
+
+        if (!in_array(auth()->user()->roles, ['siswa', 'orang tua'])) {
+            $columns[] = Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
-        ];
+                  ->addClass('text-start');
+        }
+
+        return $columns;
     }
 
     protected function filename(): string

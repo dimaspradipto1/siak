@@ -98,12 +98,12 @@ class UserDataTable extends DataTable
             Column::make('name')->title('Nama'),
             Column::make('email')->title('Email'),
             Column::make('roles')->title('Role'),
-            Column::make('is_active')->title('Status')->addClass('text-center'),
+            Column::make('is_active')->title('Status')->addClass('text-start'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
+                  ->addClass('text-start'),
         ];
     }
 

@@ -3,63 +3,82 @@
 namespace App\Http\Controllers;
 
 use App\Models\CatatanSiswa;
-use Illuminate\Http\Request;
+use App\Models\Siswa;
+use App\Models\Guru;
+use App\Models\Semester;
+use App\Models\TahunAjaran;
+use App\Models\JenisCatatan;
+use App\Http\Requests\StoreCatatanSiswaRequest;
+use App\Http\Requests\UpdateCatatanSiswaRequest;
+use App\DataTables\CatatanSiswaDataTable;
 
 class CatatanSiswaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(CatatanSiswaDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.catatan-siswa.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $siswas = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        $gurus = Guru::with('pegawai')->get();
+        $semesters = Semester::all();
+        $tahunAjarans = TahunAjaran::all();
+        $jenisCatatans = JenisCatatan::all();
+        return view('pages.catatan-siswa.create', compact('siswas', 'gurus', 'semesters', 'tahunAjarans', 'jenisCatatans'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreCatatanSiswaRequest $request)
     {
-        //
+        $validated = $request->validated();
+        CatatanSiswa::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Catatan siswa berhasil ditambahkan.'
+        );
+
+        return redirect()->route('catatansiswa.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(CatatanSiswa $catatanSiswa)
+    public function show(CatatanSiswa $catatansiswa)
     {
-        //
+        return redirect()->route('catatansiswa.edit', $catatansiswa);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CatatanSiswa $catatanSiswa)
+    public function edit(CatatanSiswa $catatansiswa)
     {
-        //
+        $siswas = Siswa::with('kelas')->orderBy('nama_siswa', 'asc')->get();
+        $gurus = Guru::with('pegawai')->get();
+        $semesters = Semester::all();
+        $tahunAjarans = TahunAjaran::all();
+        $jenisCatatans = JenisCatatan::all();
+        return view('pages.catatan-siswa.edit', compact('catatansiswa', 'siswas', 'gurus', 'semesters', 'tahunAjarans', 'jenisCatatans'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CatatanSiswa $catatanSiswa)
+    public function update(UpdateCatatanSiswaRequest $request, CatatanSiswa $catatansiswa)
     {
-        //
+        $validated = $request->validated();
+        $catatansiswa->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Catatan siswa berhasil diperbarui.'
+        );
+
+        return redirect()->route('catatansiswa.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(CatatanSiswa $catatanSiswa)
+    public function destroy(CatatanSiswa $catatansiswa)
     {
-        //
+        $catatansiswa->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Catatan siswa berhasil dihapus.'
+        );
+
+        return redirect()->route('catatansiswa.index');
     }
 }

@@ -72,7 +72,7 @@ class OrangTuaDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
+                  ->addClass('text-start'),
         ];
     }
 

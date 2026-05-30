@@ -64,6 +64,34 @@ class SiswaController extends Controller
         return redirect()->route('siswa.index');
     }
 
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\SiswaExport, 'Data_Siswa_'.date('Ymd').'.xlsx');
+    }
+
+    public function import(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\SiswaImport, $request->file('file'));
+
+        alert()->success('Berhasil!', 'Data Siswa berhasil diimport.');
+        return redirect()->route('siswa.index');
+    }
+
+    public function template()
+    {
+        $headers = [['NISN', 'NIS', 'Nama Siswa', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Alamat', 'Nama Kelas', 'Nama Ibu Kandung']];
+        $export = new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
+            protected $data;
+            public function __construct(array $data) { $this->data = $data; }
+            public function array(): array { return $this->data; }
+        };
+        return \Maatwebsite\Excel\Facades\Excel::download($export, 'Template_Import_Siswa.xlsx');
+    }
+
     public function destroy(Siswa $siswa)
     {
         $nama = $siswa->nama_siswa;

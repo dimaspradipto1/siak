@@ -61,17 +61,23 @@ class EkstrakurikulerDataTable extends DataTable
 
     public function getColumns(): array
     {
-        return [
+        $columns = [
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
             Column::make('nama_ekskul')->title('Nama Ekstrakurikuler'),
             Column::make('pembina')->title('Pembina'),
+            Column::make('jadwal')->title('Jadwal'),
             Column::make('keterangan')->title('Keterangan'),
-            Column::computed('action')
+        ];
+
+        if (!in_array(auth()->user()->roles, ['siswa', 'orang tua'])) {
+            $columns[] = Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
-        ];
+                  ->addClass('text-start');
+        }
+
+        return $columns;
     }
 
     protected function filename(): string
