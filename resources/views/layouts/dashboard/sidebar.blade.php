@@ -268,17 +268,17 @@
     {{-- Tahun Ajaran & Semester: hanya admin & kepala sekolah --}}
     @if ($isManajemen)
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('tahunajaran.*', 'semester.*') ? '' : 'collapsed' }}"
+        <a class="nav-link {{ request()->routeIs('tahun-ajaran.*', 'semester.*') ? '' : 'collapsed' }}"
            data-bs-target="#tahun-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-calendar3"></i>
           <span>Tahun Ajaran</span>
           <i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="tahun-nav"
-            class="nav-content collapse {{ request()->routeIs('tahunajaran.*', 'semester.*') ? 'show' : '' }}"
+            class="nav-content collapse {{ request()->routeIs('tahun-ajaran.*', 'semester.*') ? 'show' : '' }}"
             data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" class="{{ request()->routeIs('tahunajaran.*') ? 'active' : '' }}">
+            <a href="{{ route('tahun-ajaran.index') }}" class="{{ request()->routeIs('tahun-ajaran.*') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Tahun Ajaran</span>
             </a>
           </li>
