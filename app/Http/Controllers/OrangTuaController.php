@@ -3,63 +3,72 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrangTua;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreOrangTuaRequest;
+use App\Http\Requests\UpdateOrangTuaRequest;
+use App\DataTables\OrangTuaDataTable;
 
 class OrangTuaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(OrangTuaDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.orang-tua.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('pages.orang-tua.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreOrangTuaRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $orangTua = OrangTua::create($validated);
+
+        $nama = $orangTua->nama_ayah ?? $orangTua->nama_ibu ?? 'Orang Tua';
+
+        alert()->success(
+            'Berhasil!',
+            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('orang-tua.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(OrangTua $orangTua)
     {
-        //
+        return redirect()->route('orang-tua.edit', $orangTua);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(OrangTua $orangTua)
     {
-        //
+        return view('pages.orang-tua.edit', compact('orangTua'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrangTua $orangTua)
+    public function update(UpdateOrangTuaRequest $request, OrangTua $orangTua)
     {
-        //
+        $validated = $request->validated();
+        $orangTua->update($validated);
+
+        $nama = $orangTua->nama_ayah ?? $orangTua->nama_ibu ?? 'Orang Tua';
+
+        alert()->success(
+            'Diperbarui!',
+            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('orang-tua.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(OrangTua $orangTua)
     {
-        //
+        $nama = $orangTua->nama_ayah ?? $orangTua->nama_ibu ?? 'Orang Tua';
+        $orangTua->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('orang-tua.index');
     }
 }

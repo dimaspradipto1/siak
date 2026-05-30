@@ -3,63 +3,108 @@
 namespace App\Http\Controllers;
 
 use App\Models\Semester;
+use App\Models\TahunAjaran;
+use App\Http\Requests\StoreSemesterRequest;
+use App\Http\Requests\UpdateSemesterRequest;
+use App\DataTables\SemesterDataTable;
 use Illuminate\Http\Request;
 
 class SemesterController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semester (DataTables).
      */
-    public function index()
+    public function index(SemesterDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.semester.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Tampilkan form tambah semester.
      */
     public function create()
     {
-        //
+        $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
+
+        return view('pages.semester.create', compact('tahunAjarans'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data semester baru ke database.
      */
-    public function store(Request $request)
+    public function store(StoreSemesterRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $semester = Semester::create($validated);
+
+        $nama = $semester->nama_semester;
+        $ta   = $semester->tahunAjaran;
+        $label = $nama . ' - ' . ($ta ? $ta->nama_tahun_ajaran : '');
+
+        alert()->success(
+            'Berhasil!',
+            'Semester <strong>' . e($label) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('semester.index');
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail semester (redirect ke edit).
      */
     public function show(Semester $semester)
     {
-        //
+        return redirect()->route('semester.edit', $semester);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Tampilkan form edit semester.
      */
     public function edit(Semester $semester)
     {
-        //
+        $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
+
+        return view('pages.semester.edit', compact('semester', 'tahunAjarans'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data semester di database.
      */
-    public function update(Request $request, Semester $semester)
+    public function update(UpdateSemesterRequest $request, Semester $semester)
     {
-        //
+        $validated = $request->validated();
+
+        $semester->update($validated);
+
+        $nama = $semester->nama_semester;
+        $ta   = $semester->tahunAjaran;
+        $label = $nama . ' - ' . ($ta ? $ta->nama_tahun_ajaran : '');
+
+        alert()->success(
+            'Diperbarui!',
+            'Semester <strong>' . e($label) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('semester.index');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data semester dari database.
      */
     public function destroy(Semester $semester)
     {
-        //
+        $nama = $semester->nama_semester;
+        $ta   = $semester->tahunAjaran;
+        $label = $nama . ' - ' . ($ta ? $ta->nama_tahun_ajaran : '');
+
+        $semester->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Semester <strong>' . e($label) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('semester.index');
     }
 }

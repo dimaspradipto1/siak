@@ -3,63 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ekstrakurikuler;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreEkstrakurikulerRequest;
+use App\Http\Requests\UpdateEkstrakurikulerRequest;
+use App\DataTables\EkstrakurikulerDataTable;
 
 class EkstrakurikulerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(EkstrakurikulerDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.ekstrakurikuler.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('pages.ekstrakurikuler.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreEkstrakurikulerRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $ekskul = Ekstrakurikuler::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Ekstrakurikuler <strong>' . e($ekskul->nama_ekskul) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('ekstrakurikuler.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Ekstrakurikuler $ekstrakurikuler)
     {
-        //
+        return redirect()->route('ekstrakurikuler.edit', $ekstrakurikuler);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Ekstrakurikuler $ekstrakurikuler)
     {
-        //
+        return view('pages.ekstrakurikuler.edit', compact('ekstrakurikuler'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Ekstrakurikuler $ekstrakurikuler)
+    public function update(UpdateEkstrakurikulerRequest $request, Ekstrakurikuler $ekstrakurikuler)
     {
-        //
+        $validated = $request->validated();
+        $ekstrakurikuler->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Ekstrakurikuler <strong>' . e($ekstrakurikuler->nama_ekskul) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('ekstrakurikuler.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Ekstrakurikuler $ekstrakurikuler)
     {
-        //
+        $nama = $ekstrakurikuler->nama_ekskul;
+        $ekstrakurikuler->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Ekstrakurikuler <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('ekstrakurikuler.index');
     }
 }

@@ -3,63 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kehadiran;
-use Illuminate\Http\Request;
+use App\Models\Siswa;
+use App\Models\MataPelajaran;
+use App\Models\JenisKehadiran;
+use App\Http\Requests\StoreKehadiranRequest;
+use App\Http\Requests\UpdateKehadiranRequest;
+use App\DataTables\KehadiranDataTable;
 
 class KehadiranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(KehadiranDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.kehadiran.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $siswas = Siswa::with('kelas')->get();
+        $mapels = MataPelajaran::all();
+        $jenisKehadirans = JenisKehadiran::all();
+        return view('pages.kehadiran.create', compact('siswas', 'mapels', 'jenisKehadirans'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreKehadiranRequest $request)
     {
-        //
+        $validated = $request->validated();
+        Kehadiran::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Data kehadiran berhasil ditambahkan.'
+        );
+
+        return redirect()->route('kehadiran.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Kehadiran $kehadiran)
     {
-        //
+        return redirect()->route('kehadiran.edit', $kehadiran);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Kehadiran $kehadiran)
     {
-        //
+        $siswas = Siswa::with('kelas')->get();
+        $mapels = MataPelajaran::all();
+        $jenisKehadirans = JenisKehadiran::all();
+        return view('pages.kehadiran.edit', compact('kehadiran', 'siswas', 'mapels', 'jenisKehadirans'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Kehadiran $kehadiran)
+    public function update(UpdateKehadiranRequest $request, Kehadiran $kehadiran)
     {
-        //
+        $validated = $request->validated();
+        $kehadiran->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Data kehadiran berhasil diperbarui.'
+        );
+
+        return redirect()->route('kehadiran.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Kehadiran $kehadiran)
     {
-        //
+        $kehadiran->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Data kehadiran berhasil dihapus.'
+        );
+
+        return redirect()->route('kehadiran.index');
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('orang_tua_id')->constrained('orang_tuas')->cascadeOnDelete();
             $table->foreignId('kelas_id')->constrained('kelas')->cascadeOnDelete();
-            $table->foreignId('ekstrakurikuler_id')->constrained('ekstrakurikulers')->cascadeOnDelete();
+            $table->foreignId('ekstrakurikuler_id')->nullable()->constrained('ekstrakurikulers')->cascadeOnDelete();
             $table->string('nisn')->unique();
             $table->string('nama_siswa')->nullable();
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);

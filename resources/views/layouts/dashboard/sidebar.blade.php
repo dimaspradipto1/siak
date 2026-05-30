@@ -52,9 +52,18 @@
       {{-- Data Siswa --}}
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('siswa.*') ? '' : 'collapsed' }}"
-           href="#">
+           href="{{ route('siswa.index') }}">
           <i class="bi bi-person-lines-fill"></i>
           <span>Data Siswa</span>
+        </a>
+      </li>
+
+      {{-- Orang Tua --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('orang-tua.*') ? '' : 'collapsed' }}"
+           href="{{ route('orang-tua.index') }}">
+          <i class="bi bi-person-hearts"></i>
+          <span>Orang Tua / Wali</span>
         </a>
       </li>
 
@@ -76,16 +85,16 @@
           <i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="kelas-nav"
-            class="nav-content collapse {{ request()->routeIs('kelas.*') ? 'show' : '' }}"
+            class="nav-content collapse {{ request()->routeIs('kelas.*', 'walikelas.*') ? 'show' : '' }}"
             data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" class="{{ request()->routeIs('kelas.index') ? 'active' : '' }}">
+            <a href="{{ route('kelas.index') }}" class="{{ request()->routeIs('kelas.*') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Daftar Kelas</span>
             </a>
           </li>
           @if ($isAdmin)
             <li>
-              <a href="#" class="{{ request()->routeIs('walikelas.*') ? 'active' : '' }}">
+              <a href="{{ route('walikelas.index') }}" class="{{ request()->routeIs('walikelas.*') ? 'active' : '' }}">
                 <i class="bi bi-circle"></i><span>Penugasan Wali Kelas</span>
               </a>
             </li>
@@ -116,7 +125,7 @@
       @if ($isManajemen)
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}"
-             href="#">
+             href="{{ route('matapelajaran.index') }}">
             <i class="bi bi-book"></i>
             <span>Mata Pelajaran</span>
           </a>
@@ -136,13 +145,13 @@
             data-bs-parent="#sidebar-nav">
           @if (in_array($role, ['admin', 'guru', 'wali kelas']))
             <li>
-              <a href="#" class="{{ request()->routeIs('nilai.create') ? 'active' : '' }}">
+              <a href="{{ route('nilai.create') }}" class="{{ request()->routeIs('nilai.create') ? 'active' : '' }}">
                 <i class="bi bi-circle"></i><span>Input Nilai</span>
               </a>
             </li>
           @endif
           <li>
-            <a href="#" class="{{ request()->routeIs('nilai.index') ? 'active' : '' }}">
+            <a href="{{ route('nilai.index') }}" class="{{ request()->routeIs('nilai.index') && !request()->routeIs('nilai.create') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Rekap Nilai</span>
             </a>
           </li>
@@ -151,27 +160,34 @@
 
       {{-- Kehadiran --}}
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}"
+        <a class="nav-link {{ request()->routeIs('kehadiran.*', 'jeniskehadiran.*') ? '' : 'collapsed' }}"
            data-bs-target="#kehadiran-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-calendar-check"></i>
           <span>Kehadiran</span>
           <i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="kehadiran-nav"
-            class="nav-content collapse {{ request()->routeIs('kehadiran.*') ? 'show' : '' }}"
+            class="nav-content collapse {{ request()->routeIs('kehadiran.*', 'jeniskehadiran.*') ? 'show' : '' }}"
             data-bs-parent="#sidebar-nav">
           @if (in_array($role, ['admin', 'guru', 'wali kelas']))
             <li>
-              <a href="#" class="{{ request()->routeIs('kehadiran.create') ? 'active' : '' }}">
+              <a href="{{ route('kehadiran.create') }}" class="{{ request()->routeIs('kehadiran.create') ? 'active' : '' }}">
                 <i class="bi bi-circle"></i><span>Input Kehadiran</span>
               </a>
             </li>
           @endif
           <li>
-            <a href="#" class="{{ request()->routeIs('kehadiran.index') ? 'active' : '' }}">
+            <a href="{{ route('kehadiran.index') }}" class="{{ request()->routeIs('kehadiran.index') && !request()->routeIs('kehadiran.create') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Rekap Kehadiran</span>
             </a>
           </li>
+          @if ($isManajemen)
+            <li>
+              <a href="{{ route('jeniskehadiran.index') }}" class="{{ request()->routeIs('jeniskehadiran.*') ? 'active' : '' }}">
+                <i class="bi bi-circle"></i><span>Master Jenis Kehadiran</span>
+              </a>
+            </li>
+          @endif
         </ul>
       </li>
 
@@ -204,7 +220,7 @@
       {{-- Ekstrakurikuler --}}
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}"
-           href="#">
+           href="{{ route('ekstrakurikuler.index') }}">
           <i class="bi bi-trophy"></i>
           <span>Ekstrakurikuler</span>
         </a>
@@ -283,7 +299,7 @@
             </a>
           </li>
           <li>
-            <a href="#" class="{{ request()->routeIs('semester.*') ? 'active' : '' }}">
+            <a href="{{ route('semester.index') }}" class="{{ request()->routeIs('semester.*') ? 'active' : '' }}">
               <i class="bi bi-circle"></i><span>Semester</span>
             </a>
           </li>

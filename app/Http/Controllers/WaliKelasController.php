@@ -3,63 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\WaliKelas;
-use Illuminate\Http\Request;
+use App\Models\Guru;
+use App\Models\Kelas;
+use App\Models\TahunAjaran;
+use App\Http\Requests\StoreWaliKelasRequest;
+use App\Http\Requests\UpdateWaliKelasRequest;
+use App\DataTables\WaliKelasDataTable;
 
 class WaliKelasController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(WaliKelasDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.wali-kelas.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $gurus = Guru::with('pegawai')->get();
+        $kelas = Kelas::all();
+        // Hanya ambil tahun ajaran yang aktif untuk default form, tapi tetap passing semua jika diperlukan
+        $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
+
+        return view('pages.wali-kelas.create', compact('gurus', 'kelas', 'tahunAjarans'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreWaliKelasRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $waliKelas = WaliKelas::create($validated);
+
+        $guru = $waliKelas->guru->pegawai->nama_pegawai ?? 'Guru';
+        $kelasNama = $waliKelas->kelas->nama_kelas ?? 'Kelas';
+
+        alert()->success(
+            'Berhasil!',
+            'Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('walikelas.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(WaliKelas $waliKelas)
+    public function show(WaliKelas $walikela)
     {
-        //
+        return redirect()->route('walikelas.edit', $walikela);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(WaliKelas $waliKelas)
+    public function edit(WaliKelas $walikela)
     {
-        //
+        $gurus = Guru::with('pegawai')->get();
+        $kelas = Kelas::all();
+        $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
+
+        return view('pages.wali-kelas.edit', ['waliKelas' => $walikela, 'gurus' => $gurus, 'kelas' => $kelas, 'tahunAjarans' => $tahunAjarans]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, WaliKelas $waliKelas)
+    public function update(UpdateWaliKelasRequest $request, WaliKelas $walikela)
     {
-        //
+        $validated = $request->validated();
+        $walikela->update($validated);
+
+        $guru = $walikela->guru->pegawai->nama_pegawai ?? 'Guru';
+        $kelasNama = $walikela->kelas->nama_kelas ?? 'Kelas';
+
+        alert()->success(
+            'Diperbarui!',
+            'Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('walikelas.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(WaliKelas $waliKelas)
+    public function destroy(WaliKelas $walikela)
     {
-        //
+        $guru = $walikela->guru->pegawai->nama_pegawai ?? 'Guru';
+        $kelasNama = $walikela->kelas->nama_kelas ?? 'Kelas';
+        
+        $walikela->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Penugasan Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('walikelas.index');
     }
 }

@@ -3,63 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\MataPelajaran;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreMataPelajaranRequest;
+use App\Http\Requests\UpdateMataPelajaranRequest;
+use App\DataTables\MataPelajaranDataTable;
 
 class MataPelajaranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(MataPelajaranDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.mata-pelajaran.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('pages.mata-pelajaran.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreMataPelajaranRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $mapel = MataPelajaran::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Mata Pelajaran <strong>' . e($mapel->nama_mata_pelajaran) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('matapelajaran.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(MataPelajaran $mataPelajaran)
+    public function show(MataPelajaran $matapelajaran)
     {
-        //
+        return redirect()->route('matapelajaran.edit', $matapelajaran);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(MataPelajaran $mataPelajaran)
+    public function edit(MataPelajaran $matapelajaran)
     {
-        //
+        return view('pages.mata-pelajaran.edit', compact('matapelajaran'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MataPelajaran $mataPelajaran)
+    public function update(UpdateMataPelajaranRequest $request, MataPelajaran $matapelajaran)
     {
-        //
+        $validated = $request->validated();
+        $matapelajaran->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Mata Pelajaran <strong>' . e($matapelajaran->nama_mata_pelajaran) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('matapelajaran.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MataPelajaran $mataPelajaran)
+    public function destroy(MataPelajaran $matapelajaran)
     {
-        //
+        $nama = $matapelajaran->nama_mata_pelajaran;
+        $matapelajaran->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Mata Pelajaran <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('matapelajaran.index');
     }
 }

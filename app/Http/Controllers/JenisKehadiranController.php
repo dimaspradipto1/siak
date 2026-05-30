@@ -3,63 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\JenisKehadiran;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreJenisKehadiranRequest;
+use App\Http\Requests\UpdateJenisKehadiranRequest;
+use App\DataTables\JenisKehadiranDataTable;
 
 class JenisKehadiranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(JenisKehadiranDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.jenis-kehadiran.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('pages.jenis-kehadiran.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreJenisKehadiranRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $jenis = JenisKehadiran::create($validated);
+
+        alert()->success(
+            'Berhasil!',
+            'Jenis Kehadiran <strong>' . e($jenis->nama_kehadiran) . '</strong> berhasil ditambahkan.'
+        )->html();
+
+        return redirect()->route('jeniskehadiran.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(JenisKehadiran $jenisKehadiran)
+    public function show(JenisKehadiran $jeniskehadiran)
     {
-        //
+        return redirect()->route('jeniskehadiran.edit', $jeniskehadiran);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(JenisKehadiran $jenisKehadiran)
+    public function edit(JenisKehadiran $jeniskehadiran)
     {
-        //
+        return view('pages.jenis-kehadiran.edit', compact('jeniskehadiran'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, JenisKehadiran $jenisKehadiran)
+    public function update(UpdateJenisKehadiranRequest $request, JenisKehadiran $jeniskehadiran)
     {
-        //
+        $validated = $request->validated();
+        $jeniskehadiran->update($validated);
+
+        alert()->success(
+            'Diperbarui!',
+            'Jenis Kehadiran <strong>' . e($jeniskehadiran->nama_kehadiran) . '</strong> berhasil diperbarui.'
+        )->html();
+
+        return redirect()->route('jeniskehadiran.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(JenisKehadiran $jenisKehadiran)
+    public function destroy(JenisKehadiran $jeniskehadiran)
     {
-        //
+        $nama = $jeniskehadiran->nama_kehadiran;
+        $jeniskehadiran->delete();
+
+        alert()->success(
+            'Dihapus!',
+            'Jenis Kehadiran <strong>' . e($nama) . '</strong> berhasil dihapus.'
+        )->html();
+
+        return redirect()->route('jeniskehadiran.index');
     }
 }
