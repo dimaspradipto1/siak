@@ -1,14 +1,14 @@
 @extends('layouts.dashboard.template')
 
-@section('title', 'Manajemen Ekstrakurikuler')
+@section('title', 'Profil Sekolah')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Manajemen Ekstrakurikuler</h1>
+        <h1>Profil Sekolah</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item active">Ekstrakurikuler</li>
+                <li class="breadcrumb-item active">Profil Sekolah</li>
             </ol>
         </nav>
     </div>
@@ -19,13 +19,11 @@
                 <div class="card shadow-sm">
                     <div class="card-body pt-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0">Daftar Ekstrakurikuler</h5>
-                            @if(!in_array(auth()->user()->roles, ['siswa', 'orang tua']))
+                            <h5 class="card-title mb-0">Daftar Profil Sekolah</h5>
                             @if(in_array(auth()->user()->roles, ['admin', 'kepala sekolah']))
-                            <a href="{{ route('ekstrakurikuler.create') }}" class="btn btn-primary btn-sm">
-                                <i class="bi bi-plus-circle-fill"></i> Tambah Ekstrakurikuler
+                            <a href="{{ route('profil-sekolah.create') }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle-fill"></i> Tambah Profil Sekolah
                             </a>
-                            @endif
                             @endif
                         </div>
                         <div class="table-responsive">
@@ -51,8 +49,8 @@
             const nama = $(this).data('nama');
 
             Swal.fire({
-                title: 'Hapus Ekstrakurikuler?',
-                html: `Anda yakin ingin menghapus data:<br><strong class="text-danger">${nama}</strong>?<br><small class="text-muted">Tindakan ini tidak dapat dibatalkan.</small>`,
+                title: 'Hapus Profil Sekolah?',
+                html: `Anda yakin ingin menghapus profil sekolah:<br><strong class="text-danger">${nama}</strong>?<br><small class="text-muted">Tindakan ini tidak dapat dibatalkan.</small>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',

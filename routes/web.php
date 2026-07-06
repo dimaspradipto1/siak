@@ -20,6 +20,7 @@ use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\JenisCatatanController;
 use App\Http\Controllers\CatatanSiswaController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\ProfilSekolahController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,4 +73,5 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::resource('jeniscatatan', JenisCatatanController::class);
     Route::resource('catatansiswa', CatatanSiswaController::class);
     Route::resource('pengumuman', PengumumanController::class);
+    Route::resource('profil-sekolah', ProfilSekolahController::class);
 });

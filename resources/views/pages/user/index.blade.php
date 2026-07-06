@@ -35,7 +35,11 @@
 @endsection
 
 @push('script')
-    {{ $dataTable->scripts() }}
+    @if(app()->environment('production'))
+        {!! str_replace('http:', 'https:', $dataTable->scripts()) !!}
+    @else
+        {!! $dataTable->scripts() !!}
+    @endif
     <script>
         // SweetAlert Konfirmasi Hapus menggunakan Event Delegation (karena AJAX DataTable render dinamis)
         $(document).on('click', '.btn-hapus', function (e) {

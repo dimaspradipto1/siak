@@ -216,6 +216,12 @@
     <li class="nav-heading">Informasi & Pengaturan</li>
 
     <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('profil-sekolah.*') ? '' : 'collapsed' }}" href="{{ route('profil-sekolah.index') }}">
+        <i class="bi bi-info-circle"></i><span>Profil Sekolah</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
       <a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
         <i class="bi bi-megaphone"></i><span>Pengumuman</span>
       </a>
