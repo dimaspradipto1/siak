@@ -86,17 +86,17 @@
                                 @error('kelas_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            <div class="mb-0">
-                                <label for="mata_pelajaran_id" class="form-label fw-semibold">Mata Pelajaran <span class="text-danger">*</span></label>
-                                <select id="mata_pelajaran_id" name="mata_pelajaran_id" class="form-select @error('mata_pelajaran_id') is-invalid @enderror">
+                             <div class="mb-0">
+                                <label for="nama_mata_pelajaran" class="form-label fw-semibold">Mata Pelajaran <span class="text-danger">*</span></label>
+                                <select id="nama_mata_pelajaran" name="nama_mata_pelajaran" class="form-select @error('nama_mata_pelajaran') is-invalid @enderror">
                                     <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
-                                    @foreach($matapelajarans as $mp)
-                                        <option value="{{ $mp->id }}" {{ old('mata_pelajaran_id') == $mp->id ? 'selected' : '' }}>
-                                            {{ $mp->nama_mata_pelajaran }}
+                                    @foreach($uniqueMapels as $name)
+                                        <option value="{{ $name }}" {{ old('nama_mata_pelajaran') == $name ? 'selected' : '' }}>
+                                            {{ $name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('mata_pelajaran_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                @error('nama_mata_pelajaran')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
                     </div>

@@ -96,8 +96,10 @@ class MateriPembelajaranDataTable extends DataTable
         if ($this->request()->has('kelas_id') && $this->request()->get('kelas_id') != '') {
             $query->where('kelas_id', $this->request()->get('kelas_id'));
         }
-        if ($this->request()->has('mata_pelajaran_id') && $this->request()->get('mata_pelajaran_id') != '') {
-            $query->where('mata_pelajaran_id', $this->request()->get('mata_pelajaran_id'));
+        if ($this->request()->has('nama_mata_pelajaran') && $this->request()->get('nama_mata_pelajaran') != '') {
+            $query->whereHas('mataPelajaran', function ($q) {
+                $q->where('nama_mata_pelajaran', $this->request()->get('nama_mata_pelajaran'));
+            });
         }
 
         // Role-based visibility
@@ -130,7 +132,7 @@ class MateriPembelajaranDataTable extends DataTable
         return $this->builder()
                     ->setTableId('materipembelajaran-table')
                     ->columns($this->getColumns())
-                    ->minifiedAjax('', 'data.tahun_ajaran_id = $("#tahun_ajaran_id").val(); data.semester_name = $("#semester_name").val(); data.kelas_id = $("#kelas_id").val(); data.mata_pelajaran_id = $("#mata_pelajaran_id").val();')
+                    ->minifiedAjax('', 'data.tahun_ajaran_id = $("#tahun_ajaran_id").val(); data.semester_name = $("#semester_name").val(); data.kelas_id = $("#kelas_id").val(); data.nama_mata_pelajaran = $("#nama_mata_pelajaran").val();')
                     ->orderBy(1)
                     ->selectStyleSingle()
                     ->buttons([

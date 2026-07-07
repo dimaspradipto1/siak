@@ -139,7 +139,7 @@
     {{-- ==========================================
          B. MENU UNTUK GURU & WALI KELAS
          ========================================== --}}
-    @if ($isGuruWali)
+    @if ($isGuru)
       
       <li class="nav-heading">Akademik & Kelas</li>
 
@@ -191,6 +191,43 @@
 
     @endif
 
+    @if ($isWali)
+      
+      <li class="nav-heading">Nilai Siswa</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('nilai.rekap-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.rekap-raport') }}">
+          <i class="bi bi-star"></i><span>Rekap Nilai</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('nilai.cetak-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.cetak-raport') }}">
+          <i class="bi bi-star"></i><span>Cetak Raport</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Kehadiran Siswa</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('kehadiran.index') ? '' : 'collapsed' }}" href="{{ route('kehadiran.index') }}">
+          <i class="bi bi-star"></i><span>Rekap Kehadiran</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Ekstrakurikuler Siswa</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.index') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.index') }}">
+          <i class="bi bi-star"></i><span>Input Ekstrakurikuler</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Informasi & Pengaturan</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('pengumuman.index') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
+          <i class="bi bi-star"></i><span>Pengumuman</span>
+        </a>
+      </li>
+
+    @endif
+
 
     {{-- ==========================================
          C. MENU UNTUK SISWA & ORANG TUA
@@ -226,25 +263,27 @@
     {{-- ==========================================
          D. INFORMASI & PENGATURAN UMUM
          ========================================== --}}
-    <li class="nav-heading">Informasi & Pengaturan</li>
+    @if (!$isWali)
+      <li class="nav-heading">Informasi & Pengaturan</li>
 
-    <li class="nav-item">
-      <a class="nav-link {{ request()->routeIs('profil-sekolah.*') ? '' : 'collapsed' }}" href="{{ route('profil-sekolah.index') }}">
-        <i class="bi bi-info-circle"></i><span>Profil Sekolah</span>
-      </a>
-    </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('profil-sekolah.*') ? '' : 'collapsed' }}" href="{{ route('profil-sekolah.index') }}">
+          <i class="bi bi-info-circle"></i><span>Profil Sekolah</span>
+        </a>
+      </li>
 
-    <li class="nav-item">
-      <a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
-        <i class="bi bi-megaphone"></i><span>Pengumuman</span>
-      </a>
-    </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
+          <i class="bi bi-megaphone"></i><span>Pengumuman</span>
+        </a>
+      </li>
 
-    <li class="nav-item">
-      <a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
-        <i class="bi bi-book"></i><span>Materi Pembelajaran</span>
-      </a>
-    </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
+          <i class="bi bi-book"></i><span>Materi Pembelajaran</span>
+        </a>
+      </li>
+    @endif
 
     @if ($isAdmin)
       <li class="nav-item">

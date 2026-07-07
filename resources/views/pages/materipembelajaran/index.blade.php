@@ -59,11 +59,11 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="mata_pelajaran_id" class="form-label fw-semibold">Mata Pelajaran</label>
-                                    <select id="mata_pelajaran_id" name="mata_pelajaran_id" class="form-select select2-filter">
+                                    <label for="nama_mata_pelajaran" class="form-label fw-semibold">Mata Pelajaran</label>
+                                    <select id="nama_mata_pelajaran" name="nama_mata_pelajaran" class="form-select select2-filter">
                                         <option value="">Semua Mata Pelajaran</option>
-                                        @foreach($matapelajarans as $mp)
-                                            <option value="{{ $mp->id }}">{{ $mp->nama_mata_pelajaran }}</option>
+                                        @foreach($uniqueMapels as $name)
+                                            <option value="{{ $name }}">{{ $name }}</option>
                                         @endforeach
                                     </select>
                                 </div>

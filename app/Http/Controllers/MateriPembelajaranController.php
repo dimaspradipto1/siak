@@ -23,9 +23,8 @@ class MateriPembelajaranController extends Controller
     {
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $tahunAjarans = TahunAjaran::all();
-        $semesters = Semester::all();
-        $matapelajarans = MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
-        return $dataTable->render('pages.materipembelajaran.index', compact('kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
+        $uniqueMapels = MataPelajaran::query()->distinct()->orderBy('nama_mata_pelajaran')->pluck('nama_mata_pelajaran');
+        return $dataTable->render('pages.materipembelajaran.index', compact('kelas', 'tahunAjarans', 'uniqueMapels'));
     }
 
     /**
@@ -35,9 +34,8 @@ class MateriPembelajaranController extends Controller
     {
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $tahunAjarans = TahunAjaran::all();
-        $semesters = Semester::all();
-        $matapelajarans = MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
-        return view('pages.materipembelajaran.create', compact('kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
+        $uniqueMapels = MataPelajaran::query()->distinct()->orderBy('nama_mata_pelajaran')->pluck('nama_mata_pelajaran');
+        return view('pages.materipembelajaran.create', compact('kelas', 'tahunAjarans', 'uniqueMapels'));
     }
 
     /**
@@ -54,6 +52,20 @@ class MateriPembelajaranController extends Controller
             ->first();
         $validated['semester_id'] = $semester ? $semester->id : null;
         unset($validated['semester_name']);
+
+        // Look up the actual mata_pelajaran_id
+        $mapel = MataPelajaran::query()
+            ->where('kelas_id', $request->kelas_id)
+            ->where('tahun_ajaran_id', $request->tahun_ajaran_id)
+            ->where('semester_id', $validated['semester_id'])
+            ->where('nama_mata_pelajaran', $request->nama_mata_pelajaran)
+            ->first();
+
+        if (!$mapel) {
+            return back()->withInput()->withErrors(['nama_mata_pelajaran' => 'Mata pelajaran tidak ditemukan untuk kelas, tahun ajaran, dan semester yang dipilih.']);
+        }
+        $validated['mata_pelajaran_id'] = $mapel->id;
+        unset($validated['nama_mata_pelajaran']);
 
         if ($request->hasFile('file_materi')) {
             $file = $request->file('file_materi');
@@ -101,9 +113,8 @@ class MateriPembelajaranController extends Controller
     {
         $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
         $tahunAjarans = TahunAjaran::all();
-        $semesters = Semester::all();
-        $matapelajarans = MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
-        return view('pages.materipembelajaran.edit', compact('materipembelajaran', 'kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
+        $uniqueMapels = MataPelajaran::query()->distinct()->orderBy('nama_mata_pelajaran')->pluck('nama_mata_pelajaran');
+        return view('pages.materipembelajaran.edit', compact('materipembelajaran', 'kelas', 'tahunAjarans', 'uniqueMapels'));
     }
 
     /**
@@ -119,6 +130,20 @@ class MateriPembelajaranController extends Controller
             ->first();
         $validated['semester_id'] = $semester ? $semester->id : null;
         unset($validated['semester_name']);
+
+        // Look up the actual mata_pelajaran_id
+        $mapel = MataPelajaran::query()
+            ->where('kelas_id', $request->kelas_id)
+            ->where('tahun_ajaran_id', $request->tahun_ajaran_id)
+            ->where('semester_id', $validated['semester_id'])
+            ->where('nama_mata_pelajaran', $request->nama_mata_pelajaran)
+            ->first();
+
+        if (!$mapel) {
+            return back()->withInput()->withErrors(['nama_mata_pelajaran' => 'Mata pelajaran tidak ditemukan untuk kelas, tahun ajaran, dan semester yang dipilih.']);
+        }
+        $validated['mata_pelajaran_id'] = $mapel->id;
+        unset($validated['nama_mata_pelajaran']);
 
         if ($request->hasFile('file_materi')) {
             // Delete old file if exists

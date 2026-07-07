@@ -26,7 +26,7 @@ class MateriPembelajaranRequest extends FormRequest
             'tahun_ajaran_id'   => ['required', 'exists:tahun_ajarans,id'],
             'semester_name'     => ['required', 'string', 'in:Semester 1 (Ganjil),Semester 2 (Genap)'],
             'kelas_id'          => ['required', 'exists:kelas,id'],
-            'mata_pelajaran_id' => ['required', 'exists:mata_pelajarans,id'],
+            'nama_mata_pelajaran' => ['required', 'string'],
             'file_materi'       => $this->isMethod('POST') 
                                     ? ['required', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,jpg,jpeg,png', 'max:10240'] 
                                     : ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,jpg,jpeg,png', 'max:10240'],
@@ -47,8 +47,7 @@ class MateriPembelajaranRequest extends FormRequest
             'semester_name.in'           => 'Semester tidak valid.',
             'kelas_id.required'          => 'Kelas wajib dipilih.',
             'kelas_id.exists'            => 'Kelas tidak valid.',
-            'mata_pelajaran_id.required' => 'Mata Pelajaran wajib dipilih.',
-            'mata_pelajaran_id.exists'   => 'Mata Pelajaran tidak valid.',
+            'nama_mata_pelajaran.required' => 'Mata Pelajaran wajib dipilih.',
             'file_materi.required'       => 'File Materi wajib diunggah.',
             'file_materi.file'           => 'Unggahan harus berupa file.',
             'file_materi.mimes'          => 'Tipe file tidak didukung. Gunakan format pdf, doc, docx, xls, xlsx, ppt, pptx, zip, rar, atau gambar.',
@@ -67,7 +66,7 @@ class MateriPembelajaranRequest extends FormRequest
             'tahun_ajaran_id'   => 'Tahun Ajaran',
             'semester_name'     => 'Semester',
             'kelas_id'          => 'Kelas',
-            'mata_pelajaran_id' => 'Mata Pelajaran',
+            'nama_mata_pelajaran' => 'Mata Pelajaran',
             'file_materi'       => 'File Materi',
         ];
     }

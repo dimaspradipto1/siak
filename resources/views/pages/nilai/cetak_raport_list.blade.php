@@ -1,38 +1,15 @@
 @extends('layouts.dashboard.template')
 
-@php
-if (!function_exists('abbreviateMapel')) {
-    function abbreviateMapel($name) {
-        $map = [
-            'Pendidikan Agama Islam' => 'PAI',
-            'Pendidikan Agama Islam dan Budi Pekerti' => 'PAI',
-            'Pendidikan Pancasila dan Kewarganegaraan' => 'PKN',
-            'Pendidikan Pancasila' => 'PKN',
-            'Bahasa Indonesia' => 'B.INDO',
-            'Matematika' => 'MTK',
-            'Ilmu Pengetahuan Alam dan Sosial' => 'IPAS',
-            'Ilmu Pengetahuan Alam' => 'IPA',
-            'Ilmu Pengetahuan Sosial' => 'IPS',
-            'Seni Budaya dan Prakarya' => 'SBDP',
-            'Seni Budaya dan Musik' => 'SBDM',
-            'Seni Rupa' => 'Seni Rupa',
-            'Bahasa Inggris' => 'B.ING',
-            'Pendidikan Jasmani, Olahraga, dan Kesehatan' => 'PJOK',
-        ];
-        return $map[$name] ?? $name;
-    }
-}
-@endphp
-@section('title', 'Rekap Nilai Raport')
+@section('title', 'Cetak Raport')
 
 @section('content')
     <div class="pagetitle">
-        <h1 class="text-primary fw-bold">Rekap Nilai Raport</h1>
+        <h1 class="text-primary fw-bold">Cetak Raport</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('nilai.index') }}">Nilai</a></li>
-                <li class="breadcrumb-item active">Rekap Raport</li>
+                <li class="breadcrumb-item active">Cetak Raport</li>
             </ol>
         </nav>
     </div>
@@ -42,9 +19,9 @@ if (!function_exists('abbreviateMapel')) {
             <div class="col-lg-12">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body pt-4">
-                        <h5 class="card-title text-primary fw-bold mb-3 p-0">Form Filter Kelas</h5>
+                        <h5 class="card-title text-primary fw-bold mb-3 p-0">Form Cetak Raport</h5>
                         
-                        <form action="{{ route('nilai.rekap-raport') }}" method="GET" class="row g-3">
+                        <form action="{{ route('nilai.cetak-raport') }}" method="GET" class="row g-3">
                             <div class="col-md-4">
                                 <label for="tahun_ajaran_id" class="form-label fw-semibold">Tahun Ajaran <span class="text-danger">*</span></label>
                                 <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-select" required>
@@ -79,11 +56,11 @@ if (!function_exists('abbreviateMapel')) {
                             </div>
 
                             <div class="col-12 d-flex justify-content-end gap-2 pt-2">
-                                <a href="{{ route('nilai.rekap-raport') }}" class="btn btn-secondary text-white btn-sm px-3" style="background-color: #6c757d; border-color: #6c757d;">
+                                <a href="{{ route('nilai.cetak-raport') }}" class="btn btn-secondary text-white btn-sm px-3" style="background-color: #6c757d; border-color: #6c757d;">
                                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                                 </a>
                                 <button type="submit" class="btn btn-primary btn-sm px-3" style="background-color: #0d6efd; border-color: #0d6efd;">
-                                    <i class="bi bi-search"></i> Get Data
+                                    <i class="bi bi-search"></i> Tampilkan
                                 </button>
                             </div>
                         </form>
@@ -93,10 +70,7 @@ if (!function_exists('abbreviateMapel')) {
                 @if($selectedTa && $selectedSem && $selectedKelas)
                 <div class="card shadow-sm border-0">
                     <div class="card-body pt-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title text-primary fw-bold p-0 mb-0">Rekap Nilai Raport Kelas</h5>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer"></i> Cetak Rekap</button>
-                        </div>
+                        <h5 class="card-title text-primary fw-bold p-0 mb-3">Daftar Siswa Kelas</h5>
 
                         @if(count($students) > 0)
                         <div class="table-responsive">
@@ -104,12 +78,10 @@ if (!function_exists('abbreviateMapel')) {
                                 <thead class="table-light fw-bold text-dark">
                                     <tr>
                                         <th style="width: 50px;">No</th>
-                                        <th style="width: 120px;">NISN</th>
+                                        <th style="width: 150px;">NISN</th>
                                         <th class="text-start">Nama Siswa</th>
-                                        @foreach($classMapels as $mp)
-                                            <th>{{ abbreviateMapel($mp->nama_mata_pelajaran) }}</th>
-                                        @endforeach
-                                        <th class="table-success" style="width: 100px;">Rata2</th>
+                                        <th style="width: 150px;">Kelas</th>
+                                        <th style="width: 200px;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -118,13 +90,13 @@ if (!function_exists('abbreviateMapel')) {
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $siswa->nisn }}</td>
                                             <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
-                                            @foreach($classMapels as $mp)
-                                                <td>
-                                                    {{ $siswa->grades[$mp->id] !== null ? intval($siswa->grades[$mp->id]) : '.....' }}
-                                                </td>
-                                            @endforeach
-                                            <td class="table-success fw-bold">
-                                                {{ $siswa->average !== null ? (floor($siswa->average) == $siswa->average ? intval($siswa->average) : number_format($siswa->average, 1)) : '.....' }}
+                                            <td>{{ $siswa->kelas->nama_kelas ?? '-' }}</td>
+                                            <td>
+                                                <a href="{{ route('nilai.cetak-raport.print', [$siswa->id, $selectedTa, $selectedSem]) }}" 
+                                                   target="_blank" 
+                                                   class="btn btn-success btn-sm px-3">
+                                                    <i class="bi bi-printer-fill me-1"></i> Cetak Raport
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -132,7 +104,7 @@ if (!function_exists('abbreviateMapel')) {
                             </table>
                         </div>
                         @else
-                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data siswa atau mata pelajaran yang terdaftar.</div>
+                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data siswa yang terdaftar di kelas ini.</div>
                         @endif
                     </div>
                 </div>

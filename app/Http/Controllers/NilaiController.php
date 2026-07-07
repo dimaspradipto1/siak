@@ -9,6 +9,10 @@ use App\Models\Semester;
 use App\Models\TahunAjaran;
 use App\Models\Kelas;
 use App\Models\PembagianKelas;
+use App\Models\ProfilSekolah;
+use App\Models\Kehadiran;
+use App\Models\CatatanSiswa;
+use App\Models\WaliKelas;
 use App\Http\Requests\NilaiRequest;
 
 use App\DataTables\NilaiDataTable;
@@ -24,6 +28,9 @@ class NilaiController extends Controller
 
     public function index(NilaiDataTable $dataTable)
     {
+        if (auth()->check() && auth()->user()->roles === 'wali kelas') {
+            return redirect()->route('nilai.rekap-raport');
+        }
         return $dataTable->render('pages.nilai.index');
     }
 
@@ -581,19 +588,31 @@ class NilaiController extends Controller
         return view('pages.nilai.rekap_mapel', compact('mapels', 'kelas', 'semesters', 'tahunAjarans', 'selectedTa', 'selectedSem', 'selectedKelas', 'selectedMapel', 'students', 'selectedMapelModel'));
     }
 
-    // ----------------------------------------------------
-    // REKAP: REKAP NILAI RAPORT (MATRIX SISWA VS MAPEL)
-    // ----------------------------------------------------
     public function rekapRaport(Request $request)
     {
         $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         $tahunAjarans = TahunAjaran::query()->get();
 
-        list($selectedTa, $selectedSem, $selectedKelas, $_) = $this->resolveFilters($request);
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+        $selectedKelas = $request->get('kelas_id');
 
-        $semesters = $selectedTa
-            ? Semester::query()->where('tahun_ajaran_id', $selectedTa)->get()
-            : Semester::query()->get();
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
 
         $students = [];
         $classMapels = [];
@@ -643,6 +662,99 @@ class NilaiController extends Controller
             }
         }
 
-        return view('pages.nilai.rekap_raport', compact('kelas', 'semesters', 'tahunAjarans', 'selectedTa', 'selectedSem', 'selectedKelas', 'students', 'classMapels'));
+        return view('pages.nilai.rekap_raport', compact('kelas', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedKelas', 'students', 'classMapels'));
+    }
+
+    public function cetakRaportList(Request $request)
+    {
+        $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = TahunAjaran::query()->get();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+        $selectedKelas = $request->get('kelas_id');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $students = [];
+        if ($selectedTa && $selectedSem && $selectedKelas) {
+            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+            
+            $students = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+        }
+
+        return view('pages.nilai.cetak_raport_list', compact('kelas', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'students'));
+    }
+
+    public function cetakRaportPrint($siswa_id, $tahun_ajaran_id, $semester_id)
+    {
+        $siswa = Siswa::query()->findOrFail($siswa_id);
+        $tahunAjaran = TahunAjaran::query()->findOrFail($tahun_ajaran_id);
+        $semester = Semester::query()->findOrFail($semester_id);
+        
+        $pembagianKelas = PembagianKelas::query()
+            ->where('siswa_id', $siswa_id)
+            ->where('tahun_ajaran_id', $tahun_ajaran_id)
+            ->first();
+        $kelasId = $pembagianKelas ? $pembagianKelas->kelas_id : $siswa->kelas_id;
+        $kelasModel = Kelas::query()->find($kelasId);
+
+        $school = \App\Models\ProfilSekolah::query()->first();
+
+        $classMapels = MataPelajaran::query()->where('kelas_id', $kelasId)
+            ->where('tahun_ajaran_id', $tahun_ajaran_id)
+            ->where('semester_id', $semester_id)
+            ->orderBy('nama_mata_pelajaran', 'asc')
+            ->get();
+
+        $grades = [];
+        foreach ($classMapels as $mp) {
+            $nilaiRecord = Nilai::query()->where('siswa_id', $siswa_id)
+                ->where('mata_pelajaran_id', $mp->id)
+                ->where('semester_id', $semester_id)
+                ->where('tahun_ajaran_id', $tahun_ajaran_id)
+                ->first();
+            $grades[$mp->id] = $nilaiRecord;
+        }
+
+        $attendance = [
+            'Sakit' => \App\Models\Kehadiran::query()->where('siswa_id', $siswa_id)
+                ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Sakit'); })
+                ->count(),
+            'Izin' => \App\Models\Kehadiran::query()->where('siswa_id', $siswa_id)
+                ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Izin'); })
+                ->count(),
+            'Alpa' => \App\Models\Kehadiran::query()->where('siswa_id', $siswa_id)
+                ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Alpa')->orWhere('nama_kehadiran', 'Tanpa Keterangan'); })
+                ->count(),
+        ];
+
+        $catatan = \App\Models\CatatanSiswa::query()->where('siswa_id', $siswa_id)
+            ->where('semester_id', $semester_id)
+            ->where('tahun_ajaran_id', $tahun_ajaran_id)
+            ->first();
+
+        $waliKelas = \App\Models\WaliKelas::query()->where('kelas_id', $kelasId)
+            ->where('tahun_ajaran_id', $tahun_ajaran_id)
+            ->first();
+
+        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas'));
     }
 }
