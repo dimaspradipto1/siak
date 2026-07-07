@@ -58,6 +58,8 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::post('orang-tua/import', [OrangTuaController::class, 'import'])->name('orang-tua.import');
     Route::get('orang-tua/template', [OrangTuaController::class, 'template'])->name('orang-tua.template');
     Route::resource('orang-tua', OrangTuaController::class);
+    Route::get('matapelajaran/jadwal', [MataPelajaranController::class, 'jadwal'])->name('matapelajaran.jadwal');
+    Route::get('ekstrakurikuler/rekap', [EkstrakurikulerController::class, 'rekapEkskul'])->name('ekstrakurikuler.rekap');
     Route::get('ekstrakurikuler-siswa', [EkstrakurikulerController::class, 'ekskulSiswa'])->name('ekstrakurikuler.siswa');
     Route::post('ekstrakurikuler-siswa/save', [EkstrakurikulerController::class, 'ekskulSiswaSave'])->name('ekstrakurikuler.siswa.save');
     Route::resource('ekstrakurikuler', EkstrakurikulerController::class);
@@ -103,6 +105,11 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('nilai/cetak-raport', [NilaiController::class, 'cetakRaportList'])->name('nilai.cetak-raport');
     Route::get('nilai/cetak-raport/print/{siswa_id}/{tahun_ajaran_id}/{semester_id}', [NilaiController::class, 'cetakRaportPrint'])->name('nilai.cetak-raport.print');
 
+    Route::get('nilai/raport/personal', [NilaiController::class, 'cetakRaportPersonal'])->name('nilai.raport.personal');
+    Route::get('kehadiran/personal', [KehadiranController::class, 'rekapKehadiranPersonal'])->name('kehadiran.personal');
+    Route::get('ekstrakurikuler-personal', [EkstrakurikulerController::class, 'rekapEkskulPersonal'])->name('ekstrakurikuler.personal');
+    Route::get('siswa-profile', [SiswaController::class, 'profile'])->name('siswa.profile');
+    Route::post('siswa-profile/update', [SiswaController::class, 'profileUpdate'])->name('siswa.profile.update');
     Route::resource('nilai', NilaiController::class);
     Route::resource('jeniscatatan', JenisCatatanController::class);
     Route::resource('catatansiswa', CatatanSiswaController::class);

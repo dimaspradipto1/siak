@@ -15,6 +15,7 @@ use App\Models\PembagianKelas;
 use App\Models\Guru;
 use App\Models\ProfilSekolah;
 use App\Models\WaliKelas;
+use App\Models\OrangTua;
 use App\Http\Requests\KehadiranRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -417,13 +418,26 @@ class KehadiranController extends Controller
 
     public function rekapKehadiran(Request $request)
     {
-        $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        $user = auth()->user();
+        $isPersonal = $user && in_array($user->roles, ['siswa', 'orang tua']);
+        $mySiswa = null;
+
+        if ($isPersonal) {
+            if ($user->roles === 'siswa') {
+                $mySiswa = Siswa::where('user_id', $user->id)->first();
+            } else {
+                $orangTua = OrangTua::where('user_id', $user->id)->first();
+                if ($orangTua) {
+                    $mySiswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+                }
+            }
+        }
+
         $tahunAjarans = TahunAjaran::query()->get();
         $jenisKehadirans = JenisKehadiran::all();
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedKelas = $request->get('kelas_id');
         $selectedJenisKehadiran = $request->get('jenis_kehadiran_id');
 
         if (!$selectedTa) {
@@ -435,6 +449,17 @@ class KehadiranController extends Controller
         }
         if (!$selectedJenisKehadiran) {
             $selectedJenisKehadiran = $jenisKehadirans->first()?->id;
+        }
+
+        if ($isPersonal && $mySiswa) {
+            $pk = PembagianKelas::where('siswa_id', $mySiswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+            $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
+            $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+        } else {
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
         }
 
         $semester = null;
@@ -455,9 +480,14 @@ class KehadiranController extends Controller
                 ->orderBy('nama_mata_pelajaran', 'asc')
                 ->get();
 
-            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->pluck('siswa_id');
+            $siswaIdsQuery = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa);
+
+            if ($isPersonal && $mySiswa) {
+                $siswaIdsQuery->where('siswa_id', $mySiswa->id);
+            }
+
+            $siswaIds = $siswaIdsQuery->pluck('siswa_id');
             
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
@@ -485,9 +515,23 @@ class KehadiranController extends Controller
 
     public function rekapKehadiranPrint(Request $request)
     {
+        $user = auth()->user();
+        $isPersonal = $user && in_array($user->roles, ['siswa', 'orang tua']);
+        $mySiswa = null;
+
+        if ($isPersonal) {
+            if ($user->roles === 'siswa') {
+                $mySiswa = Siswa::where('user_id', $user->id)->first();
+            } else {
+                $orangTua = OrangTua::where('user_id', $user->id)->first();
+                if ($orangTua) {
+                    $mySiswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+                }
+            }
+        }
+
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedKelas = $request->get('kelas_id');
         $selectedJenisKehadiran = $request->get('jenis_kehadiran_id');
 
         $tahunAjaran = TahunAjaran::find($selectedTa);
@@ -497,6 +541,15 @@ class KehadiranController extends Controller
             ->where('nama_semester', $selectedSemName)
             ->first();
         $selectedSem = $semester ? $semester->id : null;
+
+        if ($isPersonal && $mySiswa) {
+            $pk = PembagianKelas::where('siswa_id', $mySiswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+            $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
+        } else {
+            $selectedKelas = $request->get('kelas_id');
+        }
 
         $kelasModel = Kelas::find($selectedKelas);
         $jenisModel = JenisKehadiran::find($selectedJenisKehadiran);
@@ -511,9 +564,14 @@ class KehadiranController extends Controller
                 ->orderBy('nama_mata_pelajaran', 'asc')
                 ->get();
 
-            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->pluck('siswa_id');
+            $siswaIdsQuery = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa);
+
+            if ($isPersonal && $mySiswa) {
+                $siswaIdsQuery->where('siswa_id', $mySiswa->id);
+            }
+
+            $siswaIds = $siswaIdsQuery->pluck('siswa_id');
             
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
@@ -538,5 +596,78 @@ class KehadiranController extends Controller
             'tahunAjaran', 'semester', 'kelasModel', 'jenisModel', 'school',
             'students', 'classMapels', 'waliKelas', 'selectedSemName'
         ));
+    }
+
+    public function rekapKehadiranPersonal(Request $request)
+    {
+        $user = auth()->user();
+        $siswa = null;
+        if ($user->roles === 'siswa') {
+            $siswa = Siswa::where('user_id', $user->id)->first();
+        } elseif ($user->roles === 'orang tua') {
+            $orangTua = OrangTua::where('user_id', $user->id)->first();
+            if ($orangTua) {
+                $siswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+            }
+        }
+
+        if (!$siswa) {
+            alert()->error('Error', 'Data siswa tidak ditemukan.');
+            return redirect()->route('dashboard');
+        }
+
+        $tahunAjarans = TahunAjaran::query()->get();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $kelasId = $siswa->kelas_id;
+        $classMapels = [];
+        $attendanceCounts = [];
+
+        if ($selectedTa && $selectedSem) {
+            $classMapels = MataPelajaran::query()->where('kelas_id', $kelasId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->orderBy('nama_mata_pelajaran', 'asc')
+                ->get();
+
+            // Fetch counts of Sakit, Izin, Alpa per subject
+            foreach ($classMapels as $mp) {
+                $attendanceCounts[$mp->id] = [
+                    'Sakit' => Kehadiran::query()->where('siswa_id', $siswa->id)
+                        ->where('mata_pelajaran_id', $mp->id)
+                        ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Sakit'); })
+                        ->count(),
+                    'Izin' => Kehadiran::query()->where('siswa_id', $siswa->id)
+                        ->where('mata_pelajaran_id', $mp->id)
+                        ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Izin'); })
+                        ->count(),
+                    'Alpa' => Kehadiran::query()->where('siswa_id', $siswa->id)
+                        ->where('mata_pelajaran_id', $mp->id)
+                        ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Alpa')->orWhere('nama_kehadiran', 'Tanpa Keterangan'); })
+                        ->count(),
+                ];
+            }
+        }
+
+        return view('pages.kehadiran.rekap_personal', compact('siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'classMapels', 'attendanceCounts'));
     }
 }

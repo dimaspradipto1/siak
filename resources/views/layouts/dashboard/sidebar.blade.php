@@ -117,7 +117,7 @@
           <i class="bi bi-calendar-check"></i><span>Kehadiran</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="kehadiran-nav" class="nav-content collapse {{ request()->routeIs('kehadiran.*', 'jeniskehadiran.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
-          <li><a href="{{ route('kehadiran.index') }}" class="{{ request()->routeIs('kehadiran.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Kehadiran</span></a></li>
+          <li><a href="{{ route('kehadiran.rekap') }}" class="{{ request()->routeIs('kehadiran.rekap') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Kehadiran</span></a></li>
           <li><a href="{{ route('jeniskehadiran.index') }}" class="{{ request()->routeIs('jeniskehadiran.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Jenis Kehadiran</span></a></li>
         </ul>
       </li>
@@ -168,7 +168,7 @@
         </a>
         <ul id="kehadiran-nav" class="nav-content collapse {{ request()->routeIs('kehadiran.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
           <li><a href="{{ route('kehadiran.create') }}" class="{{ request()->routeIs('kehadiran.create') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Input Kehadiran</span></a></li>
-          <li><a href="{{ route('kehadiran.index') }}" class="{{ request()->routeIs('kehadiran.index') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Kehadiran</span></a></li>
+          <li><a href="{{ route('kehadiran.rekap') }}" class="{{ request()->routeIs('kehadiran.rekap') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Kehadiran</span></a></li>
         </ul>
       </li>
 
@@ -195,7 +195,7 @@
       
       <li class="nav-heading">Nilai Siswa</li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('nilai.rekap-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.rekap-raport') }}">
+        <a class="nav-link {{ request()->routeIs('nilai.rekap-mapel') ? '' : 'collapsed' }}" href="{{ route('nilai.rekap-mapel') }}">
           <i class="bi bi-star"></i><span>Rekap Nilai</span>
         </a>
       </li>
@@ -218,11 +218,21 @@
           <i class="bi bi-star"></i><span>Input Ekstrakurikuler</span>
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.rekap') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.rekap') }}">
+          <i class="bi bi-star"></i><span>Rekap Ekstrakurikuler</span>
+        </a>
+      </li>
 
       <li class="nav-heading">Informasi & Pengaturan</li>
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('pengumuman.index') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
           <i class="bi bi-star"></i><span>Pengumuman</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('matapelajaran.jadwal') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.jadwal') }}">
+          <i class="bi bi-star"></i><span>Jadwal Mata Pelajaran</span>
         </a>
       </li>
 
@@ -234,26 +244,53 @@
          ========================================== --}}
     @if ($isPersonal)
       
-      <li class="nav-heading">{{ $isSiswa ? 'Laporan Akademik Saya' : 'Laporan Akademik Anak' }}</li>
+      <li class="nav-heading">Profile Siswa</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('siswa.profile') ? '' : 'collapsed' }}" href="{{ route('siswa.profile') }}">
+          <i class="bi bi-person"></i><span>Profile Siswa</span>
+        </a>
+      </li>
 
+      <li class="nav-heading">Nilai Siswa</li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('nilai.*') ? '' : 'collapsed' }}" href="{{ route('nilai.index') }}">
-          <i class="bi bi-journal-check"></i><span>Nilai</span>
+        <a class="nav-link {{ request()->routeIs('nilai.index') ? '' : 'collapsed' }}" href="{{ route('nilai.index') }}">
+          <i class="bi bi-star"></i><span>Rekap Nilai</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}" href="{{ route('kehadiran.index') }}">
-          <i class="bi bi-calendar-check"></i><span>Kehadiran</span>
+        <a class="nav-link {{ request()->routeIs('nilai.raport.personal') ? '' : 'collapsed' }}" href="{{ route('nilai.raport.personal') }}">
+          <i class="bi bi-star"></i><span>Cetak Raport</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Kehadiran Siswa</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('kehadiran.rekap') ? '' : 'collapsed' }}" href="{{ route('kehadiran.rekap') }}">
+          <i class="bi bi-star"></i><span>Rekap Kehadiran</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Ekstrakurikuler Siswa</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.rekap') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.rekap') }}">
+          <i class="bi bi-star"></i><span>Rekap Ekstrakurikuler</span>
+        </a>
+      </li>
+
+      <li class="nav-heading">Informasi & Pengaturan</li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('pengumuman.index') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
+          <i class="bi bi-star"></i><span>Pengumuman</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}" href="{{ route('catatansiswa.index') }}">
-          <i class="bi bi-chat-square-text"></i><span>Catatan Perilaku</span>
+        <a class="nav-link {{ request()->routeIs('matapelajaran.jadwal') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.jadwal') }}">
+          <i class="bi bi-star"></i><span>Jadwal Mata Pelajaran</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.index') }}">
-          <i class="bi bi-trophy"></i><span>Ekstrakurikuler</span>
+        <a class="nav-link {{ request()->routeIs('materipembelajaran.index') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
+          <i class="bi bi-star"></i><span>Materi Pembelajaran</span>
         </a>
       </li>
 
@@ -263,7 +300,7 @@
     {{-- ==========================================
          D. INFORMASI & PENGATURAN UMUM
          ========================================== --}}
-    @if (!$isWali)
+    @if (!$isWali && !$isPersonal)
       <li class="nav-heading">Informasi & Pengaturan</li>
 
       <li class="nav-item">

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -17,9 +19,11 @@ class OrangTua extends Model
         'nama_ayah',
         'nama_ibu',
         'nomor_wa',
+        'nomor_wa_ibu',
         'alamat',
         'pekerjaan_ayah',
         'pekerjaan_ibu',
+        'email',
     ];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

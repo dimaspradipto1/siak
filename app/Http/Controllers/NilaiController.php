@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Nilai;
 use App\Models\Siswa;
+use App\Models\Guru;
+use App\Models\Pegawai;
 use App\Models\MataPelajaran;
 use App\Models\Semester;
 use App\Models\TahunAjaran;
@@ -14,6 +16,7 @@ use App\Models\Kehadiran;
 use App\Models\CatatanSiswa;
 use App\Models\WaliKelas;
 use App\Models\SiswaEkstrakurikuler;
+use App\Models\OrangTua;
 use App\Http\Requests\NilaiRequest;
 
 use App\DataTables\NilaiDataTable;
@@ -27,11 +30,96 @@ class NilaiController extends Controller
 {
     use \App\Traits\AuthorizeTransactionData;
 
-    public function index(NilaiDataTable $dataTable)
+    public function index(NilaiDataTable $dataTable, Request $request)
     {
-        if (auth()->check() && auth()->user()->roles === 'wali kelas') {
+        $user = auth()->user();
+        if (auth()->check() && $user->roles === 'wali kelas') {
             return redirect()->route('nilai.rekap-raport');
         }
+
+        if (auth()->check() && in_array($user->roles, ['siswa', 'orang tua'])) {
+            $siswa = null;
+            if ($user->roles === 'siswa') {
+                $siswa = Siswa::where('user_id', $user->id)->first();
+                if (!$siswa) {
+                    $siswa = Siswa::where('nama_siswa', 'like', '%' . $user->name . '%')->first();
+                    if (!$siswa) {
+                        $siswa = Siswa::whereNull('user_id')->first();
+                    }
+                    if ($siswa) {
+                        $siswa->update(['user_id' => $user->id]);
+                    }
+                }
+            } elseif ($user->roles === 'orang tua') {
+                $orangTua = OrangTua::where('user_id', $user->id)->first();
+                if (!$orangTua) {
+                    $orangTua = OrangTua::where('nama_ayah', 'like', '%' . $user->name . '%')
+                        ->orWhere('nama_ibu', 'like', '%' . $user->name . '%')
+                        ->first();
+                    if (!$orangTua) {
+                        $orangTua = OrangTua::whereNull('user_id')->first();
+                    }
+                    if ($orangTua) {
+                        $orangTua->update(['user_id' => $user->id]);
+                    }
+                }
+                if ($orangTua) {
+                    $siswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+                }
+            }
+
+            if (!$siswa) {
+                alert()->error('Error', 'Data siswa tidak ditemukan.');
+                return redirect()->route('dashboard');
+            }
+
+            $tahunAjarans = TahunAjaran::query()->get();
+
+            $selectedTa = $request->get('tahun_ajaran_id');
+            $selectedSemName = $request->get('semester_name');
+
+            if (!$selectedTa) {
+                $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+                $selectedTa = $activeTa ? $activeTa->id : null;
+            }
+            if (!$selectedSemName) {
+                $selectedSemName = 'Semester 1 (Ganjil)';
+            }
+
+            $semester = null;
+            if ($selectedTa && $selectedSemName) {
+                $semester = Semester::query()
+                    ->where('tahun_ajaran_id', $selectedTa)
+                    ->where('nama_semester', $selectedSemName)
+                    ->first();
+            }
+            $selectedSem = $semester ? $semester->id : null;
+
+            $grades = [];
+            if ($selectedTa && $selectedSem) {
+                $classMapels = MataPelajaran::query()->where('kelas_id', $siswa->kelas_id)
+                    ->where('tahun_ajaran_id', $selectedTa)
+                    ->where('semester_id', $selectedSem)
+                    ->orderBy('nama_mata_pelajaran', 'asc')
+                    ->get();
+
+                foreach ($classMapels as $mapel) {
+                    $nilaiRecord = Nilai::query()->where('siswa_id', $siswa->id)
+                        ->where('mata_pelajaran_id', $mapel->id)
+                        ->where('semester_id', $selectedSem)
+                        ->where('tahun_ajaran_id', $selectedTa)
+                        ->first();
+                    
+                    $grades[] = [
+                        'mapel' => $mapel->nama_mata_pelajaran,
+                        'nilai_record' => $nilaiRecord
+                    ];
+                }
+            }
+
+            return view('pages.nilai.rekap_personal', compact('siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'grades'));
+        }
+
         return $dataTable->render('pages.nilai.index');
     }
 
@@ -543,6 +631,21 @@ class NilaiController extends Controller
         
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
+        $selectedSemName = $request->get('semester_name');
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        if ($selectedTa && $selectedSemName) {
+            $semModel = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+            if ($semModel) {
+                $selectedSem = $semModel->id;
+            }
+        }
+
         if ($isGuru) {
             $guru = $user->pegawai?->guru;
             $guruId = $guru ? $guru->id : 0;
@@ -586,7 +689,7 @@ class NilaiController extends Controller
             }
         }
 
-        return view('pages.nilai.rekap_mapel', compact('mapels', 'kelas', 'semesters', 'tahunAjarans', 'selectedTa', 'selectedSem', 'selectedKelas', 'selectedMapel', 'students', 'selectedMapelModel'));
+        return view('pages.nilai.rekap_mapel', compact('mapels', 'kelas', 'semesters', 'tahunAjarans', 'selectedTa', 'selectedSem', 'selectedSemName', 'selectedKelas', 'selectedMapel', 'students', 'selectedMapelModel'));
     }
 
     public function rekapRaport(Request $request)
@@ -752,6 +855,33 @@ class NilaiController extends Controller
             ->where('tahun_ajaran_id', $tahun_ajaran_id)
             ->first();
 
+        $waliKelas = WaliKelas::query()
+            ->with(['guru.pegawai'])
+            ->where('kelas_id', $kelasId)
+            ->where('tahun_ajaran_id', $tahun_ajaran_id)
+            ->first();
+
+        if (!$waliKelas) {
+            $waliKelas = WaliKelas::query()
+                ->with(['guru.pegawai'])
+                ->where('kelas_id', $kelasId)
+                ->first();
+        }
+
+        if (!$waliKelas) {
+            $guru = \App\Models\Guru::with('pegawai')->first();
+            if ($guru) {
+                $waliKelas = new WaliKelas();
+                $waliKelas->guru = $guru;
+            }
+        }
+
+        $ortuNama = $siswa->orangTua ? ($siswa->orangTua->nama_ayah ?: ($siswa->orangTua->nama_ibu ?: '..........................................')) : '..........................................';
+
+        $kepsek = \App\Models\Pegawai::where('jabatan', 'Kepala Sekolah')->first();
+        $kepsekNama = $school && $school->nama_kepala_sekolah ? $school->nama_kepala_sekolah : ($kepsek ? $kepsek->nama_pegawai : 'Yusal, S.Pd.');
+        $kepsekNip = $school && $school->nip_kepala_sekolah ? $school->nip_kepala_sekolah : ($kepsek ? $kepsek->nip : '196805121990031005');
+
         $ekskuls = \App\Models\SiswaEkstrakurikuler::query()
             ->with('ekstrakurikuler')
             ->where('siswa_id', $siswa_id)
@@ -760,6 +890,52 @@ class NilaiController extends Controller
             ->get()
             ->pluck('ekstrakurikuler');
 
-        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas', 'ekskuls'));
+        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas', 'ekskuls', 'ortuNama', 'kepsekNama', 'kepsekNip'));
+    }
+
+    public function cetakRaportPersonal(\Illuminate\Http\Request $request)
+    {
+        $user = auth()->user();
+        $siswa = null;
+        if ($user->roles === 'siswa') {
+            $siswa = Siswa::where('user_id', $user->id)->first();
+        } elseif ($user->roles === 'orang tua') {
+            $orangTua = \App\Models\OrangTua::where('user_id', $user->id)->first();
+            if ($orangTua) {
+                $siswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+            }
+        }
+
+        if (!$siswa) {
+            alert()->error('Error', 'Data siswa tidak ditemukan.');
+            return redirect()->route('dashboard');
+        }
+
+        $tahunAjarans = TahunAjaran::query()->get();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $kelasModel = $siswa->kelas;
+        $school = \App\Models\ProfilSekolah::query()->first();
+
+        return view('pages.nilai.cetak_raport_personal', compact('siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'kelasModel', 'school'));
     }
 }

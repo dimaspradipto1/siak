@@ -284,20 +284,20 @@
                 <td>
                     Mengetahui<br>
                     Orang Tua/Wali Siswa,<br><br><br><br>
-                    ..........................................
+                    <strong><u>{{ $ortuNama }}</u></strong>
                 </td>
                 <td>
                     <br>
                     Mengetahui,<br>
                     Kepala Sekolah<br><br><br>
-                    <strong><u>{{ $school->nama_kepala_sekolah ?? '..........................................' }}</u></strong><br>
-                    NIP. {{ $school->nip_kepala_sekolah ?? '..........................................' }}
+                    <strong><u>{{ $kepsekNama }}</u></strong><br>
+                    NIP. {{ $kepsekNip }}
                 </td>
                 <td>
                     Batam, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}<br>
                     Wali Kelas,<br><br><br><br>
-                    <strong><u>{{ $waliKelas->guru->pegawai->nama_pegawai ?? '..........................................' }}</u></strong><br>
-                    NIP. {{ $waliKelas->guru->pegawai->nip ?? '..........................................' }}
+                    <strong><u>{{ $waliKelas->guru?->pegawai?->nama_pegawai ?? '..........................................' }}</u></strong><br>
+                    NIP. {{ $waliKelas->guru?->pegawai?->nip ?? '..........................................' }}
                 </td>
             </tr>
         </table>

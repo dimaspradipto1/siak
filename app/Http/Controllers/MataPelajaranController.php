@@ -7,6 +7,9 @@ use App\Models\Kelas;
 use App\Models\TahunAjaran;
 use App\Models\Semester;
 use App\Models\Guru;
+use App\Models\Siswa;
+use App\Models\OrangTua;
+use App\Models\PembagianKelas;
 use App\Http\Requests\MataPelajaranRequest;
 use App\DataTables\MataPelajaranDataTable;
 use Illuminate\Http\Request;
@@ -112,5 +115,73 @@ class MataPelajaranController extends Controller
         );
 
         return redirect()->route('matapelajaran.index');
+    }
+
+    public function jadwal(Request $request)
+    {
+        $user = auth()->user();
+        $isPersonal = $user && in_array($user->roles, ['siswa', 'orang tua']);
+        $mySiswa = null;
+
+        if ($isPersonal) {
+            if ($user->roles === 'siswa') {
+                $mySiswa = \App\Models\Siswa::where('user_id', $user->id)->first();
+            } else {
+                $orangTua = \App\Models\OrangTua::where('user_id', $user->id)->first();
+                if ($orangTua) {
+                    $mySiswa = \App\Models\Siswa::where('orang_tua_id', $orangTua->id)->first();
+                }
+            }
+        }
+
+        $tahunAjarans = TahunAjaran::query()->get();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        if ($isPersonal && $mySiswa) {
+            $pk = \App\Models\PembagianKelas::where('siswa_id', $mySiswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+            $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
+            $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+        } else {
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $matapelajaran = [];
+        if ($selectedTa && $selectedSem && $selectedKelas) {
+            $matapelajaran = MataPelajaran::with(['kelas', 'semester', 'guru.pegawai'])
+                ->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->orderBy('hari_mengajar', 'asc')
+                ->orderBy('jam_mengajar', 'asc')
+                ->get();
+        }
+
+        return view('pages.mata-pelajaran.jadwal', compact(
+            'kelas', 'tahunAjarans',
+            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas',
+            'matapelajaran'
+        ));
     }
 }

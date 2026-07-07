@@ -1,38 +1,14 @@
 @extends('layouts.dashboard.template')
 
-@php
-if (!function_exists('abbreviateMapel')) {
-    function abbreviateMapel($name) {
-        $map = [
-            'Pendidikan Agama Islam' => 'PAI',
-            'Pendidikan Agama Islam dan Budi Pekerti' => 'PAI',
-            'Pendidikan Pancasila dan Kewarganegaraan' => 'PKN',
-            'Pendidikan Pancasila' => 'PKN',
-            'Bahasa Indonesia' => 'B.INDO',
-            'Matematika' => 'MTK',
-            'Ilmu Pengetahuan Alam dan Sosial' => 'IPAS',
-            'Ilmu Pengetahuan Alam' => 'IPA',
-            'Ilmu Pengetahuan Sosial' => 'IPS',
-            'Seni Budaya dan Prakarya' => 'SBDP',
-            'Seni Budaya dan Musik' => 'SBDM',
-            'Seni Rupa' => 'Seni Rupa',
-            'Bahasa Inggris' => 'B.ING',
-            'Pendidikan Jasmani, Olahraga, dan Kesehatan' => 'PJOK',
-        ];
-        return $map[$name] ?? $name;
-    }
-}
-@endphp
-
-@section('title', 'Rekap Kehadiran Siswa')
+@section('title', 'Rekap Ekstrakurikuler Siswa')
 
 @section('content')
     <div class="pagetitle">
-        <h1 class="text-primary fw-bold">Rekap Kehadiran Siswa</h1>
+        <h1 class="text-primary fw-bold">Rekap Ekstrakurikuler Siswa</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item active">Rekap Kehadiran</li>
+                <li class="breadcrumb-item active">Rekap Ekstrakurikuler</li>
             </ol>
         </nav>
     </div>
@@ -42,10 +18,10 @@ if (!function_exists('abbreviateMapel')) {
             <div class="col-lg-12">
                 <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
                     <div class="card-body pt-4">
-                        <h5 class="card-title text-dark fw-bold mb-4 p-0">Form Rekap Kehadiran Siswa</h5>
+                        <h5 class="card-title text-dark fw-bold mb-4 p-0">Form Rekap Ekstrakurikuler Siswa</h5>
                         
-                        <form action="{{ route('kehadiran.rekap') }}" method="GET" class="row g-4">
-                            <div class="col-md-6">
+                        <form action="{{ route('ekstrakurikuler.rekap') }}" method="GET" class="row g-4">
+                            <div class="col-md-4">
                                 <label for="tahun_ajaran_id" class="form-label fw-semibold text-dark">Tahun Ajaran</label>
                                 <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-select py-2" style="border-radius: 8px;" required>
                                     <option value="" disabled selected></option>
@@ -57,7 +33,7 @@ if (!function_exists('abbreviateMapel')) {
                                 </select>
                             </div>
                             
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="semester_name" class="form-label fw-semibold text-dark">Semester</label>
                                 <select name="semester_name" id="semester_name" class="form-select py-2" style="border-radius: 8px;" required>
                                     <option value="" disabled selected></option>
@@ -66,7 +42,7 @@ if (!function_exists('abbreviateMapel')) {
                                 </select>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="kelas_id" class="form-label fw-semibold text-dark">Kelas</label>
                                 <select name="kelas_id" id="kelas_id" class="form-select py-2" style="border-radius: 8px;" required>
                                     <option value="" disabled selected></option>
@@ -78,40 +54,21 @@ if (!function_exists('abbreviateMapel')) {
                                 </select>
                             </div>
 
-                            <div class="col-md-6">
-                                <label for="jenis_kehadiran_id" class="form-label fw-semibold text-dark">Status Kehadiran</label>
-                                <select name="jenis_kehadiran_id" id="jenis_kehadiran_id" class="form-select py-2" style="border-radius: 8px;" required>
-                                    <option value="" disabled selected></option>
-                                    @foreach($jenisKehadirans as $jk)
-                                        <option value="{{ $jk->id }}" {{ $selectedJenisKehadiran == $jk->id ? 'selected' : '' }}>
-                                            {{ $jk->nama_kehadiran }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
                             <div class="col-12 d-flex justify-content-end align-items-center gap-4 pt-2">
-                                <a href="{{ route('kehadiran.rekap') }}" class="text-dark fw-bold text-decoration-none small" style="font-size: 0.95rem;">
+                                <a href="{{ route('ekstrakurikuler.rekap') }}" class="text-dark fw-bold text-decoration-none small" style="font-size: 0.95rem;">
                                     Reset
                                 </a>
                                 <button type="submit" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold; font-size: 0.95rem;">
-                                    Get Data
+                                    Tampilan
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                @if($selectedTa && $selectedSem && $selectedKelas && $selectedJenisKehadiran)
+                @if($selectedTa && $selectedSem && $selectedKelas)
                 <div class="card shadow-sm border-0" style="border-radius: 12px;">
                     <div class="card-body pt-4">
-                        <div class="text-center mb-4">
-                            <h5 class="fw-bold p-0 mb-1 text-dark" style="font-size: 1.25rem;">Jumlah Kehadiran</h5>
-                            <span class="badge bg-primary px-3 py-2 text-white" style="font-size: 0.9rem; border-radius: 6px;">
-                                Status Kehadiran: {{ $selectedJenisModel->nama_kehadiran ?? '-' }}
-                            </span>
-                        </div>
-
                         @if(count($students) > 0)
                         <div class="table-responsive">
                             <table class="table align-middle text-center table-borderless table-striped">
@@ -120,9 +77,10 @@ if (!function_exists('abbreviateMapel')) {
                                         <th style="padding: 12px 16px; width: 60px;">No</th>
                                         <th style="padding: 12px 16px; width: 140px;">NISN</th>
                                         <th class="text-start" style="padding: 12px 16px;">Nama Siswa</th>
-                                        @foreach($classMapels as $mp)
-                                            <th style="padding: 12px 16px;">{{ abbreviateMapel($mp->nama_mata_pelajaran) }}</th>
-                                        @endforeach
+                                        <th style="padding: 12px 16px;">Tahun Ajaran</th>
+                                        <th style="padding: 12px 16px;">Semester</th>
+                                        <th style="padding: 12px 16px;">Kelas</th>
+                                        <th style="padding: 12px 16px;" class="text-start">Ekskul</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -131,26 +89,23 @@ if (!function_exists('abbreviateMapel')) {
                                             <td style="padding: 14px 16px;">{{ $index + 1 }}</td>
                                             <td class="text-dark fw-semibold" style="padding: 14px 16px;">{{ $siswa->nisn }}</td>
                                             <td class="text-start fw-bold text-dark" style="padding: 14px 16px;">{{ $siswa->nama_siswa }}</td>
-                                            @foreach($classMapels as $mp)
-                                                <td style="padding: 14px 16px;">
-                                                    <span class="{{ ($siswa->attendance_counts[$mp->id] ?? 0) > 0 ? 'text-danger fw-bold' : 'text-muted' }}">
-                                                        {{ $siswa->attendance_counts[$mp->id] ?? 0 }}
-                                                    </span>
-                                                </td>
-                                            @endforeach
+                                            <td style="padding: 14px 16px;">{{ $tahunAjarans->firstWhere('id', $selectedTa)?->nama_tahun_ajaran }}</td>
+                                            <td style="padding: 14px 16px;">{{ $selectedSemName }}</td>
+                                            <td style="padding: 14px 16px;">{{ $kelas->firstWhere('id', $selectedKelas)?->nama_kelas }}</td>
+                                            <td class="text-start text-dark fw-semibold" style="padding: 14px 16px;">
+                                                @if($siswa->ekskul_list === '-')
+                                                    <span class="text-muted">-</span>
+                                                @else
+                                                    <span class="badge bg-primary px-2 py-1 text-white" style="font-size: 0.85rem; border-radius: 4px;">{{ $siswa->ekskul_list }}</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('kehadiran.rekap.print', request()->all()) }}" target="_blank" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold;">
-                                <i class="bi bi-printer-fill me-1"></i> Cetak Rekap
-                            </a>
-                        </div>
                         @else
-                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data siswa atau mata pelajaran yang terdaftar.</div>
+                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data siswa atau ekstrakurikuler yang terdaftar.</div>
                         @endif
                     </div>
                 </div>

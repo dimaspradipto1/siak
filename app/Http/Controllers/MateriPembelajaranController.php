@@ -9,6 +9,8 @@ use App\Models\TahunAjaran;
 use App\Models\Semester;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
+use App\Models\Siswa;
+use App\Models\OrangTua;
 use App\Http\Requests\MateriPembelajaranRequest;
 use App\DataTables\MateriPembelajaranDataTable;
 
@@ -21,9 +23,34 @@ class MateriPembelajaranController extends Controller
      */
     public function index(MateriPembelajaranDataTable $dataTable)
     {
-        $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+        $user = auth()->user();
+        $isPersonal = $user && in_array($user->roles, ['siswa', 'orang tua']);
+        $mySiswa = null;
+
+        if ($isPersonal) {
+            if ($user->roles === 'siswa') {
+                $mySiswa = \App\Models\Siswa::where('user_id', $user->id)->first();
+            } else {
+                $orangTua = \App\Models\OrangTua::where('user_id', $user->id)->first();
+                if ($orangTua) {
+                    $mySiswa = \App\Models\Siswa::where('orang_tua_id', $orangTua->id)->first();
+                }
+            }
+        }
+
+        if ($isPersonal && $mySiswa) {
+            $kelas = Kelas::where('id', $mySiswa->kelas_id)->get();
+            $uniqueMapels = MataPelajaran::query()
+                ->where('kelas_id', $mySiswa->kelas_id)
+                ->distinct()
+                ->orderBy('nama_mata_pelajaran')
+                ->pluck('nama_mata_pelajaran');
+        } else {
+            $kelas = Kelas::orderBy('nama_kelas', 'asc')->get();
+            $uniqueMapels = MataPelajaran::query()->distinct()->orderBy('nama_mata_pelajaran')->pluck('nama_mata_pelajaran');
+        }
+
         $tahunAjarans = TahunAjaran::all();
-        $uniqueMapels = MataPelajaran::query()->distinct()->orderBy('nama_mata_pelajaran')->pluck('nama_mata_pelajaran');
         return $dataTable->render('pages.materipembelajaran.index', compact('kelas', 'tahunAjarans', 'uniqueMapels'));
     }
 

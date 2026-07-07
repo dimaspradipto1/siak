@@ -12,6 +12,7 @@ use App\Models\TahunAjaran;
 use App\Models\Semester;
 use App\Models\PembagianKelas;
 use App\Models\SiswaEkstrakurikuler;
+use App\Models\OrangTua;
 
 class EkstrakurikulerController extends Controller
 {
@@ -163,5 +164,144 @@ class EkstrakurikulerController extends Controller
 
         alert()->success('Berhasil!', 'Data ekstrakurikuler siswa berhasil disimpan.')->html();
         return redirect()->back();
+    }
+
+    public function rekapEkskulPersonal(\Illuminate\Http\Request $request)
+    {
+        $user = auth()->user();
+        $siswa = null;
+        if ($user->roles === 'siswa') {
+            $siswa = Siswa::where('user_id', $user->id)->first();
+        } elseif ($user->roles === 'orang tua') {
+            $orangTua = OrangTua::where('user_id', $user->id)->first();
+            if ($orangTua) {
+                $siswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+            }
+        }
+
+        if (!$siswa) {
+            alert()->error('Error', 'Data siswa tidak ditemukan.');
+            return redirect()->route('dashboard');
+        }
+
+        $tahunAjarans = TahunAjaran::query()->get();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $ekskuls = [];
+        if ($selectedTa && $selectedSem) {
+            $ekskuls = SiswaEkstrakurikuler::query()
+                ->with('ekstrakurikuler')
+                ->where('siswa_id', $siswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->get()
+                ->pluck('ekstrakurikuler');
+        }
+
+        return view('pages.ekstrakurikuler.rekap_personal', compact('siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'ekskuls'));
+    }
+
+    public function rekapEkskul(\Illuminate\Http\Request $request)
+    {
+        $user = auth()->user();
+        $isPersonal = $user && in_array($user->roles, ['siswa', 'orang tua']);
+        $mySiswa = null;
+
+        if ($isPersonal) {
+            if ($user->roles === 'siswa') {
+                $mySiswa = Siswa::where('user_id', $user->id)->first();
+            } else {
+                $orangTua = OrangTua::where('user_id', $user->id)->first();
+                if ($orangTua) {
+                    $mySiswa = Siswa::where('orang_tua_id', $orangTua->id)->first();
+                }
+            }
+        }
+
+        $tahunAjarans = TahunAjaran::query()->get();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        if ($isPersonal && $mySiswa) {
+            $pk = PembagianKelas::where('siswa_id', $mySiswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+            $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
+            $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+        } else {
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $students = [];
+        if ($selectedTa && $selectedSem && $selectedKelas) {
+            $siswaIdsQuery = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa);
+
+            if ($isPersonal && $mySiswa) {
+                $siswaIdsQuery->where('siswa_id', $mySiswa->id);
+            }
+
+            $siswaIds = $siswaIdsQuery->pluck('siswa_id');
+            $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+
+            foreach ($studentsList as $siswa) {
+                $ekskulNames = SiswaEkstrakurikuler::query()
+                    ->with('ekstrakurikuler')
+                    ->where('siswa_id', $siswa->id)
+                    ->where('tahun_ajaran_id', $selectedTa)
+                    ->where('semester_id', $selectedSem)
+                    ->get()
+                    ->pluck('ekstrakurikuler.nama_ekstrakurikuler')
+                    ->filter()
+                    ->implode(', ');
+
+                $siswa->ekskul_list = $ekskulNames ?: '-';
+                $students[] = $siswa;
+            }
+        }
+
+        return view('pages.ekstrakurikuler.rekap', compact(
+            'kelas', 'tahunAjarans',
+            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas',
+            'students'
+        ));
     }
 }

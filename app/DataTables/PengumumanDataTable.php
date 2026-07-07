@@ -21,7 +21,7 @@ class PengumumanDataTable extends DataTable
                 return $p->user ? $p->user->name : '-';
             })
             ->addColumn('keterangan_short', function ($p) {
-                return \Str::limit($p->keterangan, 50);
+                return Str::limit($p->keterangan, 50);
             })
             ->addColumn('created_at', function ($p) {
                 return \Carbon\Carbon::parse($p->created_at)->locale('id')->translatedFormat('l, d F Y');
@@ -39,9 +39,20 @@ class PengumumanDataTable extends DataTable
                 return $p->mataPelajaran ? $p->mataPelajaran->nama_mata_pelajaran : 'Semua Mapel';
             })
             ->addColumn('action', function ($p) {
-                if (in_array(auth()->user()->roles, ['siswa', 'orang tua'])) return '';
+                if (in_array(auth()->user()->roles, ['siswa', 'orang tua'])) {
+                    return '
+                    <div class="d-flex gap-1 justify-content-center">
+                        <a href="' . route('pengumuman.show', $p->id) . '" class="btn btn-info btn-sm text-white" title="Detail">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                    ';
+                }
                 return '
                 <div class="d-flex gap-1 justify-content-center">
+                    <a href="' . route('pengumuman.show', $p->id) . '" class="btn btn-info btn-sm text-white" title="Detail">
+                        <i class="bi bi-eye"></i>
+                    </a>
                     <a href="' . route('pengumuman.edit', $p->id) . '" class="btn btn-warning btn-sm" title="Edit">
                         <i class="bi bi-pencil"></i>
                     </a>

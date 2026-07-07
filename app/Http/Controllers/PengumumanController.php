@@ -50,7 +50,7 @@ class PengumumanController extends Controller
 
     public function show(Pengumuman $pengumuman)
     {
-        return redirect()->route('pengumuman.edit', $pengumuman);
+        return view('pages.pengumuman.show', compact('pengumuman'));
     }
 
     public function edit(Pengumuman $pengumuman)

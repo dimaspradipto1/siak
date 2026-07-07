@@ -19,9 +19,11 @@
                 <div class="card shadow-sm border-0 pb-3">
                     <div class="card-body pt-3">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="card-title mb-0">Daftar Materi Pembelajaran</h5>
+                            <h5 class="card-title text-dark fw-bold mb-0">
+                                {{ in_array(auth()->user()->roles, ['siswa', 'orang tua']) ? 'Daftar Materi Pembelajaran Siswa' : 'Daftar Materi Pembelajaran' }}
+                            </h5>
                             @if(!in_array(auth()->user()->roles, ['siswa', 'orang tua']))
-                            <a href="{{ route('materipembelajaran.create') }}" class="btn btn-primary btn-sm">
+                            <a href="{{ route('materipembelajaran.create') }}" class="btn btn-dark btn-sm px-3" style="background-color: #212529; border-color: #212529;">
                                 <i class="bi bi-plus-circle-fill"></i> Tambah Data
                             </a>
                             @endif
@@ -31,18 +33,18 @@
                         <form id="filterForm" class="mb-4">
                             <div class="row g-3">
                                 <div class="col-md-3">
-                                    <label for="tahun_ajaran_id" class="form-label fw-semibold">Tahun Ajaran</label>
+                                    <label for="tahun_ajaran_id" class="form-label fw-semibold text-dark">Tahun Ajaran</label>
                                     <select id="tahun_ajaran_id" name="tahun_ajaran_id" class="form-select select2-filter">
                                         <option value="">Semua Tahun Ajaran</option>
                                         @foreach($tahunAjarans as $ta)
                                             <option value="{{ $ta->id }}">
-                                                {{ $ta->tahun_mulai }}/{{ $ta->tahun_selesai }}
+                                                {{ $ta->nama_tahun_ajaran }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="semester_name" class="form-label fw-semibold">Semester</label>
+                                    <label for="semester_name" class="form-label fw-semibold text-dark">Semester</label>
                                     <select id="semester_name" name="semester_name" class="form-select select2-filter">
                                         <option value="">Semua Semester</option>
                                         <option value="Semester 1 (Ganjil)">Semester 1 (Ganjil)</option>
@@ -50,16 +52,18 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="kelas_id" class="form-label fw-semibold">Kelas</label>
+                                    <label for="kelas_id" class="form-label fw-semibold text-dark">Kelas</label>
                                     <select id="kelas_id" name="kelas_id" class="form-select select2-filter">
-                                        <option value="">Semua Kelas</option>
+                                        @if(!in_array(auth()->user()->roles, ['siswa', 'orang tua']))
+                                            <option value="">Semua Kelas</option>
+                                        @endif
                                         @foreach($kelas as $k)
                                             <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="nama_mata_pelajaran" class="form-label fw-semibold">Mata Pelajaran</label>
+                                    <label for="nama_mata_pelajaran" class="form-label fw-semibold text-dark">Mata Pelajaran</label>
                                     <select id="nama_mata_pelajaran" name="nama_mata_pelajaran" class="form-select select2-filter">
                                         <option value="">Semua Mata Pelajaran</option>
                                         @foreach($uniqueMapels as $name)
@@ -69,8 +73,8 @@
                                 </div>
                             </div>
                             <div class="text-end mt-3">
-                                <button type="submit" class="btn btn-secondary btn-sm px-4">
-                                    <i class="bi bi-funnel-fill me-1"></i> Tampilkan Data
+                                <button type="submit" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold; font-size: 0.95rem;">
+                                    Tampilkan Data
                                 </button>
                             </div>
                         </form>
