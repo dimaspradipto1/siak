@@ -42,18 +42,19 @@ class DashboardController extends Controller
 
             $kehadiranTotal = \App\Models\Kehadiran::count();
             $hadirCount = \App\Models\Kehadiran::whereHas('jenisKehadiran', function($q) {
-                $q->where('nama_jenis_kehadiran', 'Hadir');
+                $q->where('nama_kehadiran', 'Hadir');
             })->count();
             $kehadiranPercentage = $kehadiranTotal > 0 ? round(($hadirCount / $kehadiranTotal) * 100) : 96;
 
-            $akademikAvg = \App\Models\Nilai::avg('nilai_akhir');
+            $akademikAvg = \App\Models\Nilai::avg('nilai_raport');
             $akademikPercentage = $akademikAvg ? round($akademikAvg) : 82;
 
             $schoolProfile = \App\Models\ProfilSekolah::first();
 
             $chartData = \DB::table('nilais')
-                ->join('kelas', 'nilais.kelas_id', '=', 'kelas.id')
-                ->select('kelas.nama_kelas', \DB::raw('ROUND(AVG(nilai_akhir)) as avg_nilai'))
+                ->join('siswas', 'nilais.siswa_id', '=', 'siswas.id')
+                ->join('kelas', 'siswas.kelas_id', '=', 'kelas.id')
+                ->select('kelas.nama_kelas', \DB::raw('ROUND(AVG(nilai_raport)) as avg_nilai'))
                 ->groupBy('kelas.id', 'kelas.nama_kelas')
                 ->orderBy('kelas.nama_kelas', 'asc')
                 ->get();

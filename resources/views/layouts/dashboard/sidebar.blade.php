@@ -31,7 +31,7 @@
     {{-- ==========================================
          A. MENU UNTUK ADMIN & KEPALA SEKOLAH
          ========================================== --}}
-    @if ($isManajemen)
+    @if ($isAdmin)
 
       {{-- 1. DATA MASTER --}}
       <li class="nav-heading">Data Master</li>
@@ -101,7 +101,9 @@
           <li><a href="{{ route('semester.index') }}" class="{{ request()->routeIs('semester.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Semester</span></a></li>
         </ul>
       </li>
+    @endif
 
+    @if ($isManajemen)
       {{-- 3. LAPORAN & TRANSAKSI --}}
       <li class="nav-heading">Laporan & Rekapitulasi</li>
 

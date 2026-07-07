@@ -492,5 +492,3 @@
     </script>
     @endif
 @endpush
-    </section>
-@endsection
