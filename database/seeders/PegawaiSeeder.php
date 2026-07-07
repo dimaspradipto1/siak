@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Pegawai;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class PegawaiSeeder extends Seeder
@@ -120,6 +121,11 @@ class PegawaiSeeder extends Seeder
         ];
 
         foreach ($pegawais as $pegawaiData) {
+            $user = User::query()->where('name', $pegawaiData['nama_pegawai'])->first();
+            if ($user) {
+                $pegawaiData['user_id'] = $user->id;
+            }
+
             Pegawai::updateOrCreate(
                 ['nip' => $pegawaiData['nip']],
                 $pegawaiData

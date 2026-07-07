@@ -10,6 +10,7 @@ use App\Models\Guru;
 use App\Http\Requests\MataPelajaranRequest;
 use App\DataTables\MataPelajaranDataTable;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MataPelajaranController extends Controller
 {
@@ -44,7 +45,8 @@ class MataPelajaranController extends Controller
 
     public function show(MataPelajaran $matapelajaran)
     {
-        return redirect()->route('matapelajaran.edit', $matapelajaran);
+        $matapelajaran->load(['kelas', 'tahunAjaran', 'semester', 'guru.pegawai']);
+        return view('pages.mata-pelajaran.show', compact('matapelajaran'));
     }
 
     public function edit(MataPelajaran $matapelajaran)
@@ -72,7 +74,7 @@ class MataPelajaranController extends Controller
 
     public function export()
     {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MataPelajaranExport, 'Data_Mata_Pelajaran_'.date('Ymd').'.xlsx');
+        return Excel::download(new \App\Exports\MataPelajaranExport, 'Data_Mata_Pelajaran_'.date('Ymd').'.xlsx');
     }
 
     public function import(Request $request)
@@ -81,7 +83,7 @@ class MataPelajaranController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:2048'
         ]);
 
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MataPelajaranImport, $request->file('file'));
+        Excel::import(new \App\Imports\MataPelajaranImport, $request->file('file'));
 
         alert()->success('Berhasil!', 'Data Mata Pelajaran berhasil diimport.');
         return redirect()->route('matapelajaran.index');
@@ -95,7 +97,7 @@ class MataPelajaranController extends Controller
             public function __construct(array $data) { $this->data = $data; }
             public function array(): array { return $this->data; }
         };
-        return \Maatwebsite\Excel\Facades\Excel::download($export, 'Template_Import_MataPelajaran.xlsx');
+        return Excel::download($export, 'Template_Import_MataPelajaran.xlsx');
     }
 
     public function destroy(MataPelajaran $matapelajaran)

@@ -67,10 +67,35 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('matapelajaran/template', [MataPelajaranController::class, 'template'])->name('matapelajaran.template');
     Route::resource('matapelajaran', MataPelajaranController::class);
     Route::resource('jeniskehadiran', JenisKehadiranController::class);
+    Route::get('kehadiran/get-kelas-mapel', [KehadiranController::class, 'getKelasDanMapel'])->name('kehadiran.get-kelas-mapel');
+    Route::post('kehadiran/save', [KehadiranController::class, 'bulkSave'])->name('kehadiran.save');
     Route::resource('kehadiran', KehadiranController::class);
     Route::get('nilai/export', [NilaiController::class, 'export'])->name('nilai.export');
     Route::post('nilai/import', [NilaiController::class, 'import'])->name('nilai.import');
     Route::get('nilai/template', [NilaiController::class, 'template'])->name('nilai.template');
+    
+    // Custom Nilai Harian, MID, PAS, Raport and Rekap routes
+    Route::get('nilai/harian', [NilaiController::class, 'harian'])->name('nilai.harian');
+    Route::post('nilai/harian/get', [NilaiController::class, 'harianGet'])->name('nilai.harian.get');
+    Route::post('nilai/harian/save', [NilaiController::class, 'harianSave'])->name('nilai.harian.save');
+
+    Route::get('nilai/mid', [NilaiController::class, 'mid'])->name('nilai.mid');
+    Route::post('nilai/mid/get', [NilaiController::class, 'midGet'])->name('nilai.mid.get');
+    Route::post('nilai/mid/save', [NilaiController::class, 'midSave'])->name('nilai.mid.save');
+
+    Route::get('nilai/pas', [NilaiController::class, 'pas'])->name('nilai.pas');
+    Route::post('nilai/pas/get', [NilaiController::class, 'pasGet'])->name('nilai.pas.get');
+    Route::post('nilai/pas/save', [NilaiController::class, 'pasSave'])->name('nilai.pas.save');
+
+    Route::get('nilai/raport-input', [NilaiController::class, 'raportInput'])->name('nilai.raport-input');
+    Route::post('nilai/raport-input/get', [NilaiController::class, 'raportInputGet'])->name('nilai.raport-input.get');
+    Route::post('nilai/raport-input/save', [NilaiController::class, 'raportInputSave'])->name('nilai.raport-input.save');
+
+    Route::get('nilai/rekap-mapel', [NilaiController::class, 'rekapMapel'])->name('nilai.rekap-mapel');
+    Route::post('nilai/rekap-mapel/get', [NilaiController::class, 'rekapMapelGet'])->name('nilai.rekap-mapel.get');
+    Route::get('nilai/rekap-raport', [NilaiController::class, 'rekapRaport'])->name('nilai.rekap-raport');
+    Route::post('nilai/rekap-raport/get', [NilaiController::class, 'rekapRaportGet'])->name('nilai.rekap-raport.get');
+
     Route::resource('nilai', NilaiController::class);
     Route::resource('jeniscatatan', JenisCatatanController::class);
     Route::resource('catatansiswa', CatatanSiswaController::class);

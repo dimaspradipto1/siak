@@ -32,6 +32,9 @@ class MataPelajaranDataTable extends DataTable
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
+                    <a href="' . route('matapelajaran.show', $mapel->id) . '" class="btn btn-info btn-sm text-white" title="Detail">
+                        <i class="bi bi-eye"></i>
+                    </a>
                     <a href="' . route('matapelajaran.edit', $mapel->id) . '" class="btn btn-warning btn-sm" title="Edit">
                         <i class="bi bi-pencil"></i>
                     </a>

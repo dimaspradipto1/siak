@@ -1,0 +1,167 @@
+@extends('layouts.dashboard.template')
+
+@section('title', 'Input Nilai PAS')
+
+@section('content')
+    <div class="pagetitle">
+        <h1 class="text-primary fw-bold">Input Nilai PAS</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('nilai.index') }}">Nilai</a></li>
+                <li class="breadcrumb-item active">Nilai PAS</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body pt-4">
+                        <h5 class="card-title text-primary fw-bold mb-3 p-0">Form Filter Kelas & Mata Pelajaran</h5>
+                        
+                        <form action="{{ route('nilai.pas') }}" method="GET" class="row g-3">
+                            <div class="col-md-3">
+                                <label for="tahun_ajaran_id" class="form-label fw-semibold">Tahun Ajaran <span class="text-danger">*</span></label>
+                                <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-select" required>
+                                    <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
+                                    @foreach($tahunAjarans as $ta)
+                                        <option value="{{ $ta->id }}" {{ $selectedTa == $ta->id ? 'selected' : '' }}>
+                                            {{ $ta->nama_tahun_ajaran }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="semester_id" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
+                                <select name="semester_id" id="semester_id" class="form-select" required>
+                                    <option value="" disabled selected>-- Pilih Semester --</option>
+                                    @foreach($semesters as $sem)
+                                        <option value="{{ $sem->id }}" {{ $selectedSem == $sem->id ? 'selected' : '' }}>
+                                            {{ $sem->nama_semester }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="kelas_id" class="form-label fw-semibold">Kelas <span class="text-danger">*</span></label>
+                                <select name="kelas_id" id="kelas_id" class="form-select" required>
+                                    <option value="" disabled selected>-- Pilih Kelas --</option>
+                                    @foreach($kelas as $k)
+                                        <option value="{{ $k->id }}" {{ $selectedKelas == $k->id ? 'selected' : '' }}>
+                                            {{ $k->nama_kelas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="mata_pelajaran_id" class="form-label fw-semibold">Mata Pelajaran <span class="text-danger">*</span></label>
+                                <select name="mata_pelajaran_id" id="mata_pelajaran_id" class="form-select" required>
+                                    <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
+                                    @foreach($mapels as $mp)
+                                        <option value="{{ $mp->id }}" {{ $selectedMapel == $mp->id ? 'selected' : '' }}>
+                                            {{ $mp->nama_mata_pelajaran }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-end gap-2 pt-2">
+                                <a href="{{ route('nilai.pas') }}" class="btn btn-secondary text-white btn-sm px-3" style="background-color: #6c757d; border-color: #6c757d;">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-sm px-3" style="background-color: #0d6efd; border-color: #0d6efd;">
+                                    <i class="bi bi-search"></i> Get Data
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                @if($selectedTa && $selectedSem && $selectedKelas && $selectedMapel)
+                <div class="card shadow-sm border-0">
+                    <div class="card-body pt-4">
+                        <h5 class="card-title text-primary fw-bold mb-3 p-0">Form Input Nilai PAS (UAS)</h5>
+
+                        @if(count($students) > 0)
+                        <form action="{{ route('nilai.pas.save') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="tahun_ajaran_id" value="{{ $selectedTa }}">
+                            <input type="hidden" name="semester_id" value="{{ $selectedSem }}">
+                            <input type="hidden" name="kelas_id" value="{{ $selectedKelas }}">
+                            <input type="hidden" name="mata_pelajaran_id" value="{{ $selectedMapel }}">
+
+                            <div class="table-responsive col-lg-8 mx-auto">
+                                <table class="table table-bordered table-hover align-middle text-center">
+                                    <thead class="table-light fw-bold text-dark">
+                                        <tr>
+                                            <th style="width: 60px;">No</th>
+                                            <th style="width: 150px;">NISN</th>
+                                            <th class="text-start">Nama Siswa</th>
+                                            <th style="width: 180px;">Nilai PAS (UAS)</th>
+                                            <th style="width: 180px;">Nilai PAS+</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($students as $index => $siswa)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $siswa->nisn }}</td>
+                                                <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
+                                                <td>
+                                                    <input type="number" step="0.1" min="0" max="100" 
+                                                        name="nilai[{{ $siswa->id }}][nilai_pas]" 
+                                                        class="form-control text-center score-input" 
+                                                        value="{{ $siswa->nilai_record && $siswa->nilai_record->nilai_pas !== null ? floatval($siswa->nilai_record->nilai_pas) : '' }}">
+                                                </td>
+                                                <td>
+                                                    <input type="number" step="0.1" min="0" max="100" 
+                                                        name="nilai[{{ $siswa->id }}][nilai_pas_plus]" 
+                                                        class="form-control text-center score-input" 
+                                                        value="{{ $siswa->nilai_record && $siswa->nilai_record->nilai_pas_plus !== null ? floatval($siswa->nilai_record->nilai_pas_plus) : '' }}">
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-3">
+                                <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Simpan Nilai PAS</button>
+                            </div>
+                        </form>
+                        @else
+                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data siswa ditemukan.</div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .score-input {
+            width: 80px;
+            height: 30px;
+            padding: 2px;
+            font-size: 0.85rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin: 0 auto;
+            display: inline-block;
+        }
+        .score-input::-webkit-outer-spin-button,
+        .score-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .score-input {
+            -moz-appearance: textfield;
+        }
+    </style>
+@endsection

@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Siti Aminah, S.Pd.',
+                'name'      => 'Siti Aminah, S.Pd.I',
                 'email'     => 'walikelas@gmail.com',
                 'password'  => Hash::make('walikelas1234'),
                 'roles'     => 'wali kelas',
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name'      => 'Drs. H. Rahmat Hidayat, M.Pd.',
+                'name'      => 'Yusal, S.Pd.',
                 'email'     => 'kepsek@gmail.com',
                 'password'  => Hash::make('kepsek1234'),
                 'roles'     => 'kepala sekolah',
