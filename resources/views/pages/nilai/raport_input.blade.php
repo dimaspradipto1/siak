@@ -125,10 +125,10 @@
                                                 <td class="mid-val">{{ $rec && $rec->nilai_mid !== null ? number_format($rec->nilai_mid, 1) : '.....' }}</td>
                                                 <td class="pas-val">{{ $rec && $rec->nilai_pas !== null ? number_format($rec->nilai_pas, 1) : '.....' }}</td>
                                                 <td>
-                                                    <input type="number" step="0.01" min="0" max="100" 
+                                                    <input type="number" step="1" min="0" max="100" 
                                                         name="nilai[{{ $siswa->id }}][nilai_raport]" 
                                                         class="form-control text-center score-input raport-input" 
-                                                        value="{{ $rec && $rec->nilai_raport !== null ? floatval($rec->nilai_raport) : '' }}">
+                                                        value="{{ $rec && $rec->nilai_raport !== null ? intval($rec->nilai_raport) : '' }}">
                                                 </td>
                                                 <td class="predikat-cell fw-bold text-success">
                                                     {{ $rec && $rec->predikat ? $rec->predikat : '.....' }}
@@ -198,8 +198,8 @@ $(document).ready(function() {
                 const pas = parseFloat(pasText);
 
                 // Formula: (2 * Harian + MID + PAS) / 4
-                const raport = (2 * harian + mid + pas) / 4;
-                $(this).find('.raport-input').val(raport.toFixed(2));
+                const raport = Math.round((2 * harian + mid + pas) / 4);
+                $(this).find('.raport-input').val(raport);
                 $(this).find('.predikat-cell').text(getPredikat(raport));
             }
         });

@@ -240,6 +240,12 @@
       </a>
     </li>
 
+    <li class="nav-item">
+      <a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
+        <i class="bi bi-book"></i><span>Materi Pembelajaran</span>
+      </a>
+    </li>
+
     @if ($isAdmin)
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('user.*') ? '' : 'collapsed' }}" href="{{ route('user.index') }}">

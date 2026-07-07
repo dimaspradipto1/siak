@@ -503,7 +503,7 @@ class NilaiController extends Controller
         $gradesInput = $request->nilai;
 
         foreach ($gradesInput as $siswaId => $data) {
-            $nilaiRaport = $data['nilai_raport'] !== '' ? floatval($data['nilai_raport']) : null;
+            $nilaiRaport = $data['nilai_raport'] !== '' ? round(floatval($data['nilai_raport'])) : null;
             $predikat = $nilaiRaport !== null ? Nilai::hitungPredikat($nilaiRaport) : null;
 
             Nilai::query()->updateOrCreate(

@@ -15,15 +15,123 @@ use App\Models\PembagianKelas;
 use App\Models\Guru;
 use App\Http\Requests\KehadiranRequest;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 use App\DataTables\KehadiranDataTable;
 
 class KehadiranController extends Controller
 {
     use \App\Traits\AuthorizeTransactionData;
-    public function index(KehadiranDataTable $dataTable)
+    public function index(Request $request)
     {
-        return $dataTable->render('pages.kehadiran.index');
+        $user = auth()->user();
+        $isGuru = $user->roles === 'guru';
+
+        // 1. Resolve filters
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSem = $request->get('semester_id');
+        $selectedKelas = $request->get('kelas_id');
+        $selectedMapel = $request->get('mata_pelajaran_id');
+        $selectedBulan = $request->get('bulan');
+
+        // Fallback for Tahun Ajaran
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+
+        // Fallback for Semester
+        if (!$selectedSem && $selectedTa) {
+            $activeSem = Semester::query()->where('tahun_ajaran_id', $selectedTa)->first();
+            $selectedSem = $activeSem ? $activeSem->id : null;
+        }
+
+        // Fallback for Bulan
+        if (!$selectedBulan) {
+            $selectedBulan = date('n'); // default to current month number (1-12)
+        }
+
+        // 2. Fetch lists
+        $tahunAjarans = TahunAjaran::query()->get();
+        $semesters = $selectedTa
+            ? Semester::query()->where('tahun_ajaran_id', $selectedTa)->get()
+            : Semester::query()->get();
+
+        // 3. Fetch Mapels and Kelas
+        if ($isGuru) {
+            $guru = $user->pegawai?->guru;
+            $guruId = $guru ? $guru->id : 0;
+            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->get();
+            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+        } else {
+            $mapels = MataPelajaran::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->get();
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        }
+
+        // 4. Resolve Calendar Year
+        $selectedYear = date('Y');
+        $tahunAjaran = TahunAjaran::find($selectedTa);
+        if ($tahunAjaran) {
+            if (in_array($selectedBulan, [7, 8, 9, 10, 11, 12])) {
+                $selectedYear = $tahunAjaran->tahun_mulai;
+            } else {
+                $selectedYear = $tahunAjaran->tahun_selesai;
+            }
+        }
+
+        // 5. Fetch students and attendance dates if all filters are set
+        $students = [];
+        $dates = [];
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedMapel && $selectedBulan) {
+            // Find student IDs in this class & year
+            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+            
+            // Get all dates in the selected month & year
+            $daysInMonth = \Carbon\Carbon::create($selectedYear, $selectedBulan, 1)->daysInMonth;
+            $dates = [];
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $dates[] = sprintf('%04d-%02d-%02d', $selectedYear, $selectedBulan, $day);
+            }
+
+            $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+
+            foreach ($studentsList as $siswa) {
+                // Fetch all attendance records for this student on this subject in this month
+                $attendanceRecords = Kehadiran::with('jenisKehadiran')
+                    ->where('siswa_id', $siswa->id)
+                    ->where('mata_pelajaran_id', $selectedMapel)
+                    ->whereMonth('tanggal', $selectedBulan)
+                    ->whereYear('tanggal', $selectedYear)
+                    ->get();
+                
+                // Map attendance by date string 'Y-m-d' -> code
+                $attendanceMap = [];
+                foreach ($attendanceRecords as $rec) {
+                    $attendanceMap[$rec->tanggal] = $rec->jenisKehadiran->kode_kehadiran ?? '';
+                }
+
+                $siswa->attendance_map = $attendanceMap;
+                $students[] = $siswa;
+            }
+        }
+
+        // Selected model details for rendering/print headings
+        $selectedMapelModel = MataPelajaran::find($selectedMapel);
+        $selectedKelasModel = Kelas::find($selectedKelas);
+
+        return view('pages.kehadiran.index', compact(
+            'mapels', 'kelas', 'semesters', 'tahunAjarans',
+            'selectedTa', 'selectedSem', 'selectedKelas', 'selectedMapel', 'selectedBulan',
+            'students', 'dates', 'selectedMapelModel', 'selectedKelasModel'
+        ));
     }
 
     public function create(Request $request)
