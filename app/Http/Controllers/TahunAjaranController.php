@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\TahunAjaran;
-use App\Http\Requests\StoreTahunAjaranRequest;
-use App\Http\Requests\UpdateTahunAjaranRequest;
+use App\Http\Requests\TahunAjaranRequest;
+
 use App\DataTables\TahunAjaranDataTable;
 use Illuminate\Http\Request;
 
@@ -30,7 +30,7 @@ class TahunAjaranController extends Controller
     /**
      * Simpan data tahun ajaran baru ke database.
      */
-    public function store(StoreTahunAjaranRequest $request)
+    public function store(TahunAjaranRequest $request)
     {
         $validated = $request->validated();
 
@@ -43,10 +43,11 @@ class TahunAjaranController extends Controller
 
         $nama = $tahunAjaran->tahun_mulai . '/' . $tahunAjaran->tahun_selesai;
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Tahun Ajaran <strong>' . e($nama) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Tahun Ajaran <strong>' . e($nama) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('tahun-ajaran.index');
     }
@@ -70,7 +71,7 @@ class TahunAjaranController extends Controller
     /**
      * Update data tahun ajaran di database.
      */
-    public function update(UpdateTahunAjaranRequest $request, TahunAjaran $tahun_ajaran)
+    public function update(TahunAjaranRequest $request, TahunAjaran $tahun_ajaran)
     {
         $validated = $request->validated();
 
@@ -85,10 +86,11 @@ class TahunAjaranController extends Controller
 
         $nama = $tahun_ajaran->tahun_mulai . '/' . $tahun_ajaran->tahun_selesai;
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Tahun Ajaran <strong>' . e($nama) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Tahun Ajaran <strong>' . e($nama) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('tahun-ajaran.index');
     }
@@ -102,10 +104,11 @@ class TahunAjaranController extends Controller
 
         $tahun_ajaran->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Tahun Ajaran <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Tahun Ajaran <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('tahun-ajaran.index');
     }

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Semester;
 use App\Models\TahunAjaran;
-use App\Http\Requests\StoreSemesterRequest;
-use App\Http\Requests\UpdateSemesterRequest;
+use App\Http\Requests\SemesterRequest;
+
 use App\DataTables\SemesterDataTable;
 use Illuminate\Http\Request;
 
@@ -33,7 +33,7 @@ class SemesterController extends Controller
     /**
      * Simpan data semester baru ke database.
      */
-    public function store(StoreSemesterRequest $request)
+    public function store(SemesterRequest $request)
     {
         $validated = $request->validated();
 
@@ -43,10 +43,11 @@ class SemesterController extends Controller
         $ta   = $semester->tahunAjaran;
         $label = $nama . ' - ' . ($ta ? $ta->nama_tahun_ajaran : '');
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Semester <strong>' . e($label) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Semester <strong>' . e($label) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('semester.index');
     }
@@ -72,7 +73,7 @@ class SemesterController extends Controller
     /**
      * Update data semester di database.
      */
-    public function update(UpdateSemesterRequest $request, Semester $semester)
+    public function update(SemesterRequest $request, Semester $semester)
     {
         $validated = $request->validated();
 
@@ -82,10 +83,11 @@ class SemesterController extends Controller
         $ta   = $semester->tahunAjaran;
         $label = $nama . ' - ' . ($ta ? $ta->nama_tahun_ajaran : '');
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Semester <strong>' . e($label) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Semester <strong>' . e($label) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('semester.index');
     }
@@ -101,10 +103,11 @@ class SemesterController extends Controller
 
         $semester->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Semester <strong>' . e($label) . '</strong> berhasil dihapus.'
-        )->html();
+            'Semester <strong>' . e($label) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('semester.index');
     }

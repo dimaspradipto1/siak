@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\JenisCatatan;
-use App\Http\Requests\StoreJenisCatatanRequest;
-use App\Http\Requests\UpdateJenisCatatanRequest;
+use App\Http\Requests\JenisCatatanRequest;
+
 use App\DataTables\JenisCatatanDataTable;
 
 class JenisCatatanController extends Controller
@@ -20,7 +20,7 @@ class JenisCatatanController extends Controller
         return view('pages.jenis-catatan.create');
     }
 
-    public function store(StoreJenisCatatanRequest $request)
+    public function store(JenisCatatanRequest $request)
     {
         $validated = $request->validated();
         $jenis = JenisCatatan::create($validated);
@@ -43,7 +43,7 @@ class JenisCatatanController extends Controller
         return view('pages.jenis-catatan.edit', compact('jeniscatatan'));
     }
 
-    public function update(UpdateJenisCatatanRequest $request, JenisCatatan $jeniscatatan)
+    public function update(JenisCatatanRequest $request, JenisCatatan $jeniscatatan)
     {
         $validated = $request->validated();
         $jeniscatatan->update($validated);

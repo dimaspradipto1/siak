@@ -26,6 +26,18 @@ class PengumumanDataTable extends DataTable
             ->addColumn('created_at', function ($p) {
                 return \Carbon\Carbon::parse($p->created_at)->locale('id')->translatedFormat('l, d F Y');
             })
+            ->addColumn('tahun_ajaran', function ($p) {
+                return $p->tahunAjaran ? $p->tahunAjaran->tahun_mulai . '/' . $p->tahunAjaran->tahun_selesai : '-';
+            })
+            ->addColumn('semester', function ($p) {
+                return $p->semester ? $p->semester->nama_semester : '-';
+            })
+            ->addColumn('kelas', function ($p) {
+                return $p->kelas ? $p->kelas->nama_kelas : 'Semua Kelas';
+            })
+            ->addColumn('mata_pelajaran', function ($p) {
+                return $p->mataPelajaran ? $p->mataPelajaran->nama_mata_pelajaran : 'Semua Mapel';
+            })
             ->addColumn('action', function ($p) {
                 if (in_array(auth()->user()->roles, ['siswa', 'orang tua'])) return '';
                 return '
@@ -49,7 +61,7 @@ class PengumumanDataTable extends DataTable
 
     public function query(Pengumuman $model): QueryBuilder
     {
-        return $model->newQuery()->with(['user']);
+        return $model->newQuery()->with(['user', 'tahunAjaran', 'semester', 'kelas', 'mataPelajaran']);
     }
 
     public function html(): HtmlBuilder
@@ -78,6 +90,10 @@ class PengumumanDataTable extends DataTable
             Column::make('keterangan_short')->title('Isi Pengumuman')->searchable(false)->orderable(false),
             Column::make('user')->title('Dipublikasikan Oleh')->searchable(false)->orderable(false),
             Column::make('created_at')->title('Tanggal Dibuat'),
+            Column::make('tahun_ajaran')->title('Tahun Ajaran')->searchable(false)->orderable(false),
+            Column::make('semester')->title('Semester')->searchable(false)->orderable(false),
+            Column::make('kelas')->title('Kelas')->searchable(false)->orderable(false),
+            Column::make('mata_pelajaran')->title('Mapel')->searchable(false)->orderable(false),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)

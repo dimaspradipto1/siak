@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CatatanSiswa;
-use App\Models\Siswa;
-use App\Models\Guru;
-use App\Models\Semester;
-use App\Models\TahunAjaran;
-use App\Models\JenisCatatan;
-use App\Http\Requests\StoreCatatanSiswaRequest;
-use App\Http\Requests\UpdateCatatanSiswaRequest;
 use App\DataTables\CatatanSiswaDataTable;
+use App\Http\Requests\CatatanSiswaRequest;
+
+use App\Models\CatatanSiswa;
+use App\Models\Guru;
+use App\Models\JenisCatatan;
+use App\Models\Semester;
+use App\Models\Siswa;
+use App\Models\TahunAjaran;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class CatatanSiswaController extends Controller
 {
@@ -30,16 +31,12 @@ class CatatanSiswaController extends Controller
         return view('pages.catatan-siswa.create', compact('siswas', 'gurus', 'semesters', 'tahunAjarans', 'jenisCatatans'));
     }
 
-    public function store(StoreCatatanSiswaRequest $request)
+    public function store(CatatanSiswaRequest $request)
     {
         $validated = $request->validated();
         CatatanSiswa::create($validated);
 
-        alert()->success(
-            'Berhasil!',
-            'Catatan siswa berhasil ditambahkan.'
-        );
-
+        Alert::success('success', 'Catatan siswa berhasil ditambahkan.');
         return redirect()->route('catatansiswa.index');
     }
 
@@ -58,7 +55,7 @@ class CatatanSiswaController extends Controller
         return view('pages.catatan-siswa.edit', compact('catatansiswa', 'siswas', 'gurus', 'semesters', 'tahunAjarans', 'jenisCatatans'));
     }
 
-    public function update(UpdateCatatanSiswaRequest $request, CatatanSiswa $catatansiswa)
+    public function update(CatatanSiswaRequest $request, CatatanSiswa $catatansiswa)
     {
         $validated = $request->validated();
         $catatansiswa->update($validated);

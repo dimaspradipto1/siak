@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
            OrangTuaSeeder::class,
            EkstrakurikulerSeeder::class,
            SiswaSeeder::class,
+           PembagianKelasSeeder::class,
            MataPelajaranSeeder::class,
            JenisKehadiranSeeder::class,
            KehadiranSeeder::class,

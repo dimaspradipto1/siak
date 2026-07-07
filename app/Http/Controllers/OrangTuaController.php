@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrangTua;
-use App\Http\Requests\StoreOrangTuaRequest;
-use App\Http\Requests\UpdateOrangTuaRequest;
+use App\Http\Requests\OrangTuaRequest;
+
 use App\DataTables\OrangTuaDataTable;
 
 class OrangTuaController extends Controller
@@ -20,17 +20,18 @@ class OrangTuaController extends Controller
         return view('pages.orang-tua.create');
     }
 
-    public function store(StoreOrangTuaRequest $request)
+    public function store(OrangTuaRequest $request)
     {
         $validated = $request->validated();
         $orangTua = OrangTua::create($validated);
 
         $nama = $orangTua->nama_ayah ?? $orangTua->nama_ibu ?? 'Orang Tua';
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('orang-tua.index');
     }
@@ -45,17 +46,18 @@ class OrangTuaController extends Controller
         return view('pages.orang-tua.edit', compact('orangTua'));
     }
 
-    public function update(UpdateOrangTuaRequest $request, OrangTua $orangTua)
+    public function update(OrangTuaRequest $request, OrangTua $orangTua)
     {
         $validated = $request->validated();
         $orangTua->update($validated);
 
         $nama = $orangTua->nama_ayah ?? $orangTua->nama_ibu ?? 'Orang Tua';
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('orang-tua.index');
     }
@@ -93,10 +95,11 @@ class OrangTuaController extends Controller
         $nama = $orangTua->nama_ayah ?? $orangTua->nama_ibu ?? 'Orang Tua';
         $orangTua->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Data Orang Tua <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('orang-tua.index');
     }

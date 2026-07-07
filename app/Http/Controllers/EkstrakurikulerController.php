@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ekstrakurikuler;
-use App\Http\Requests\StoreEkstrakurikulerRequest;
-use App\Http\Requests\UpdateEkstrakurikulerRequest;
+use App\Http\Requests\EkstrakurikulerRequest;
+
 use App\DataTables\EkstrakurikulerDataTable;
 
 class EkstrakurikulerController extends Controller
@@ -20,7 +20,7 @@ class EkstrakurikulerController extends Controller
         return view('pages.ekstrakurikuler.create');
     }
 
-    public function store(StoreEkstrakurikulerRequest $request)
+    public function store(EkstrakurikulerRequest $request)
     {
         $validated = $request->validated();
         $ekskul = Ekstrakurikuler::create($validated);
@@ -43,7 +43,7 @@ class EkstrakurikulerController extends Controller
         return view('pages.ekstrakurikuler.edit', compact('ekstrakurikuler'));
     }
 
-    public function update(UpdateEkstrakurikulerRequest $request, Ekstrakurikuler $ekstrakurikuler)
+    public function update(EkstrakurikulerRequest $request, Ekstrakurikuler $ekstrakurikuler)
     {
         $validated = $request->validated();
         $ekstrakurikuler->update($validated);

@@ -6,8 +6,8 @@ use App\Models\WaliKelas;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\TahunAjaran;
-use App\Http\Requests\StoreWaliKelasRequest;
-use App\Http\Requests\UpdateWaliKelasRequest;
+use App\Http\Requests\WaliKelasRequest;
+
 use App\DataTables\WaliKelasDataTable;
 
 class WaliKelasController extends Controller
@@ -28,7 +28,7 @@ class WaliKelasController extends Controller
         return view('pages.wali-kelas.create', compact('gurus', 'kelas', 'tahunAjarans'));
     }
 
-    public function store(StoreWaliKelasRequest $request)
+    public function store(WaliKelasRequest $request)
     {
         $validated = $request->validated();
         $waliKelas = WaliKelas::create($validated);
@@ -36,10 +36,11 @@ class WaliKelasController extends Controller
         $guru = $waliKelas->guru->pegawai->nama_pegawai ?? 'Guru';
         $kelasNama = $waliKelas->kelas->nama_kelas ?? 'Kelas';
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('walikelas.index');
     }
@@ -58,7 +59,7 @@ class WaliKelasController extends Controller
         return view('pages.wali-kelas.edit', ['waliKelas' => $walikela, 'gurus' => $gurus, 'kelas' => $kelas, 'tahunAjarans' => $tahunAjarans]);
     }
 
-    public function update(UpdateWaliKelasRequest $request, WaliKelas $walikela)
+    public function update(WaliKelasRequest $request, WaliKelas $walikela)
     {
         $validated = $request->validated();
         $walikela->update($validated);
@@ -66,10 +67,11 @@ class WaliKelasController extends Controller
         $guru = $walikela->guru->pegawai->nama_pegawai ?? 'Guru';
         $kelasNama = $walikela->kelas->nama_kelas ?? 'Kelas';
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('walikelas.index');
     }
@@ -81,10 +83,11 @@ class WaliKelasController extends Controller
         
         $walikela->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Penugasan Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Penugasan Wali Kelas <strong>' . e($guru) . '</strong> untuk kelas <strong>' . e($kelasNama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('walikelas.index');
     }

@@ -7,8 +7,8 @@ use App\Models\Siswa;
 use App\Models\MataPelajaran;
 use App\Models\Semester;
 use App\Models\TahunAjaran;
-use App\Http\Requests\StoreNilaiRequest;
-use App\Http\Requests\UpdateNilaiRequest;
+use App\Http\Requests\NilaiRequest;
+
 use App\DataTables\NilaiDataTable;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -33,7 +33,7 @@ class NilaiController extends Controller
         return view('pages.nilai.create', compact('siswas', 'mapels', 'semesters', 'tahunAjarans'));
     }
 
-    public function store(StoreNilaiRequest $request)
+    public function store(NilaiRequest $request)
     {
         $validated = $request->validated();
         Nilai::create($validated);
@@ -60,7 +60,7 @@ class NilaiController extends Controller
         return view('pages.nilai.edit', compact('nilai', 'siswas', 'mapels', 'semesters', 'tahunAjarans'));
     }
 
-    public function update(UpdateNilaiRequest $request, Nilai $nilai)
+    public function update(NilaiRequest $request, Nilai $nilai)
     {
         $validated = $request->validated();
         $nilai->update($validated);

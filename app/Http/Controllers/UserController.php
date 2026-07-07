@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UserRequest;
+
 use App\DataTables\UserDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,7 +34,7 @@ class UserController extends Controller
     /**
      * Simpan pengguna baru ke database.
      */
-    public function store(StoreUserRequest $request)
+    public function store(UserRequest $request)
     {
         $validated = $request->validated();
 
@@ -46,10 +46,11 @@ class UserController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Pengguna <strong>' . e($validated['name']) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Pengguna <strong>' . e($validated['name']) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('user.index');
     }
@@ -67,7 +68,7 @@ class UserController extends Controller
     /**
      * Update data pengguna.
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
         $validated = $request->validated();
 
@@ -85,10 +86,11 @@ class UserController extends Controller
 
         $user->update($data);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Data pengguna <strong>' . e($user->name) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Data pengguna <strong>' . e($user->name) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('user.index');
     }
@@ -101,7 +103,7 @@ class UserController extends Controller
         $nama = $user->name;
         $user->delete();
 
-        alert()->success('Dihapus!', 'Pengguna <strong>' . e($nama) . '</strong> berhasil dihapus.')->html();
+        alert()->html('Dihapus!', 'Pengguna <strong>' . e($nama) . '</strong> berhasil dihapus.', 'success');
 
         return redirect()->route('user.index');
     }

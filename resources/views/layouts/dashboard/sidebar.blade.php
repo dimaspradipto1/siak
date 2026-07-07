@@ -52,6 +52,11 @@
         </a>
       </li>
       <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('jabatan.*') ? '' : 'collapsed' }}" href="{{ route('jabatan.index') }}">
+          <i class="bi bi-briefcase"></i><span>Jabatan</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('orang-tua.*') ? '' : 'collapsed' }}" href="{{ route('orang-tua.index') }}">
           <i class="bi bi-person-hearts"></i><span>Orang Tua / Wali</span>
         </a>
@@ -61,14 +66,15 @@
       <li class="nav-heading">Data Akademik</li>
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('kelas.*', 'walikelas.*') ? '' : 'collapsed' }}"
+        <a class="nav-link {{ request()->routeIs('kelas.*', 'walikelas.*', 'pembagiankelas.*') ? '' : 'collapsed' }}"
            data-bs-target="#kelas-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-building"></i><span>Kelas & Penugasan</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="kelas-nav" class="nav-content collapse {{ request()->routeIs('kelas.*', 'walikelas.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
+        <ul id="kelas-nav" class="nav-content collapse {{ request()->routeIs('kelas.*', 'walikelas.*', 'pembagiankelas.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
           <li><a href="{{ route('kelas.index') }}" class="{{ request()->routeIs('kelas.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Daftar Kelas</span></a></li>
           @if($isAdmin)
           <li><a href="{{ route('walikelas.index') }}" class="{{ request()->routeIs('walikelas.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Wali Kelas</span></a></li>
+          <li><a href="{{ route('pembagiankelas.index') }}" class="{{ request()->routeIs('pembagiankelas.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Pembagian Kelas</span></a></li>
           @endif
         </ul>
       </li>

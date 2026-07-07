@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Guru;
 use App\Models\Pegawai;
-use App\Http\Requests\StoreGuruRequest;
-use App\Http\Requests\UpdateGuruRequest;
+use App\Http\Requests\GuruRequest;
+
 use App\DataTables\GuruDataTable;
 use Illuminate\Http\Request;
 
@@ -34,7 +34,7 @@ class GuruController extends Controller
     /**
      * Simpan data guru baru ke database.
      */
-    public function store(StoreGuruRequest $request)
+    public function store(GuruRequest $request)
     {
         $validated = $request->validated();
 
@@ -76,7 +76,7 @@ class GuruController extends Controller
     /**
      * Update data guru di database.
      */
-    public function update(UpdateGuruRequest $request, Guru $guru)
+    public function update(GuruRequest $request, Guru $guru)
     {
         $validated = $request->validated();
 

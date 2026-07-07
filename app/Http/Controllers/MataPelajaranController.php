@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\MataPelajaran;
-use App\Http\Requests\StoreMataPelajaranRequest;
-use App\Http\Requests\UpdateMataPelajaranRequest;
+use App\Models\Kelas;
+use App\Models\TahunAjaran;
+use App\Models\Semester;
+use App\Models\Guru;
+use App\Http\Requests\MataPelajaranRequest;
 use App\DataTables\MataPelajaranDataTable;
 use Illuminate\Http\Request;
 
@@ -18,18 +21,23 @@ class MataPelajaranController extends Controller
 
     public function create()
     {
-        return view('pages.mata-pelajaran.create');
+        $kelas = \App\Models\Kelas::orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = \App\Models\TahunAjaran::all();
+        $semesters = \App\Models\Semester::all();
+        $gurus = \App\Models\Guru::with('pegawai')->get();
+        return view('pages.mata-pelajaran.create', compact('kelas', 'tahunAjarans', 'semesters', 'gurus'));
     }
 
-    public function store(StoreMataPelajaranRequest $request)
+    public function store(MataPelajaranRequest $request)
     {
         $validated = $request->validated();
         $mapel = MataPelajaran::create($validated);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Mata Pelajaran <strong>' . e($mapel->nama_mata_pelajaran) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Mata Pelajaran <strong>' . e($mapel->nama_mata_pelajaran) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('matapelajaran.index');
     }
@@ -41,18 +49,23 @@ class MataPelajaranController extends Controller
 
     public function edit(MataPelajaran $matapelajaran)
     {
-        return view('pages.mata-pelajaran.edit', compact('matapelajaran'));
+        $kelas = \App\Models\Kelas::orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = \App\Models\TahunAjaran::all();
+        $semesters = \App\Models\Semester::all();
+        $gurus = \App\Models\Guru::with('pegawai')->get();
+        return view('pages.mata-pelajaran.edit', compact('matapelajaran', 'kelas', 'tahunAjarans', 'semesters', 'gurus'));
     }
 
-    public function update(UpdateMataPelajaranRequest $request, MataPelajaran $matapelajaran)
+    public function update(MataPelajaranRequest $request, MataPelajaran $matapelajaran)
     {
         $validated = $request->validated();
         $matapelajaran->update($validated);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Mata Pelajaran <strong>' . e($matapelajaran->nama_mata_pelajaran) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Mata Pelajaran <strong>' . e($matapelajaran->nama_mata_pelajaran) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('matapelajaran.index');
     }
@@ -76,7 +89,7 @@ class MataPelajaranController extends Controller
 
     public function template()
     {
-        $headers = [['Kode Mapel', 'Nama Mapel', 'KKM']];
+        $headers = [['Kelas', 'Tahun Ajaran', 'Semester', 'Kode Mapel', 'Nama Mapel', 'KKM', 'Nama Guru', 'Hari Mengajar', 'Jam Mengajar']];
         $export = new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
             protected $data;
             public function __construct(array $data) { $this->data = $data; }
@@ -90,10 +103,11 @@ class MataPelajaranController extends Controller
         $nama = $matapelajaran->nama_mata_pelajaran;
         $matapelajaran->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Mata Pelajaran <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Mata Pelajaran <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('matapelajaran.index');
     }

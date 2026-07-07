@@ -89,7 +89,7 @@
 
             Swal.fire({
                 title: 'Hapus Mata Pelajaran?',
-                html: `Anda yakin ingin menghapus:<br><strong class="text-danger">${nama}</strong>?`,
+                html: `Anda yakin ingin menghapus data:<br><strong class="text-danger">${nama}</strong>?<br><small class="text-muted">Tindakan ini tidak dapat dibatalkan.</small>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -97,9 +97,17 @@
                 confirmButtonText: '<i class="bi bi-trash-fill"></i> Ya, Hapus!',
                 cancelButtonText: '<i class="bi bi-x-circle"></i> Batal',
                 reverseButtons: true,
+                focusCancel: true,
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({title: 'Menghapus...', allowOutsideClick: false, didOpen: () => {Swal.showLoading()}});
+                    Swal.fire({
+                        title: 'Mohon Tunggu...',
+                        html: 'Sedang menghapus data...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     form.submit();
                 }
             });

@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kelas;
-use App\Http\Requests\StoreKelasRequest;
-use App\Http\Requests\UpdateKelasRequest;
+use App\Http\Requests\KelasRequest;
 use App\DataTables\KelasDataTable;
 
 class KelasController extends Controller
@@ -20,15 +19,16 @@ class KelasController extends Controller
         return view('pages.kelas.create');
     }
 
-    public function store(StoreKelasRequest $request)
+    public function store(KelasRequest $request)
     {
         $validated = $request->validated();
         $kelas = Kelas::create($validated);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Kelas <strong>' . e($kelas->nama_kelas) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Kelas <strong>' . e($kelas->nama_kelas) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('kelas.index');
     }
@@ -43,15 +43,16 @@ class KelasController extends Controller
         return view('pages.kelas.edit', ['kelas' => $kela]);
     }
 
-    public function update(UpdateKelasRequest $request, Kelas $kela)
+    public function update(KelasRequest $request, Kelas $kela)
     {
         $validated = $request->validated();
         $kela->update($validated);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Kelas <strong>' . e($kela->nama_kelas) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Kelas <strong>' . e($kela->nama_kelas) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('kelas.index');
     }
@@ -61,10 +62,11 @@ class KelasController extends Controller
         $nama = $kela->nama_kelas;
         $kela->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Kelas <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Kelas <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('kelas.index');
     }

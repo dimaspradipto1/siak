@@ -6,8 +6,8 @@ use App\Models\Kehadiran;
 use App\Models\Siswa;
 use App\Models\MataPelajaran;
 use App\Models\JenisKehadiran;
-use App\Http\Requests\StoreKehadiranRequest;
-use App\Http\Requests\UpdateKehadiranRequest;
+use App\Http\Requests\KehadiranRequest;
+
 use App\DataTables\KehadiranDataTable;
 
 class KehadiranController extends Controller
@@ -26,7 +26,7 @@ class KehadiranController extends Controller
         return view('pages.kehadiran.create', compact('siswas', 'mapels', 'jenisKehadirans'));
     }
 
-    public function store(StoreKehadiranRequest $request)
+    public function store(KehadiranRequest $request)
     {
         $validated = $request->validated();
         Kehadiran::create($validated);
@@ -52,7 +52,7 @@ class KehadiranController extends Controller
         return view('pages.kehadiran.edit', compact('kehadiran', 'siswas', 'mapels', 'jenisKehadirans'));
     }
 
-    public function update(UpdateKehadiranRequest $request, Kehadiran $kehadiran)
+    public function update(KehadiranRequest $request, Kehadiran $kehadiran)
     {
         $validated = $request->validated();
         $kehadiran->update($validated);

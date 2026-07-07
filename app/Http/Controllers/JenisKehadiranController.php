@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\JenisKehadiran;
-use App\Http\Requests\StoreJenisKehadiranRequest;
-use App\Http\Requests\UpdateJenisKehadiranRequest;
+use App\Http\Requests\JenisKehadiranRequest;
+
 use App\DataTables\JenisKehadiranDataTable;
 
 class JenisKehadiranController extends Controller
@@ -20,7 +20,7 @@ class JenisKehadiranController extends Controller
         return view('pages.jenis-kehadiran.create');
     }
 
-    public function store(StoreJenisKehadiranRequest $request)
+    public function store(JenisKehadiranRequest $request)
     {
         $validated = $request->validated();
         $jenis = JenisKehadiran::create($validated);
@@ -43,7 +43,7 @@ class JenisKehadiranController extends Controller
         return view('pages.jenis-kehadiran.edit', compact('jeniskehadiran'));
     }
 
-    public function update(UpdateJenisKehadiranRequest $request, JenisKehadiran $jeniskehadiran)
+    public function update(JenisKehadiranRequest $request, JenisKehadiran $jeniskehadiran)
     {
         $validated = $request->validated();
         $jeniskehadiran->update($validated);

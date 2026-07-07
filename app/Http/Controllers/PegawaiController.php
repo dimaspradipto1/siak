@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
-use App\Http\Requests\StorePegawaiRequest;
-use App\Http\Requests\UpdatePegawaiRequest;
+use App\Http\Requests\PegawaiRequest;
+
 use App\DataTables\PegawaiDataTable;
 use Illuminate\Http\Request;
 
@@ -30,16 +30,17 @@ class PegawaiController extends Controller
     /**
      * Simpan data pegawai baru ke database.
      */
-    public function store(StorePegawaiRequest $request)
+    public function store(PegawaiRequest $request)
     {
         $validated = $request->validated();
 
         Pegawai::create($validated);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Data pegawai <strong>' . e($validated['nama_pegawai']) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Data pegawai <strong>' . e($validated['nama_pegawai']) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('pegawai.index');
     }
@@ -63,16 +64,17 @@ class PegawaiController extends Controller
     /**
      * Update data pegawai di database.
      */
-    public function update(UpdatePegawaiRequest $request, Pegawai $pegawai)
+    public function update(PegawaiRequest $request, Pegawai $pegawai)
     {
         $validated = $request->validated();
 
         $pegawai->update($validated);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Data pegawai <strong>' . e($pegawai->nama_pegawai) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Data pegawai <strong>' . e($pegawai->nama_pegawai) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('pegawai.index');
     }
@@ -113,10 +115,11 @@ class PegawaiController extends Controller
         $nama = $pegawai->nama_pegawai;
         $pegawai->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Data pegawai <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Data pegawai <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('pegawai.index');
     }

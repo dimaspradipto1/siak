@@ -6,8 +6,8 @@ use App\Models\Siswa;
 use App\Models\OrangTua;
 use App\Models\Kelas;
 use App\Models\Ekstrakurikuler;
-use App\Http\Requests\StoreSiswaRequest;
-use App\Http\Requests\UpdateSiswaRequest;
+use App\Http\Requests\SiswaRequest;
+
 use App\DataTables\SiswaDataTable;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -31,15 +31,16 @@ class SiswaController extends Controller
         return view('pages.siswa.create', compact('orangTuas', 'kelas', 'ekstrakurikulers'));
     }
 
-    public function store(StoreSiswaRequest $request)
+    public function store(SiswaRequest $request)
     {
         $validated = $request->validated();
         $siswa = Siswa::create($validated);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Data Siswa <strong>' . e($siswa->nama_siswa) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Data Siswa <strong>' . e($siswa->nama_siswa) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('siswa.index');
     }
@@ -57,15 +58,16 @@ class SiswaController extends Controller
         return view('pages.siswa.edit', compact('siswa', 'orangTuas', 'kelas', 'ekstrakurikulers'));
     }
 
-    public function update(UpdateSiswaRequest $request, Siswa $siswa)
+    public function update(SiswaRequest $request, Siswa $siswa)
     {
         $validated = $request->validated();
         $siswa->update($validated);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Data Siswa <strong>' . e($siswa->nama_siswa) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Data Siswa <strong>' . e($siswa->nama_siswa) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('siswa.index');
     }
@@ -103,10 +105,11 @@ class SiswaController extends Controller
         $nama = $siswa->nama_siswa;
         $siswa->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Data Siswa <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Data Siswa <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('siswa.index');
     }

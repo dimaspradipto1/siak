@@ -7,6 +7,7 @@ use App\Models\TahunAjaran;
 use App\Http\Requests\ProfilSekolahRequest;
 use App\DataTables\ProfilSekolahDataTable;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ProfilSekolahController extends Controller
 {
@@ -49,10 +50,7 @@ class ProfilSekolahController extends Controller
 
         $profil = ProfilSekolah::create($validated);
 
-        alert()->success(
-            'Berhasil!',
-            'Profil Sekolah <strong>' . e($profil->nama_sekolah) . '</strong> berhasil ditambahkan.'
-        )->html();
+        Alert::success('success', 'Profil sekolah berhasil ditambahkan.');
 
         return redirect()->route('profil-sekolah.index');
     }
@@ -98,10 +96,7 @@ class ProfilSekolahController extends Controller
 
         $profil_sekolah->update($validated);
 
-        alert()->success(
-            'Diperbarui!',
-            'Profil Sekolah <strong>' . e($profil_sekolah->nama_sekolah) . '</strong> berhasil diperbarui.'
-        )->html();
+        Alert::success('success', 'Profil sekolah berhasil diperbarui.');
 
         return redirect()->route('profil-sekolah.index');
     }
@@ -118,10 +113,7 @@ class ProfilSekolahController extends Controller
         $nama = $profil_sekolah->nama_sekolah;
         $profil_sekolah->delete();
 
-        alert()->success(
-            'Dihapus!',
-            'Profil Sekolah <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+        Alert::success('success', 'Profil sekolah berhasil dihapus.');
 
         return redirect()->route('profil-sekolah.index');
     }

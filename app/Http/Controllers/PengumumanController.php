@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
 use App\Models\User;
-use App\Http\Requests\StorePengumumanRequest;
-use App\Http\Requests\UpdatePengumumanRequest;
+use App\Models\Kelas;
+use App\Models\TahunAjaran;
+use App\Models\Semester;
+use App\Models\MataPelajaran;
+use App\Http\Requests\PengumumanRequest;
+
 use App\DataTables\PengumumanDataTable;
 
 class PengumumanController extends Controller
@@ -18,19 +22,23 @@ class PengumumanController extends Controller
 
     public function create()
     {
-        $users = User::all();
-        return view('pages.pengumuman.create', compact('users'));
+        $kelas = \App\Models\Kelas::orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = \App\Models\TahunAjaran::all();
+        $semesters = \App\Models\Semester::all();
+        $matapelajarans = \App\Models\MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
+        return view('pages.pengumuman.create', compact('kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
     }
 
-    public function store(StorePengumumanRequest $request)
+    public function store(PengumumanRequest $request)
     {
         $validated = $request->validated();
         $validated['user_id'] = auth()->id(); // assign to current user
         $pengumuman = Pengumuman::create($validated);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Pengumuman berhasil dipublikasikan.'
+            'Pengumuman <strong>' . e($pengumuman->judul) . '</strong> berhasil dipublikasikan.',
+            'success'
         );
 
         return redirect()->route('pengumuman.index');
@@ -43,17 +51,22 @@ class PengumumanController extends Controller
 
     public function edit(Pengumuman $pengumuman)
     {
-        return view('pages.pengumuman.edit', compact('pengumuman'));
+        $kelas = \App\Models\Kelas::orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = \App\Models\TahunAjaran::all();
+        $semesters = \App\Models\Semester::all();
+        $matapelajarans = \App\Models\MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
+        return view('pages.pengumuman.edit', compact('pengumuman', 'kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
     }
 
-    public function update(UpdatePengumumanRequest $request, Pengumuman $pengumuman)
+    public function update(PengumumanRequest $request, Pengumuman $pengumuman)
     {
         $validated = $request->validated();
         $pengumuman->update($validated);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Pengumuman berhasil diperbarui.'
+            'Pengumuman <strong>' . e($pengumuman->judul) . '</strong> berhasil diperbarui.',
+            'success'
         );
 
         return redirect()->route('pengumuman.index');
@@ -61,11 +74,13 @@ class PengumumanController extends Controller
 
     public function destroy(Pengumuman $pengumuman)
     {
+        $judul = $pengumuman->judul;
         $pengumuman->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Pengumuman berhasil dihapus.'
+            'Pengumuman <strong>' . e($judul) . '</strong> berhasil dihapus.',
+            'success'
         );
 
         return redirect()->route('pengumuman.index');

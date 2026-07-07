@@ -21,6 +21,8 @@ use App\Http\Controllers\JenisCatatanController;
 use App\Http\Controllers\CatatanSiswaController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfilSekolahController;
+use App\Http\Controllers\JabatanController;
+use App\Http\Controllers\PembagianKelasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,4 +76,6 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::resource('catatansiswa', CatatanSiswaController::class);
     Route::resource('pengumuman', PengumumanController::class);
     Route::resource('profil-sekolah', ProfilSekolahController::class);
+    Route::resource('jabatan', JabatanController::class);
+    Route::resource('pembagiankelas', PembagianKelasController::class);
 });
