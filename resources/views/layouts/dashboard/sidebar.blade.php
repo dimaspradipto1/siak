@@ -207,14 +207,14 @@
 
       <li class="nav-heading">Kehadiran Siswa</li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('kehadiran.index') ? '' : 'collapsed' }}" href="{{ route('kehadiran.index') }}">
+        <a class="nav-link {{ request()->routeIs('kehadiran.rekap') ? '' : 'collapsed' }}" href="{{ route('kehadiran.rekap') }}">
           <i class="bi bi-star"></i><span>Rekap Kehadiran</span>
         </a>
       </li>
 
       <li class="nav-heading">Ekstrakurikuler Siswa</li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.index') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.index') }}">
+        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.siswa') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.siswa') }}">
           <i class="bi bi-star"></i><span>Input Ekstrakurikuler</span>
         </a>
       </li>

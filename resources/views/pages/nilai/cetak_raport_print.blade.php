@@ -230,12 +230,16 @@
             </tr>
         </thead>
         <tbody>
-            @if($siswa->ekstrakurikuler)
-                <tr>
-                    <td class="text-center">1</td>
-                    <td class="text-start">{{ $siswa->ekstrakurikuler->nama_ekskul }}</td>
-                    <td class="text-start">Aktif mengikuti kegiatan {{ strtolower($siswa->ekstrakurikuler->nama_ekskul) }} dengan kriteria Sangat Baik.</td>
-                </tr>
+            @if(isset($ekskuls) && count($ekskuls) > 0)
+                @foreach($ekskuls as $index => $ekskul)
+                    @if($ekskul)
+                        <tr>
+                            <td class="text-center">{{ $index + 1 }}</td>
+                            <td class="text-start">{{ $ekskul->nama_ekskul }}</td>
+                            <td class="text-start">Aktif mengikuti kegiatan {{ strtolower($ekskul->nama_ekskul) }} dengan kriteria Sangat Baik.</td>
+                        </tr>
+                    @endif
+                @endforeach
             @else
                 <tr>
                     <td class="text-center">1</td>

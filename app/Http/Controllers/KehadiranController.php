@@ -13,6 +13,8 @@ use App\Models\JenisCatatan;
 use App\Models\CatatanSiswa;
 use App\Models\PembagianKelas;
 use App\Models\Guru;
+use App\Models\ProfilSekolah;
+use App\Models\WaliKelas;
 use App\Http\Requests\KehadiranRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -25,6 +27,9 @@ class KehadiranController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        if ($user && $user->roles === 'wali kelas') {
+            return redirect()->route('kehadiran.rekap');
+        }
         $isGuru = $user->roles === 'guru';
 
         // 1. Resolve filters
@@ -408,5 +413,130 @@ class KehadiranController extends Controller
         );
 
         return redirect()->route('kehadiran.index');
+    }
+
+    public function rekapKehadiran(Request $request)
+    {
+        $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = TahunAjaran::query()->get();
+        $jenisKehadirans = JenisKehadiran::all();
+
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+        $selectedKelas = $request->get('kelas_id');
+        $selectedJenisKehadiran = $request->get('jenis_kehadiran_id');
+
+        if (!$selectedTa) {
+            $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
+            $selectedTa = $activeTa ? $activeTa->id : null;
+        }
+        if (!$selectedSemName) {
+            $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+        if (!$selectedJenisKehadiran) {
+            $selectedJenisKehadiran = $jenisKehadirans->first()?->id;
+        }
+
+        $semester = null;
+        if ($selectedTa && $selectedSemName) {
+            $semester = Semester::query()
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('nama_semester', $selectedSemName)
+                ->first();
+        }
+        $selectedSem = $semester ? $semester->id : null;
+
+        $students = [];
+        $classMapels = [];
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedJenisKehadiran) {
+            $classMapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->orderBy('nama_mata_pelajaran', 'asc')
+                ->get();
+
+            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+            
+            $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+
+            foreach ($studentsList as $siswa) {
+                $counts = [];
+                foreach ($classMapels as $mp) {
+                    $counts[$mp->id] = Kehadiran::query()->where('siswa_id', $siswa->id)
+                        ->where('mata_pelajaran_id', $mp->id)
+                        ->where('jenis_kehadiran_id', $selectedJenisKehadiran)
+                        ->count();
+                }
+                $siswa->attendance_counts = $counts;
+                $students[] = $siswa;
+            }
+        }
+
+        $selectedJenisModel = JenisKehadiran::find($selectedJenisKehadiran);
+
+        return view('pages.kehadiran.rekap', compact(
+            'kelas', 'tahunAjarans', 'jenisKehadirans',
+            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedJenisKehadiran',
+            'students', 'classMapels', 'selectedJenisModel'
+        ));
+    }
+
+    public function rekapKehadiranPrint(Request $request)
+    {
+        $selectedTa = $request->get('tahun_ajaran_id');
+        $selectedSemName = $request->get('semester_name');
+        $selectedKelas = $request->get('kelas_id');
+        $selectedJenisKehadiran = $request->get('jenis_kehadiran_id');
+
+        $tahunAjaran = TahunAjaran::find($selectedTa);
+        
+        $semester = Semester::query()
+            ->where('tahun_ajaran_id', $selectedTa)
+            ->where('nama_semester', $selectedSemName)
+            ->first();
+        $selectedSem = $semester ? $semester->id : null;
+
+        $kelasModel = Kelas::find($selectedKelas);
+        $jenisModel = JenisKehadiran::find($selectedJenisKehadiran);
+        $school = \App\Models\ProfilSekolah::query()->first();
+
+        $students = [];
+        $classMapels = [];
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedJenisKehadiran) {
+            $classMapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->orderBy('nama_mata_pelajaran', 'asc')
+                ->get();
+
+            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+            
+            $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+
+            foreach ($studentsList as $siswa) {
+                $counts = [];
+                foreach ($classMapels as $mp) {
+                    $counts[$mp->id] = Kehadiran::query()->where('siswa_id', $siswa->id)
+                        ->where('mata_pelajaran_id', $mp->id)
+                        ->where('jenis_kehadiran_id', $selectedJenisKehadiran)
+                        ->count();
+                }
+                $siswa->attendance_counts = $counts;
+                $students[] = $siswa;
+            }
+        }
+
+        $waliKelas = \App\Models\WaliKelas::query()->where('kelas_id', $selectedKelas)
+            ->where('tahun_ajaran_id', $selectedTa)
+            ->first();
+
+        return view('pages.kehadiran.rekap_print', compact(
+            'tahunAjaran', 'semester', 'kelasModel', 'jenisModel', 'school',
+            'students', 'classMapels', 'waliKelas', 'selectedSemName'
+        ));
     }
 }

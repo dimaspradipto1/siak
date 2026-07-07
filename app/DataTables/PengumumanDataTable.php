@@ -61,7 +61,29 @@ class PengumumanDataTable extends DataTable
 
     public function query(Pengumuman $model): QueryBuilder
     {
-        return $model->newQuery()->with(['user', 'tahunAjaran', 'semester', 'kelas', 'mataPelajaran']);
+        $query = $model->newQuery()->with(['user', 'tahunAjaran', 'semester', 'kelas', 'mataPelajaran']);
+        
+        $request = request();
+        if ($request->filled('tahun_ajaran_id')) {
+            $query->where('tahun_ajaran_id', $request->tahun_ajaran_id);
+        }
+        if ($request->filled('semester_name')) {
+            $semName = $request->semester_name;
+            $query->whereHas('semester', function ($q) use ($semName) {
+                $q->where('nama_semester', $semName);
+            });
+        }
+        if ($request->filled('kelas_id')) {
+            $query->where('kelas_id', $request->kelas_id);
+        }
+        if ($request->filled('nama_mata_pelajaran')) {
+            $mapelName = $request->nama_mata_pelajaran;
+            $query->whereHas('mataPelajaran', function($q) use ($mapelName) {
+                $q->where('nama_mata_pelajaran', $mapelName);
+            });
+        }
+        
+        return $query;
     }
 
     public function html(): HtmlBuilder

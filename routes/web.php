@@ -58,6 +58,8 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::post('orang-tua/import', [OrangTuaController::class, 'import'])->name('orang-tua.import');
     Route::get('orang-tua/template', [OrangTuaController::class, 'template'])->name('orang-tua.template');
     Route::resource('orang-tua', OrangTuaController::class);
+    Route::get('ekstrakurikuler-siswa', [EkstrakurikulerController::class, 'ekskulSiswa'])->name('ekstrakurikuler.siswa');
+    Route::post('ekstrakurikuler-siswa/save', [EkstrakurikulerController::class, 'ekskulSiswaSave'])->name('ekstrakurikuler.siswa.save');
     Route::resource('ekstrakurikuler', EkstrakurikulerController::class);
     Route::get('siswa/export', [SiswaController::class, 'export'])->name('siswa.export');
     Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
@@ -70,6 +72,8 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::resource('jeniskehadiran', JenisKehadiranController::class);
     Route::get('kehadiran/get-kelas-mapel', [KehadiranController::class, 'getKelasDanMapel'])->name('kehadiran.get-kelas-mapel');
     Route::post('kehadiran/save', [KehadiranController::class, 'bulkSave'])->name('kehadiran.save');
+    Route::get('kehadiran/rekap', [KehadiranController::class, 'rekapKehadiran'])->name('kehadiran.rekap');
+    Route::get('kehadiran/rekap/print', [KehadiranController::class, 'rekapKehadiranPrint'])->name('kehadiran.rekap.print');
     Route::resource('kehadiran', KehadiranController::class);
     Route::get('nilai/export', [NilaiController::class, 'export'])->name('nilai.export');
     Route::post('nilai/import', [NilaiController::class, 'import'])->name('nilai.import');

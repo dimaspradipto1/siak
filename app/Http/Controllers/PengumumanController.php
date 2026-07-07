@@ -17,7 +17,11 @@ class PengumumanController extends Controller
     use \App\Traits\AuthorizeTransactionData;
     public function index(PengumumanDataTable $dataTable)
     {
-        return $dataTable->render('pages.pengumuman.index');
+        $kelas = \App\Models\Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        $tahunAjarans = \App\Models\TahunAjaran::query()->get();
+        $mapels = \App\Models\MataPelajaran::query()->distinct()->orderBy('nama_mata_pelajaran', 'asc')->get(['nama_mata_pelajaran']);
+        
+        return $dataTable->render('pages.pengumuman.index', compact('kelas', 'tahunAjarans', 'mapels'));
     }
 
     public function create()

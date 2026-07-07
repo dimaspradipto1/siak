@@ -13,6 +13,7 @@ use App\Models\ProfilSekolah;
 use App\Models\Kehadiran;
 use App\Models\CatatanSiswa;
 use App\Models\WaliKelas;
+use App\Models\SiswaEkstrakurikuler;
 use App\Http\Requests\NilaiRequest;
 
 use App\DataTables\NilaiDataTable;
@@ -751,10 +752,14 @@ class NilaiController extends Controller
             ->where('tahun_ajaran_id', $tahun_ajaran_id)
             ->first();
 
-        $waliKelas = \App\Models\WaliKelas::query()->where('kelas_id', $kelasId)
+        $ekskuls = \App\Models\SiswaEkstrakurikuler::query()
+            ->with('ekstrakurikuler')
+            ->where('siswa_id', $siswa_id)
             ->where('tahun_ajaran_id', $tahun_ajaran_id)
-            ->first();
+            ->where('semester_id', $semester_id)
+            ->get()
+            ->pluck('ekstrakurikuler');
 
-        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas'));
+        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas', 'ekskuls'));
     }
 }
