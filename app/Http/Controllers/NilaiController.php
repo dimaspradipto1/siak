@@ -662,7 +662,7 @@ class NilaiController extends Controller
             }
         }
 
-        return view('pages.nilai.rekap_raport', compact('kelas', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedKelas', 'students', 'classMapels'));
+        return view('pages.nilai.rekap_raport', compact('kelas', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'students', 'classMapels'));
     }
 
     public function cetakRaportList(Request $request)
