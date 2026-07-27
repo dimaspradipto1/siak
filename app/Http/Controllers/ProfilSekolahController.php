@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ProfilSekolah;
 use App\Models\TahunAjaran;
 use App\Http\Requests\ProfilSekolahRequest;
-use App\DataTables\ProfilSekolahDataTable;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -14,18 +13,29 @@ class ProfilSekolahController extends Controller
     use \App\Traits\AuthorizeMasterData;
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource (Directs to Edit if exists, or Create if not).
      */
-    public function index(ProfilSekolahDataTable $dataTable)
+    public function index(Request $request = null)
     {
-        return $dataTable->render('pages.profil-sekolah.index');
+        $profil = ProfilSekolah::first();
+
+        if ($profil) {
+            return redirect()->route('profil-sekolah.edit', $profil->id);
+        }
+
+        return redirect()->route('profil-sekolah.create');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request = null)
     {
+        $profil = ProfilSekolah::first();
+        if ($profil) {
+            return redirect()->route('profil-sekolah.edit', $profil->id);
+        }
+
         $tahunAjarans = TahunAjaran::all();
         return view('pages.profil-sekolah.create', compact('tahunAjarans'));
     }
@@ -40,7 +50,6 @@ class ProfilSekolahController extends Controller
         if ($request->hasFile('logo_sekolah')) {
             $file = $request->file('logo_sekolah');
             $filename = time() . '_' . $file->getClientOriginalName();
-            // Ensure destination path exists
             if (!file_exists(public_path('uploads/logo'))) {
                 mkdir(public_path('uploads/logo'), 0755, true);
             }
@@ -50,17 +59,21 @@ class ProfilSekolahController extends Controller
 
         $profil = ProfilSekolah::create($validated);
 
-        Alert::success('success', 'Profil sekolah berhasil ditambahkan.');
+        Alert::success('Berhasil', 'Profil sekolah berhasil ditambahkan.');
 
-        return redirect()->route('profil-sekolah.index');
+        return redirect()->route('profil-sekolah.edit', $profil->id);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ProfilSekolah $profil_sekolah)
+    public function show($id = null)
     {
-        return redirect()->route('profil-sekolah.edit', $profil_sekolah);
+        $profil = ProfilSekolah::find($id) ?? ProfilSekolah::first();
+        if ($profil) {
+            return redirect()->route('profil-sekolah.edit', $profil->id);
+        }
+        return redirect()->route('profil-sekolah.create');
     }
 
     /**
@@ -80,7 +93,6 @@ class ProfilSekolahController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('logo_sekolah')) {
-            // Delete old logo file if it exists
             if ($profil_sekolah->logo_sekolah && file_exists(public_path($profil_sekolah->logo_sekolah))) {
                 @unlink(public_path($profil_sekolah->logo_sekolah));
             }
@@ -96,25 +108,27 @@ class ProfilSekolahController extends Controller
 
         $profil_sekolah->update($validated);
 
-        Alert::success('success', 'Profil sekolah berhasil diperbarui.');
+        Alert::success('Berhasil', 'Profil sekolah berhasil diperbarui.');
 
-        return redirect()->route('profil-sekolah.index');
+        return redirect()->route('profil-sekolah.edit', $profil_sekolah->id);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ProfilSekolah $profil_sekolah)
+    public function destroy($id = null)
     {
-        if ($profil_sekolah->logo_sekolah && file_exists(public_path($profil_sekolah->logo_sekolah))) {
-            @unlink(public_path($profil_sekolah->logo_sekolah));
+        $profil_sekolah = ProfilSekolah::find($id);
+
+        if ($profil_sekolah) {
+            if ($profil_sekolah->logo_sekolah && file_exists(public_path($profil_sekolah->logo_sekolah))) {
+                @unlink(public_path($profil_sekolah->logo_sekolah));
+            }
+            $profil_sekolah->delete();
         }
 
-        $nama = $profil_sekolah->nama_sekolah;
-        $profil_sekolah->delete();
+        Alert::success('Berhasil', 'Profil sekolah berhasil dihapus.');
 
-        Alert::success('success', 'Profil sekolah berhasil dihapus.');
-
-        return redirect()->route('profil-sekolah.index');
+        return redirect()->route('profil-sekolah.create');
     }
 }

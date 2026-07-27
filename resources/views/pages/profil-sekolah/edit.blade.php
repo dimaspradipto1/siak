@@ -279,7 +279,7 @@
 
                             {{-- Tombol Aksi --}}
                             <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <a href="{{ route('profil-sekolah.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('dashboard') }}" class="btn btn-secondary">
                                     <i class="bi bi-arrow-left me-1"></i> Kembali
                                 </a>
                                 <button type="submit" class="btn btn-primary">
