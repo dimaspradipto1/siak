@@ -12,10 +12,7 @@
       $isSiswa    = $role === 'siswa';
       $isOrangTua = $role === 'orang tua';
 
-      // Kelompok peran
-      $isManajemen = in_array($role, ['admin', 'kepala sekolah']);
-      $isGuruWali  = in_array($role, ['guru', 'wali kelas']);
-      $isPersonal  = in_array($role, ['siswa', 'orang tua']);
+      $isPersonal = in_array($role, ['siswa', 'orang tua']);
   @endphp
 
   <ul class="sidebar-nav" id="sidebar-nav">
@@ -29,26 +26,21 @@
     </li>
 
     {{-- ==========================================
-         A. MENU UNTUK ADMIN & KEPALA SEKOLAH
+         A. MENU UNTUK ADMIN
          ========================================== --}}
     @if ($isAdmin)
 
-      {{-- 1. DATA MASTER --}}
-      <li class="nav-heading">Data Master</li>
+      {{-- 1. MASTER DATA --}}
+      <li class="nav-heading">Master Data</li>
       
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('profil-sekolah.*') ? '' : 'collapsed' }}" href="{{ route('profil-sekolah.index') }}">
+          <i class="bi bi-building"></i><span>Profile Sekolah</span>
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('siswa.*') ? '' : 'collapsed' }}" href="{{ route('siswa.index') }}">
           <i class="bi bi-person-lines-fill"></i><span>Siswa</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('guru.*') ? '' : 'collapsed' }}" href="{{ route('guru.index') }}">
-          <i class="bi bi-person-badge"></i><span>Guru</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('pegawai.*') ? '' : 'collapsed' }}" href="{{ route('pegawai.index') }}">
-          <i class="bi bi-people"></i><span>Pegawai</span>
         </a>
       </li>
       <li class="nav-item">
@@ -57,54 +49,96 @@
         </a>
       </li>
       <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('pegawai.*') ? '' : 'collapsed' }}" href="{{ route('pegawai.index') }}">
+          <i class="bi bi-people"></i><span>Pegawai</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('guru.*') ? '' : 'collapsed' }}" href="{{ route('guru.index') }}">
+          <i class="bi bi-person-badge"></i><span>Guru</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('kelas.*') ? '' : 'collapsed' }}" href="{{ route('kelas.index') }}">
+          <i class="bi bi-door-open"></i><span>Kelas</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('matapelajaran.index', 'matapelajaran.create', 'matapelajaran.edit', 'matapelajaran.show') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.index') }}">
+          <i class="bi bi-book"></i><span>Mata Pelajaran</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('jeniscatatan.*') ? '' : 'collapsed' }}" href="{{ route('jeniscatatan.index') }}">
+          <i class="bi bi-tags"></i><span>Jenis Catatan</span>
+        </a>
+      </li>
+      {{-- <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('orang-tua.*') ? '' : 'collapsed' }}" href="{{ route('orang-tua.index') }}">
           <i class="bi bi-person-hearts"></i><span>Orang Tua / Wali</span>
         </a>
-      </li>
+      </li> --}}
 
       {{-- 2. DATA AKADEMIK --}}
       <li class="nav-heading">Data Akademik</li>
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('kelas.*', 'walikelas.*', 'pembagiankelas.*') ? '' : 'collapsed' }}"
-           data-bs-target="#kelas-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-building"></i><span>Kelas & Penugasan</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link {{ request()->routeIs('pembagiankelas.*') ? '' : 'collapsed' }}" href="{{ route('pembagiankelas.index') }}">
+          <i class="bi bi-diagram-3"></i><span>Pembagian Kelas</span>
         </a>
-        <ul id="kelas-nav" class="nav-content collapse {{ request()->routeIs('kelas.*', 'walikelas.*', 'pembagiankelas.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
-          <li><a href="{{ route('kelas.index') }}" class="{{ request()->routeIs('kelas.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Daftar Kelas</span></a></li>
-          @if($isAdmin)
-          <li><a href="{{ route('walikelas.index') }}" class="{{ request()->routeIs('walikelas.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Wali Kelas</span></a></li>
-          <li><a href="{{ route('pembagiankelas.index') }}" class="{{ request()->routeIs('pembagiankelas.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Pembagian Kelas</span></a></li>
-          @endif
-        </ul>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.index') }}">
-          <i class="bi bi-book"></i><span>Mata Pelajaran</span>
+      {{-- <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('walikelas.*') ? '' : 'collapsed' }}" href="{{ route('walikelas.index') }}">
+          <i class="bi bi-person-workspace"></i><span>Wali Kelas</span>
         </a>
-      </li>
-      
+      </li> --}}
+
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.index') }}">
-          <i class="bi bi-trophy"></i><span>Ekstrakurikuler</span>
+        <a class="nav-link {{ request()->routeIs('matapelajaran.jadwal') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.jadwal') }}">
+          <i class="bi bi-calendar-week"></i><span>Mata Pelajaran Aktif</span>
         </a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('tahun-ajaran.*', 'semester.*') ? '' : 'collapsed' }}"
            data-bs-target="#tahun-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-calendar3"></i><span>Tahun Ajaran & Smt</span><i class="bi bi-chevron-down ms-auto"></i>
+          <i class="bi bi-calendar3"></i><span>Tahun Ajaran & Semester</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="tahun-nav" class="nav-content collapse {{ request()->routeIs('tahun-ajaran.*', 'semester.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
           <li><a href="{{ route('tahun-ajaran.index') }}" class="{{ request()->routeIs('tahun-ajaran.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Tahun Ajaran</span></a></li>
           <li><a href="{{ route('semester.index') }}" class="{{ request()->routeIs('semester.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Semester</span></a></li>
         </ul>
       </li>
-    @endif
 
-    @if ($isManajemen)
-      {{-- 3. LAPORAN & TRANSAKSI --}}
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.index') }}">
+          <i class="bi bi-trophy"></i><span>Ekstrakurikuler</span>
+        </a>
+      </li>
+
+      {{-- 3. INFORMASI & PENGATURAN --}}
+      <li class="nav-heading">Informasi & Pengaturan</li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
+          <i class="bi bi-megaphone"></i><span>Pengumuman</span>
+        </a>
+      </li>
+
+      {{-- <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
+          <i class="bi bi-file-earmark-text"></i><span>Materi Pembelajaran</span>
+        </a>
+      </li> --}}
+
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('user.*') ? '' : 'collapsed' }}" href="{{ route('user.index') }}">
+          <i class="bi bi-person-gear"></i><span>Manajemen User/Pengguna</span>
+        </a>
+      </li>
+
+      {{-- 4. LAPORAN & REKAPITULASI --}}
       <li class="nav-heading">Laporan & Rekapitulasi</li>
 
       <li class="nav-item">
@@ -125,21 +159,40 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('catatansiswa.*', 'jeniscatatan.*') ? '' : 'collapsed' }}"
-           data-bs-target="#catatan-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-journal-text"></i><span>Catatan Siswa</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}" href="{{ route('catatansiswa.index') }}">
+          <i class="bi bi-journal-text"></i><span>Catatan Siswa</span>
         </a>
-        <ul id="catatan-nav" class="nav-content collapse {{ request()->routeIs('catatansiswa.*', 'jeniscatatan.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
-          <li><a href="{{ route('catatansiswa.index') }}" class="{{ request()->routeIs('catatansiswa.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Catatan</span></a></li>
-          <li><a href="{{ route('jeniscatatan.index') }}" class="{{ request()->routeIs('jeniscatatan.*') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Jenis Catatan</span></a></li>
-        </ul>
       </li>
-    
+
     @endif
 
+    {{-- ==========================================
+         B. MENU UNTUK KEPALA SEKOLAH
+         ========================================== --}}
+    @if ($isKepsek)
+      <li class="nav-heading">Master Data</li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('profil-sekolah.*') ? '' : 'collapsed' }}" href="{{ route('profil-sekolah.index') }}"><i class="bi bi-building"></i><span>Profile Sekolah</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('siswa.*') ? '' : 'collapsed' }}" href="{{ route('siswa.index') }}"><i class="bi bi-person-lines-fill"></i><span>Siswa</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('guru.*') ? '' : 'collapsed' }}" href="{{ route('guru.index') }}"><i class="bi bi-person-badge"></i><span>Guru</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('pegawai.*') ? '' : 'collapsed' }}" href="{{ route('pegawai.index') }}"><i class="bi bi-people"></i><span>Pegawai</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('jabatan.*') ? '' : 'collapsed' }}" href="{{ route('jabatan.index') }}"><i class="bi bi-briefcase"></i><span>Jabatan</span></a></li>
+
+      <li class="nav-heading">Data Akademik</li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('kelas.*') ? '' : 'collapsed' }}" href="{{ route('kelas.index') }}"><i class="bi bi-door-open"></i><span>Kelas</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.index') }}"><i class="bi bi-book"></i><span>Mata Pelajaran</span></a></li>
+
+      <li class="nav-heading">Laporan & Rekapitulasi</li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('nilai.*') ? '' : 'collapsed' }}" href="{{ route('nilai.index') }}"><i class="bi bi-journal-check"></i><span>Rekap Nilai</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}" href="{{ route('kehadiran.rekap') }}"><i class="bi bi-calendar-check"></i><span>Rekap Kehadiran</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}" href="{{ route('catatansiswa.index') }}"><i class="bi bi-journal-text"></i><span>Rekap Catatan</span></a></li>
+
+      <li class="nav-heading">Informasi & Pengaturan</li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}"><i class="bi bi-megaphone"></i><span>Pengumuman</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}"><i class="bi bi-file-earmark-text"></i><span>Materi Pembelajaran</span></a></li>
+    @endif
 
     {{-- ==========================================
-         B. MENU UNTUK GURU & WALI KELAS
+         C. MENU UNTUK GURU & WALI KELAS
          ========================================== --}}
     @if ($isGuru)
       
@@ -191,6 +244,10 @@
         </a>
       </li>
 
+      <li class="nav-heading">Informasi & Pengaturan</li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}"><i class="bi bi-megaphone"></i><span>Pengumuman</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}"><i class="bi bi-file-earmark-text"></i><span>Materi Pembelajaran</span></a></li>
+
     @endif
 
     @if ($isWali)
@@ -237,12 +294,16 @@
           <i class="bi bi-star"></i><span>Jadwal Mata Pelajaran</span>
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('materipembelajaran.index') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
+          <i class="bi bi-star"></i><span>Materi Pembelajaran</span>
+        </a>
+      </li>
 
     @endif
 
-
     {{-- ==========================================
-         C. MENU UNTUK SISWA & ORANG TUA
+         D. MENU UNTUK SISWA & ORANG TUA
          ========================================== --}}
     @if ($isPersonal)
       
@@ -296,40 +357,6 @@
         </a>
       </li>
 
-    @endif
-
-
-    {{-- ==========================================
-         D. INFORMASI & PENGATURAN UMUM
-         ========================================== --}}
-    @if (!$isWali && !$isPersonal)
-      <li class="nav-heading">Informasi & Pengaturan</li>
-
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('profil-sekolah.*') ? '' : 'collapsed' }}" href="{{ route('profil-sekolah.index') }}">
-          <i class="bi bi-info-circle"></i><span>Profil Sekolah</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}">
-          <i class="bi bi-megaphone"></i><span>Pengumuman</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}">
-          <i class="bi bi-book"></i><span>Materi Pembelajaran</span>
-        </a>
-      </li>
-    @endif
-
-    @if ($isAdmin)
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('user.*') ? '' : 'collapsed' }}" href="{{ route('user.index') }}">
-          <i class="bi bi-person-gear"></i><span>Manajemen User / Pengguna</span>
-        </a>
-      </li>
     @endif
 
     {{-- Keluar --}}
