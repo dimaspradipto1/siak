@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
+use App\Models\User;
 use App\Http\Requests\PegawaiRequest;
-
 use App\DataTables\PegawaiDataTable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class PegawaiController extends Controller
 {
     use \App\Traits\AuthorizeMasterData;
+
     /**
      * Tampilkan daftar pegawai (DataTables).
      */
@@ -34,11 +36,45 @@ class PegawaiController extends Controller
     {
         $validated = $request->validated();
 
-        Pegawai::create($validated);
+        $role = $request->role ?: 'pegawai';
+        $jabatan = $request->jabatan ?: ucwords($role);
+
+        // 1. Create User Account
+        $username = preg_replace('/[^A-Za-z0-9]/', '', strtolower($request->nip));
+        $email = $request->email ?: ($username . '@gmail.com');
+
+        $user = User::where('username', $username)->orWhere('email', $email)->first();
+        if (!$user) {
+            $user = User::create([
+                'name' => $request->nama_pegawai,
+                'username' => $username,
+                'email' => $email,
+                'password' => Hash::make($request->password ?: 'password'),
+                'roles' => $role,
+                'is_active' => ($request->status ?? 'Aktif') === 'Aktif',
+            ]);
+        }
+
+        // 2. Create Pegawai record
+        $pegawai = Pegawai::create([
+            'user_id' => $user->id,
+            'nip' => $request->nip,
+            'nama_pegawai' => $request->nama_pegawai,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tgl_lahir' => $request->tgl_lahir,
+            'jabatan' => $jabatan,
+            'golongan' => $request->golongan,
+            'pendidikan_terakhir' => $request->pendidikan_terakhir,
+            'status' => $request->status ?: 'Aktif',
+            'agama' => $request->agama,
+            'nomor_wa' => $request->nomor_wa,
+            'alamat' => $request->alamat,
+        ]);
 
         alert()->html(
             'Berhasil!',
-            'Data pegawai <strong>' . e($validated['nama_pegawai']) . '</strong> berhasil ditambahkan.',
+            'Data pegawai <strong>' . e($pegawai->nama_pegawai) . '</strong> berhasil ditambahkan.',
             'success'
         );
 
@@ -58,6 +94,7 @@ class PegawaiController extends Controller
      */
     public function edit(Pegawai $pegawai)
     {
+        $pegawai->load('user');
         return view('pages.pegawai.edit', compact('pegawai'));
     }
 
@@ -68,7 +105,39 @@ class PegawaiController extends Controller
     {
         $validated = $request->validated();
 
-        $pegawai->update($validated);
+        $role = $request->role ?: ($pegawai->user->roles ?? 'pegawai');
+        $jabatan = $request->jabatan ?: ucwords($role);
+
+        // Update linked User Account
+        if ($pegawai->user) {
+            $userData = [
+                'name' => $request->nama_pegawai,
+                'roles' => $role,
+                'is_active' => ($request->status ?? 'Aktif') === 'Aktif',
+            ];
+            if ($request->filled('email')) {
+                $userData['email'] = $request->email;
+            }
+            if ($request->filled('password')) {
+                $userData['password'] = Hash::make($request->password);
+            }
+            $pegawai->user->update($userData);
+        }
+
+        $pegawai->update([
+            'nip' => $request->nip,
+            'nama_pegawai' => $request->nama_pegawai,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tgl_lahir' => $request->tgl_lahir,
+            'jabatan' => $jabatan,
+            'golongan' => $request->golongan,
+            'pendidikan_terakhir' => $request->pendidikan_terakhir,
+            'status' => $request->status ?: 'Aktif',
+            'agama' => $request->agama,
+            'nomor_wa' => $request->nomor_wa,
+            'alamat' => $request->alamat,
+        ]);
 
         alert()->html(
             'Diperbarui!',
@@ -79,9 +148,6 @@ class PegawaiController extends Controller
         return redirect()->route('pegawai.index');
     }
 
-    /**
-     * Hapus data pegawai dari database.
-     */
     public function export()
     {
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PegawaiExport, 'Data_Pegawai_'.date('Ymd').'.xlsx');

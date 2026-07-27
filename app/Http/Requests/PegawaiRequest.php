@@ -26,13 +26,17 @@ class PegawaiRequest extends FormRequest
             'jenis_kelamin'       => ['required', 'in:Laki-laki,Perempuan'],
             'tempat_lahir'        => ['required', 'string', 'max:100'],
             'tgl_lahir'           => ['required', 'date'],
-            'jabatan'             => ['required', 'string', 'max:100'],
+            'jabatan'             => ['nullable', 'string', 'max:100'],
             'golongan'            => ['nullable', 'string', 'max:50'],
             'pendidikan_terakhir' => ['nullable', 'string', 'max:50'],
             'status'              => ['nullable', 'string', 'max:50'],
             'agama'               => ['required', 'string', 'max:50'],
             'nomor_wa'            => ['nullable', 'string', 'max:20'],
             'alamat'              => ['nullable', 'string'],
+
+            'email'               => ['nullable', 'email'],
+            'role'                => ['nullable', 'string'],
+            'password'            => ['nullable', 'string', 'min:6', 'confirmed'],
         ];
     }
 
@@ -44,12 +48,12 @@ class PegawaiRequest extends FormRequest
         return [
             'nip.required'           => 'NIP wajib diisi.',
             'nip.unique'             => 'NIP sudah digunakan oleh pegawai lain.',
-            'nama_pegawai.required'  => 'Nama pegawai wajib diisi.',
+            'nama_pegawai.required'  => 'Nama Lengkap wajib diisi.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'tempat_lahir.required'  => 'Tempat lahir wajib diisi.',
             'tgl_lahir.required'     => 'Tanggal lahir wajib diisi.',
-            'jabatan.required'       => 'Jabatan wajib diisi.',
-            'agama.required'         => 'Agama wajib diisi.',
+            'agama.required'         => 'Agama wajib dipilih.',
+            'password.confirmed'     => 'Konfirmasi Password tidak cocok.',
         ];
     }
 }
