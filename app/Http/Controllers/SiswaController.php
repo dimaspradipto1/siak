@@ -36,7 +36,79 @@ class SiswaController extends Controller
     public function store(SiswaRequest $request)
     {
         $validated = $request->validated();
-        $siswa = Siswa::create($validated);
+
+        // 1. Process Parent Data (Orang Tua) if filled
+        $orangTuaId = $request->orang_tua_id;
+        if (!$orangTuaId && ($request->filled('nama_ayah') || $request->filled('nama_ibu') || $request->filled('email_ortu'))) {
+            $userOrtu = null;
+            if ($request->filled('email_ortu')) {
+                $usernameOrtu = 'ortu_' . preg_replace('/[^A-Za-z0-9]/', '', strtolower($request->nisn));
+                $userOrtu = User::where('email', $request->email_ortu)->first();
+                if (!$userOrtu) {
+                    $userOrtu = User::create([
+                        'name' => $request->nama_ayah ?: ($request->nama_ibu ?: 'Orang Tua'),
+                        'username' => $usernameOrtu,
+                        'email' => $request->email_ortu,
+                        'password' => Hash::make($request->password_ortu ?: 'password'),
+                        'roles' => 'orang tua',
+                        'is_active' => true,
+                    ]);
+                }
+            }
+
+            $orangTua = OrangTua::create([
+                'user_id' => $userOrtu ? $userOrtu->id : null,
+                'nama_ayah' => $request->nama_ayah,
+                'pekerjaan_ayah' => $request->pekerjaan_ayah,
+                'nomor_wa' => $request->nomor_wa_ayah,
+                'nama_ibu' => $request->nama_ibu,
+                'pekerjaan_ibu' => $request->pekerjaan_ibu,
+                'nomor_wa_ibu' => $request->nomor_wa_ibu,
+                'alamat' => $request->alamat_ortu,
+                'email' => $request->email_ortu,
+            ]);
+            $orangTuaId = $orangTua->id;
+        }
+
+        // 2. Resolve Kelas ID
+        $kelasId = $request->kelas_id;
+        if (!$kelasId) {
+            $firstKelas = Kelas::first();
+            $kelasId = $firstKelas ? $firstKelas->id : 1;
+        }
+
+        // 3. Process Student User Account
+        $usernameSiswa = preg_replace('/[^A-Za-z0-9]/', '', strtolower($request->nisn));
+        $emailSiswa = $request->email_siswa ?: ($usernameSiswa . '@gmail.com');
+        $userSiswa = User::where('username', $usernameSiswa)->orWhere('email', $emailSiswa)->first();
+        if (!$userSiswa) {
+            $userSiswa = User::create([
+                'name' => $request->nama_siswa,
+                'username' => $usernameSiswa,
+                'email' => $emailSiswa,
+                'password' => Hash::make($request->password_siswa ?: 'password'),
+                'roles' => 'siswa',
+                'is_active' => true,
+            ]);
+        }
+
+        // 4. Save Siswa record
+        $siswa = Siswa::create([
+            'user_id' => $userSiswa->id,
+            'orang_tua_id' => $orangTuaId,
+            'kelas_id' => $kelasId,
+            'ekstrakurikuler_id' => $request->ekstrakurikuler_id,
+            'nisn' => $request->nisn,
+            'nama_siswa' => $request->nama_siswa,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tgl_lahir' => $request->tgl_lahir,
+            'agama' => $request->agama,
+            'nomor_wa' => $request->nomor_wa,
+            'alamat' => $request->alamat,
+            'tgl_masuk' => $request->tgl_masuk ?: date('Y-m-d'),
+            'status' => $request->status ?: 'Aktif',
+        ]);
 
         alert()->html(
             'Berhasil!',
@@ -54,6 +126,7 @@ class SiswaController extends Controller
 
     public function edit(Siswa $siswa)
     {
+        $siswa->load(['user', 'orangTua.user', 'kelas', 'ekstrakurikuler']);
         $orangTuas = OrangTua::all();
         $kelas = Kelas::all();
         $ekstrakurikulers = Ekstrakurikuler::all();
@@ -63,7 +136,109 @@ class SiswaController extends Controller
     public function update(SiswaRequest $request, Siswa $siswa)
     {
         $validated = $request->validated();
-        $siswa->update($validated);
+
+        // 1. Update/Create Student User Account
+        if ($siswa->user) {
+            $userData = [];
+            if ($request->filled('nama_siswa')) {
+                $userData['name'] = $request->nama_siswa;
+            }
+            if ($request->filled('email_siswa')) {
+                $userData['email'] = $request->email_siswa;
+            }
+            if ($request->filled('password_siswa')) {
+                $userData['password'] = Hash::make($request->password_siswa);
+            }
+            if (!empty($userData)) {
+                $siswa->user->update($userData);
+            }
+        } elseif ($request->filled('email_siswa') || $request->filled('password_siswa')) {
+            $usernameSiswa = preg_replace('/[^A-Za-z0-9]/', '', strtolower($request->nisn));
+            $userSiswa = User::where('username', $usernameSiswa)->orWhere('email', $request->email_siswa)->first();
+            if (!$userSiswa) {
+                $userSiswa = User::create([
+                    'name' => $request->nama_siswa,
+                    'username' => $usernameSiswa,
+                    'email' => $request->email_siswa ?: ($usernameSiswa . '@gmail.com'),
+                    'password' => Hash::make($request->password_siswa ?: 'password'),
+                    'roles' => 'siswa',
+                    'is_active' => true,
+                ]);
+            }
+            $siswa->user_id = $userSiswa->id;
+        }
+
+        // 2. Update/Create Parent Data (Orang Tua)
+        $orangTua = $siswa->orangTua;
+        if ($orangTua) {
+            $orangTua->update([
+                'nama_ayah' => $request->nama_ayah,
+                'pekerjaan_ayah' => $request->pekerjaan_ayah,
+                'nomor_wa' => $request->nomor_wa_ayah,
+                'nama_ibu' => $request->nama_ibu,
+                'pekerjaan_ibu' => $request->pekerjaan_ibu,
+                'nomor_wa_ibu' => $request->nomor_wa_ibu,
+                'alamat' => $request->alamat_ortu,
+                'email' => $request->email_ortu,
+            ]);
+            if ($orangTua->user) {
+                $parentUserData = [];
+                if ($request->filled('email_ortu')) {
+                    $parentUserData['email'] = $request->email_ortu;
+                }
+                if ($request->filled('password_ortu')) {
+                    $parentUserData['password'] = Hash::make($request->password_ortu);
+                }
+                if (!empty($parentUserData)) {
+                    $orangTua->user->update($parentUserData);
+                }
+            }
+        } elseif ($request->filled('nama_ayah') || $request->filled('nama_ibu') || $request->filled('email_ortu')) {
+            $userOrtu = null;
+            if ($request->filled('email_ortu')) {
+                $usernameOrtu = 'ortu_' . preg_replace('/[^A-Za-z0-9]/', '', strtolower($request->nisn));
+                $userOrtu = User::where('email', $request->email_ortu)->first();
+                if (!$userOrtu) {
+                    $userOrtu = User::create([
+                        'name' => $request->nama_ayah ?: ($request->nama_ibu ?: 'Orang Tua'),
+                        'username' => $usernameOrtu,
+                        'email' => $request->email_ortu,
+                        'password' => Hash::make($request->password_ortu ?: 'password'),
+                        'roles' => 'orang tua',
+                        'is_active' => true,
+                    ]);
+                }
+            }
+
+            $newOrangTua = OrangTua::create([
+                'user_id' => $userOrtu ? $userOrtu->id : null,
+                'nama_ayah' => $request->nama_ayah,
+                'pekerjaan_ayah' => $request->pekerjaan_ayah,
+                'nomor_wa' => $request->nomor_wa_ayah,
+                'nama_ibu' => $request->nama_ibu,
+                'pekerjaan_ibu' => $request->pekerjaan_ibu,
+                'nomor_wa_ibu' => $request->nomor_wa_ibu,
+                'alamat' => $request->alamat_ortu,
+                'email' => $request->email_ortu,
+            ]);
+            $siswa->orang_tua_id = $newOrangTua->id;
+        }
+
+        // 3. Update Siswa record
+        $siswa->update([
+            'nisn' => $request->nisn,
+            'nama_siswa' => $request->nama_siswa,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tgl_lahir' => $request->tgl_lahir,
+            'agama' => $request->agama,
+            'nomor_wa' => $request->nomor_wa,
+            'alamat' => $request->alamat,
+            'tgl_masuk' => $request->tgl_masuk,
+            'status' => $request->status,
+            'kelas_id' => $request->kelas_id ?: $siswa->kelas_id,
+            'ekstrakurikuler_id' => $request->ekstrakurikuler_id,
+        ]);
 
         alert()->html(
             'Diperbarui!',

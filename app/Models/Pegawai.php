@@ -4,25 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pegawai extends Model
 {
     use HasFactory;
 
-    /**
-     * Nama tabel yang terkait dengan model.
-     *
-     * @var string
-     */
     protected $table = 'pegawais';
 
-    /**
-     * Atribut yang dapat diisi secara massal (mass assignable).
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
         'nip',
@@ -31,16 +21,14 @@ class Pegawai extends Model
         'tempat_lahir',
         'tgl_lahir',
         'jabatan',
+        'golongan',
+        'pendidikan_terakhir',
+        'status',
         'agama',
         'nomor_wa',
         'alamat',
     ];
 
-    /**
-     * Dapatkan cast untuk tipe atribut.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -48,14 +36,11 @@ class Pegawai extends Model
         ];
     }
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Hubungan HasOne dengan model Guru.
-     */
     public function guru(): HasOne
     {
         return $this->hasOne(Guru::class, 'pegawai_id');
@@ -75,7 +60,7 @@ class Pegawai extends Model
                     'username' => $username,
                     'email' => $username . '@gmail.com',
                     'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                    'roles' => 'pegawai', // Default, can be updated later if they become a Guru
+                    'roles' => 'pegawai',
                     'is_active' => true,
                 ]);
                 $pegawai->user_id = $user->id;

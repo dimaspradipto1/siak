@@ -16,17 +16,20 @@ class SiswaDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->editColumn('tanggal_lahir', function($siswa) {
-                return $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->locale('id')->translatedFormat('d F Y') : '-';
+            ->addColumn('jenis_kelamin', function ($siswa) {
+                return $siswa->jenis_kelamin ?? '-';
             })
-            ->addColumn('kelas_nama', function ($siswa) {
-                return $siswa->kelas ? $siswa->kelas->nama_kelas : '-';
-            })
-            ->addColumn('orang_tua', function ($siswa) {
+            ->addColumn('nama_ortu', function ($siswa) {
                 return $siswa->orangTua ? ($siswa->orangTua->nama_ayah ?? $siswa->orangTua->nama_ibu ?? '-') : '-';
             })
-            ->addColumn('ekskul', function ($siswa) {
-                return $siswa->ekstrakurikuler ? $siswa->ekstrakurikuler->nama_ekskul : '-';
+            ->addColumn('tempat_lahir', function ($siswa) {
+                return $siswa->tempat_lahir ?? '-';
+            })
+            ->editColumn('tgl_lahir', function ($siswa) {
+                return $siswa->tgl_lahir ? \Carbon\Carbon::parse($siswa->tgl_lahir)->locale('id')->translatedFormat('d F Y') : '-';
+            })
+            ->addColumn('no_wa_ortu', function ($siswa) {
+                return $siswa->orangTua ? ($siswa->orangTua->nomor_wa ?? $siswa->orangTua->nomor_wa_ibu ?? '-') : ($siswa->nomor_wa ?? '-');
             })
             ->addColumn('action', function ($siswa) {
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
@@ -51,7 +54,7 @@ class SiswaDataTable extends DataTable
 
     public function query(Siswa $model): QueryBuilder
     {
-        return $model->newQuery()->with(['kelas', 'orangTua', 'ekstrakurikuler']);
+        return $model->newQuery()->with(['orangTua']);
     }
 
     public function html(): HtmlBuilder
@@ -78,14 +81,16 @@ class SiswaDataTable extends DataTable
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
             Column::make('nisn')->title('NISN'),
             Column::make('nama_siswa')->title('Nama Siswa'),
-            Column::make('jenis_kelamin')->title('L/P'),
-            Column::make('kelas_nama')->title('Kelas')->searchable(false)->orderable(false),
-            Column::make('orang_tua')->title('Orang Tua')->searchable(false)->orderable(false),
+            Column::make('jenis_kelamin')->title('Jenis Kelamin'),
+            Column::make('nama_ortu')->title('Nama Ortu')->searchable(false)->orderable(false),
+            Column::make('tempat_lahir')->title('Tempat Lahir'),
+            Column::make('tgl_lahir')->title('Tanggal Lahir'),
+            Column::make('no_wa_ortu')->title('No. Wa Ortu')->searchable(false)->orderable(false),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-start'),
+                  ->addClass('text-center'),
         ];
     }
 

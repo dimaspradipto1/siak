@@ -21,13 +21,19 @@ class PegawaiDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->editColumn('tgl_lahir', function($pegawai) {
-                return $pegawai->tgl_lahir ? \Carbon\Carbon::parse($pegawai->tgl_lahir)->locale('id')->translatedFormat('d F Y') : '-';
+            ->addColumn('golongan', function ($pegawai) {
+                return $pegawai->golongan ?? ($pegawai->guru->golongan ?? '-');
             })
-            ->editColumn('nomor_wa', function($pegawai) {
-                return $pegawai->nomor_wa ?: '-';
+            ->addColumn('pendidikan_terakhir', function ($pegawai) {
+                return $pegawai->pendidikan_terakhir ?? ($pegawai->guru->pendidikan_terakhir ?? '-');
             })
-            ->addColumn('action', function($pegawai) {
+            ->addColumn('status', function ($pegawai) {
+                return $pegawai->status ?? 'Aktif';
+            })
+            ->addColumn('role', function ($pegawai) {
+                return $pegawai->user ? ucwords($pegawai->user->roles) : ucwords($pegawai->jabatan ?? 'Pegawai');
+            })
+            ->addColumn('action', function ($pegawai) {
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
@@ -53,7 +59,7 @@ class PegawaiDataTable extends DataTable
      */
     public function query(Pegawai $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()->with(['user', 'guru']);
     }
 
     /**
@@ -65,7 +71,7 @@ class PegawaiDataTable extends DataTable
                     ->setTableId('pegawai-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(2) // Urutkan berdasarkan nama pegawai secara default (kolom indeks ke-2)
+                    ->orderBy(2)
                     ->selectStyleSingle()
                     ->buttons([
                         Button::make('excel'),
@@ -85,15 +91,17 @@ class PegawaiDataTable extends DataTable
         return [
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
             Column::make('nip')->title('NIP'),
-            Column::make('nama_pegawai')->title('Nama Pegawai'),
+            Column::make('nama_pegawai')->title('Nama'),
             Column::make('jenis_kelamin')->title('Jenis Kelamin'),
-            Column::make('jabatan')->title('Jabatan'),
-            Column::make('nomor_wa')->title('No. WhatsApp'),
+            Column::make('golongan')->title('Golongan')->searchable(false)->orderable(false),
+            Column::make('pendidikan_terakhir')->title('Pendidikan Terakhir')->searchable(false)->orderable(false),
+            Column::make('status')->title('Status')->searchable(false)->orderable(false),
+            Column::make('role')->title('Role')->searchable(false)->orderable(false),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-start'),
+                  ->addClass('text-center'),
         ];
     }
 

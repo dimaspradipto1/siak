@@ -31,6 +31,23 @@
                         <form action="{{ route('jabatan.store') }}" method="POST" id="formCreate">
                             @csrf
 
+                            {{-- Kode Jabatan --}}
+                            <div class="mb-3">
+                                <label for="kode_jabatan" class="form-label fw-semibold">
+                                    Kode Jabatan
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                                    <input type="text" id="kode_jabatan" name="kode_jabatan"
+                                        class="form-control @error('kode_jabatan') is-invalid @enderror"
+                                        value="{{ old('kode_jabatan') }}"
+                                        placeholder="Contoh: JBT-001">
+                                    @error('kode_jabatan')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
                             {{-- Nama Jabatan --}}
                             <div class="mb-3">
                                 <label for="nama_jabatan" class="form-label fw-semibold">
@@ -48,15 +65,29 @@
                                 </div>
                             </div>
 
-                            {{-- Keterangan --}}
-                            <div class="mb-4">
+                            {{-- Keterangan / Deskripsi --}}
+                            <div class="mb-3">
                                 <label for="keterangan" class="form-label fw-semibold">
-                                    Keterangan
+                                    Deskripsi / Keterangan
                                 </label>
                                 <textarea id="keterangan" name="keterangan" rows="3"
                                     class="form-control @error('keterangan') is-invalid @enderror"
-                                    placeholder="Tulis keterangan atau deskripsi singkat jabatan">{{ old('keterangan') }}</textarea>
+                                    placeholder="Tulis deskripsi singkat jabatan">{{ old('keterangan') }}</textarea>
                                 @error('keterangan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Status --}}
+                            <div class="mb-4">
+                                <label for="status" class="form-label fw-semibold">
+                                    Status
+                                </label>
+                                <select id="status" name="status" class="form-select @error('status') is-invalid @enderror">
+                                    <option value="Aktif" {{ old('status', 'Aktif') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="Non-Aktif" {{ old('status') == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                                </select>
+                                @error('status')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -81,7 +112,6 @@
 
 @push('script')
     <script>
-        // SweetAlert error validasi jika ada error di server-side
         @if ($errors->any())
             Swal.fire({
                 icon: 'error',
