@@ -44,6 +44,44 @@
     table.dataTable th,
     table.dataTable td {
         text-align: left !important;
+        vertical-align: middle !important;
+    }
+
+    /* Wrap table responsive container without breaking header borders */
+    .table-responsive {
+        width: 100% !important;
+        overflow-x: auto !important;
+        margin-bottom: 1rem;
+    }
+
+    .table-responsive table.dataTable {
+        width: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Custom scrollbar styling */
+    .table-responsive::-webkit-scrollbar,
+    .dataTables_wrapper::-webkit-scrollbar {
+        height: 8px !important;
+        display: block !important;
+    }
+
+    .table-responsive::-webkit-scrollbar-track,
+    .dataTables_wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1 !important;
+        border-radius: 4px !important;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb,
+    .dataTables_wrapper::-webkit-scrollbar-thumb {
+        background: #888888 !important;
+        border-radius: 4px !important;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover,
+    .dataTables_wrapper::-webkit-scrollbar-thumb:hover {
+        background: #555555 !important;
     }
   </style>
 </head>
@@ -79,6 +117,15 @@
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
   <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
+
+  <script>
+      if (typeof $.fn.dataTable !== 'undefined') {
+          $.extend(true, $.fn.dataTable.defaults, {
+              autoWidth: false,
+              responsive: false
+          });
+      }
+  </script>
 
   {{-- SweetAlert2 JS --}}
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>

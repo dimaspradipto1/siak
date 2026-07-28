@@ -83,9 +83,13 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
                                     <label for="pendidikan_terakhir" class="form-label fw-medium text-secondary">Pendidikan Terakhir</label>
-                                    <input type="text" id="pendidikan_terakhir" name="pendidikan_terakhir" 
-                                        class="form-control rounded-3 @error('pendidikan_terakhir') is-invalid @enderror" 
-                                        value="{{ old('pendidikan_terakhir') }}" placeholder="S1 Pendidikan, D3, SMA, dll">
+                                    <select id="pendidikan_terakhir" name="pendidikan_terakhir" 
+                                        class="form-select rounded-3 @error('pendidikan_terakhir') is-invalid @enderror">
+                                        <option value="" selected>-- Pilih Pendidikan --</option>
+                                        @foreach(['SD', 'SMP', 'SMA/SMK', 'D3', 'S1', 'S2', 'S3'] as $pend)
+                                            <option value="{{ $pend }}" {{ old('pendidikan_terakhir') == $pend ? 'selected' : '' }}>{{ $pend }}</option>
+                                        @endforeach
+                                    </select>
                                     @error('pendidikan_terakhir')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 

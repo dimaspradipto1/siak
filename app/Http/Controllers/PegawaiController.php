@@ -72,6 +72,17 @@ class PegawaiController extends Controller
             'alamat' => $request->alamat,
         ]);
 
+        // 3. Auto create Guru record if role is guru or wali kelas
+        if (in_array(strtolower($role), ['guru', 'wali kelas'])) {
+            \App\Models\Guru::firstOrCreate([
+                'pegawai_id' => $pegawai->id,
+            ], [
+                'nip_guru' => $pegawai->nip,
+                'golongan' => $pegawai->golongan ?: 'Non-ASN',
+                'pendidikan_terakhir' => $pegawai->pendidikan_terakhir ?: 'S1',
+            ]);
+        }
+
         alert()->html(
             'Berhasil!',
             'Data pegawai <strong>' . e($pegawai->nama_pegawai) . '</strong> berhasil ditambahkan.',
@@ -138,6 +149,16 @@ class PegawaiController extends Controller
             'nomor_wa' => $request->nomor_wa,
             'alamat' => $request->alamat,
         ]);
+
+        if (in_array(strtolower($role), ['guru', 'wali kelas'])) {
+            \App\Models\Guru::updateOrCreate([
+                'pegawai_id' => $pegawai->id,
+            ], [
+                'nip_guru' => $pegawai->nip,
+                'golongan' => $pegawai->golongan ?: 'Non-ASN',
+                'pendidikan_terakhir' => $pegawai->pendidikan_terakhir ?: 'S1',
+            ]);
+        }
 
         alert()->html(
             'Diperbarui!',

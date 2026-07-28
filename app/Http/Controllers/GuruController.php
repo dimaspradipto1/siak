@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Guru;
 use App\Models\Pegawai;
 use App\Http\Requests\GuruRequest;
-
 use App\DataTables\GuruDataTable;
 use Illuminate\Http\Request;
 
 class GuruController extends Controller
 {
     use \App\Traits\AuthorizeMasterData;
+
     /**
      * Tampilkan daftar guru (DataTables).
      */
@@ -25,8 +25,15 @@ class GuruController extends Controller
      */
     public function create()
     {
-        // Hanya ambil pegawai yang jabatannya berkaitan dengan guru/kepala sekolah atau belum terdaftar sebagai guru
-        $pegawais = Pegawai::whereDoesntHave('guru')->orderBy('nama_pegawai')->get();
+        // Hanya menampilkan pegawai dengan role/jabatan Guru yang belum terdaftar di tabel guru
+        $pegawais = Pegawai::where(function ($q) {
+            $q->whereHas('user', function ($u) {
+                $u->where('roles', 'guru');
+            })->orWhere('jabatan', 'LIKE', '%Guru%');
+        })
+        ->whereDoesntHave('guru')
+        ->orderBy('nama_pegawai')
+        ->get();
 
         return view('pages.guru.create', compact('pegawais'));
     }
@@ -40,7 +47,6 @@ class GuruController extends Controller
 
         $guru = Guru::create($validated);
         
-        // Ambil nama pegawai untuk notifikasi
         $nama = $guru->pegawai ? $guru->pegawai->nama_pegawai : $guru->nip_guru;
 
         alert()->success(
@@ -64,11 +70,18 @@ class GuruController extends Controller
      */
     public function edit(Guru $guru)
     {
-        // Ambil pegawai yang belum menjadi guru, ATAU yang sedang di-edit saat ini
-        $pegawais = Pegawai::whereDoesntHave('guru')
-            ->orWhere('id', $guru->pegawai_id)
-            ->orderBy('nama_pegawai')
-            ->get();
+        // Ambil pegawai ber-role Guru yang belum menjadi guru, ATAU yang sedang di-edit saat ini
+        $pegawais = Pegawai::where(function ($q) {
+            $q->whereHas('user', function ($u) {
+                $u->where('roles', 'guru');
+            })->orWhere('jabatan', 'LIKE', '%Guru%');
+        })
+        ->where(function ($q) use ($guru) {
+            $q->whereDoesntHave('guru')
+              ->orWhere('id', $guru->pegawai_id);
+        })
+        ->orderBy('nama_pegawai')
+        ->get();
 
         return view('pages.guru.edit', compact('guru', 'pegawais'));
     }

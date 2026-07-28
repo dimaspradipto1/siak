@@ -1,206 +1,193 @@
 @extends('layouts.dashboard.template')
 
-@section('title', 'Edit Pegawai')
+@section('title', 'Edit Data Pegawai')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Edit Pegawai</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('pegawai.index') }}">Pegawai</a></li>
-                <li class="breadcrumb-item active">Edit</li>
-            </ol>
-        </nav>
+    <div class="pagetitle mb-4">
+        <h1 class="fw-bold text-dark fs-4">Form Edit Pegawai</h1>
     </div>
 
     <section class="section">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-body pt-4">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4">
 
-                        <div class="d-flex align-items-center gap-2 mb-4">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle text-white"
-                                style="width:42px;height:42px;background:linear-gradient(135deg,#1a4fad,#0d9fd8);">
-                                <i class="bi bi-pencil-square fs-5"></i>
-                            </div>
-                            <h5 class="mb-0">Form Edit Data Pegawai</h5>
-                        </div>
-
-                        <form action="{{ route('pegawai.update', $pegawai->id) }}" method="POST" id="formEdit">
+                        <form action="{{ route('pegawai.update', $pegawai->id) }}" method="POST" id="formEditPegawai">
                             @csrf
                             @method('PUT')
-
-                            <div class="row">
-                                {{-- NIP --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="nip" class="form-label fw-semibold">
-                                        NIP <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-                                        <input type="text" id="nip" name="nip"
-                                            class="form-control @error('nip') is-invalid @enderror"
-                                            value="{{ old('nip', $pegawai->nip) }}"
-                                            placeholder="Masukkan NIP"
-                                            autocomplete="off">
-                                        @error('nip')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                            
+                            {{-- Row 1: NIP, Nama Lengkap, Jenis Kelamin --}}
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="nip" class="form-label fw-medium text-secondary">NIP</label>
+                                    <input type="text" id="nip" name="nip" 
+                                        class="form-control rounded-3 @error('nip') is-invalid @enderror" 
+                                        value="{{ old('nip', $pegawai->nip) }}" required placeholder="Masukkan NIP">
+                                    @error('nip')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
-                                {{-- Nama Pegawai --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="nama_pegawai" class="form-label fw-semibold">
-                                        Nama Lengkap <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                        <input type="text" id="nama_pegawai" name="nama_pegawai"
-                                            class="form-control @error('nama_pegawai') is-invalid @enderror"
-                                            value="{{ old('nama_pegawai', $pegawai->nama_pegawai) }}"
-                                            placeholder="Masukkan nama lengkap">
-                                        @error('nama_pegawai')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                <div class="col-md-4">
+                                    <label for="nama_pegawai" class="form-label fw-medium text-secondary">Nama Lengkap</label>
+                                    <input type="text" id="nama_pegawai" name="nama_pegawai" 
+                                        class="form-control rounded-3 @error('nama_pegawai') is-invalid @enderror" 
+                                        value="{{ old('nama_pegawai', $pegawai->nama_pegawai) }}" required placeholder="Masukkan nama lengkap">
+                                    @error('nama_pegawai')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="jenis_kelamin" class="form-label fw-medium text-secondary">Jenis Kelamin</label>
+                                    <select id="jenis_kelamin" name="jenis_kelamin" 
+                                        class="form-select rounded-3 @error('jenis_kelamin') is-invalid @enderror" required>
+                                        <option value="Laki-laki" {{ old('jenis_kelamin', $pegawai->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="Perempuan" {{ old('jenis_kelamin', $pegawai->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                    @error('jenis_kelamin')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
 
-                            <div class="row">
-                                {{-- Jenis Kelamin --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="jenis_kelamin" class="form-label fw-semibold">
-                                        Jenis Kelamin <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
-                                        <select id="jenis_kelamin" name="jenis_kelamin"
-                                            class="form-select @error('jenis_kelamin') is-invalid @enderror">
-                                            <option value="" disabled>-- Pilih Jenis Kelamin --</option>
-                                            <option value="Laki-laki" {{ old('jenis_kelamin', $pegawai->jenis_kelamin) === 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                            <option value="Perempuan" {{ old('jenis_kelamin', $pegawai->jenis_kelamin) === 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                                        </select>
-                                        @error('jenis_kelamin')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                            {{-- Row 2: Tempat Lahir, Tanggal Lahir, Agama --}}
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="tempat_lahir" class="form-label fw-medium text-secondary">Tempat Lahir</label>
+                                    <input type="text" id="tempat_lahir" name="tempat_lahir" 
+                                        class="form-control rounded-3 @error('tempat_lahir') is-invalid @enderror" 
+                                        value="{{ old('tempat_lahir', $pegawai->tempat_lahir) }}" required placeholder="Masukkan tempat lahir">
+                                    @error('tempat_lahir')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
-                                {{-- Jabatan --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="jabatan" class="form-label fw-semibold">
-                                        Jabatan <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
-                                        <input type="text" id="jabatan" name="jabatan"
-                                            class="form-control @error('jabatan') is-invalid @enderror"
-                                            value="{{ old('jabatan', $pegawai->jabatan) }}"
-                                            placeholder="Contoh: Kepala Sekolah, Guru Kelas, Operator">
-                                        @error('jabatan')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                <div class="col-md-4">
+                                    <label for="tgl_lahir" class="form-label fw-medium text-secondary">Tanggal Lahir</label>
+                                    <input type="date" id="tgl_lahir" name="tgl_lahir" 
+                                        class="form-control rounded-3 @error('tgl_lahir') is-invalid @enderror" 
+                                        value="{{ old('tgl_lahir', $pegawai->tgl_lahir ? $pegawai->tgl_lahir->format('Y-m-d') : '') }}" required>
+                                    @error('tgl_lahir')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="agama" class="form-label fw-medium text-secondary">Agama</label>
+                                    <select id="agama" name="agama" 
+                                        class="form-select rounded-3 @error('agama') is-invalid @enderror" required>
+                                        @foreach(['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'] as $agm)
+                                            <option value="{{ $agm }}" {{ old('agama', $pegawai->agama) == $agm ? 'selected' : '' }}>{{ $agm }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('agama')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
 
-                            <div class="row">
-                                {{-- Tempat Lahir --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="tempat_lahir" class="form-label fw-semibold">
-                                        Tempat Lahir <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
-                                        <input type="text" id="tempat_lahir" name="tempat_lahir"
-                                            class="form-control @error('tempat_lahir') is-invalid @enderror"
-                                            value="{{ old('tempat_lahir', $pegawai->tempat_lahir) }}"
-                                            placeholder="Masukkan tempat lahir">
-                                        @error('tempat_lahir')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                            {{-- Row 3: Pendidikan Terakhir, Golongan, Email --}}
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="pendidikan_terakhir" class="form-label fw-medium text-secondary">Pendidikan Terakhir</label>
+                                    <select id="pendidikan_terakhir" name="pendidikan_terakhir" 
+                                        class="form-select rounded-3 @error('pendidikan_terakhir') is-invalid @enderror">
+                                        <option value="">-- Pilih Pendidikan --</option>
+                                        @foreach(['SD', 'SMP', 'SMA/SMK', 'D3', 'S1', 'S2', 'S3'] as $pend)
+                                            <option value="{{ $pend }}" {{ old('pendidikan_terakhir', $pegawai->pendidikan_terakhir ?? ($pegawai->guru->pendidikan_terakhir ?? '')) == $pend ? 'selected' : '' }}>{{ $pend }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('pendidikan_terakhir')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
-                                {{-- Tanggal Lahir --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="tgl_lahir" class="form-label fw-semibold">
-                                        Tanggal Lahir <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
-                                        <input type="date" id="tgl_lahir" name="tgl_lahir"
-                                            class="form-control @error('tgl_lahir') is-invalid @enderror"
-                                            value="{{ old('tgl_lahir', $pegawai->tgl_lahir ? $pegawai->tgl_lahir->format('Y-m-d') : '') }}">
-                                        @error('tgl_lahir')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                {{-- Agama --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="agama" class="form-label fw-semibold">
-                                        Agama <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-heart"></i></span>
-                                        <select id="agama" name="agama"
-                                            class="form-select @error('agama') is-invalid @enderror">
-                                            <option value="" disabled>-- Pilih Agama --</option>
-                                            @foreach(['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Khonghucu'] as $agm)
-                                                <option value="{{ $agm }}" {{ old('agama', $pegawai->agama) === $agm ? 'selected' : '' }}>{{ $agm }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('agama')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                <div class="col-md-4">
+                                    <label for="golongan" class="form-label fw-medium text-secondary">Golongan</label>
+                                    <select id="golongan" name="golongan" class="form-select rounded-3 @error('golongan') is-invalid @enderror">
+                                        <option value="">-- Pilih Golongan --</option>
+                                        @foreach(['I/a', 'I/b', 'I/c', 'I/d', 'II/a', 'II/b', 'II/c', 'II/d', 'III/a', 'III/b', 'III/c', 'III/d', 'IV/a', 'IV/b', 'IV/c', 'IV/d', 'IX (PPPK)', 'Non-ASN'] as $gol)
+                                            <option value="{{ $gol }}" {{ old('golongan', $pegawai->golongan ?? ($pegawai->guru->golongan ?? '')) == $gol ? 'selected' : '' }}>{{ $gol }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('golongan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
-                                {{-- Nomor WhatsApp --}}
-                                <div class="col-md-6 mb-3">
-                                    <label for="nomor_wa" class="form-label fw-semibold">
-                                        Nomor WhatsApp
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-whatsapp"></i></span>
-                                        <input type="text" id="nomor_wa" name="nomor_wa"
-                                            class="form-control @error('nomor_wa') is-invalid @enderror"
-                                            value="{{ old('nomor_wa', $pegawai->nomor_wa) }}"
-                                            placeholder="Contoh: 081234567890">
-                                        @error('nomor_wa')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                <div class="col-md-4">
+                                    <label for="email" class="form-label fw-medium text-secondary">Email</label>
+                                    <input type="email" id="email" name="email" 
+                                        class="form-control rounded-3 @error('email') is-invalid @enderror" 
+                                        value="{{ old('email', $pegawai->user->email ?? '') }}" placeholder="email@domain.com">
+                                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
 
-                            {{-- Alamat --}}
-                            <div class="mb-4">
-                                <label for="alamat" class="form-label fw-semibold">
-                                    Alamat Tempat Tinggal
-                                </label>
-                                <textarea id="alamat" name="alamat" rows="3"
-                                    class="form-control @error('alamat') is-invalid @enderror"
-                                    placeholder="Masukkan alamat lengkap">{{ old('alamat', $pegawai->alamat) }}</textarea>
-                                @error('alamat')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            {{-- Row 4: Alamat Lengkap, No. Whatsapp, Role --}}
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label for="alamat" class="form-label fw-medium text-secondary">Alamat Lengkap</label>
+                                    <textarea id="alamat" name="alamat" rows="2" 
+                                        class="form-control rounded-3 @error('alamat') is-invalid @enderror" 
+                                        placeholder="Masukkan alamat lengkap">{{ old('alamat', $pegawai->alamat) }}</textarea>
+                                    @error('alamat')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="nomor_wa" class="form-label fw-medium text-secondary">No. Whatsapp</label>
+                                    <input type="text" id="nomor_wa" name="nomor_wa" 
+                                        class="form-control rounded-3 @error('nomor_wa') is-invalid @enderror" 
+                                        value="{{ old('nomor_wa', $pegawai->nomor_wa) }}" placeholder="081234567890">
+                                    @error('nomor_wa')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="role" class="form-label fw-medium text-secondary">Role</label>
+                                    <select id="role" name="role" class="form-select rounded-3 @error('role') is-invalid @enderror">
+                                        @php $currentRole = $pegawai->user->roles ?? strtolower($pegawai->jabatan); @endphp
+                                        <option value="pegawai" {{ old('role', $currentRole) == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
+                                        <option value="guru" {{ old('role', $currentRole) == 'guru' ? 'selected' : '' }}>Guru</option>
+                                        <option value="wali kelas" {{ old('role', $currentRole) == 'wali kelas' ? 'selected' : '' }}>Wali Kelas</option>
+                                        <option value="kepala sekolah" {{ old('role', $currentRole) == 'kepala sekolah' ? 'selected' : '' }}>Kepala Sekolah</option>
+                                        <option value="admin" {{ old('role', $currentRole) == 'admin' ? 'selected' : '' }}>Admin</option>
+                                    </select>
+                                    @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
                             </div>
 
-                            {{-- Tombol Aksi --}}
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <a href="{{ route('pegawai.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left me-1"></i> Kembali
+                            {{-- Row 5: Password Baru (Opsional), Konfirmasi Password, Status --}}
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label for="password" class="form-label fw-medium text-secondary">Password Baru (Opsional)</label>
+                                    <div class="input-group">
+                                        <input type="password" id="password" name="password" 
+                                            class="form-control rounded-start-3 @error('password') is-invalid @enderror" 
+                                            placeholder="Kosongkan jika tidak diubah">
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="password_confirmation" class="form-label fw-medium text-secondary">Konfirmasi Password</label>
+                                    <div class="input-group">
+                                        <input type="password" id="password_confirmation" name="password_confirmation" 
+                                            class="form-control rounded-start-3" 
+                                            placeholder="Konfirmasi Password Baru">
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirmation">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="status" class="form-label fw-medium text-secondary">Status</label>
+                                    <select id="status" name="status" class="form-select rounded-3 @error('status') is-invalid @enderror">
+                                        <option value="Aktif" {{ old('status', $pegawai->status ?? 'Aktif') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                        <option value="Non-Aktif" {{ old('status', $pegawai->status ?? '') == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                                    </select>
+                                    @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+
+                            <!-- ==========================================
+                                 FOOTER BUTTONS
+                                 ========================================== -->
+                            <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+                                <a href="{{ route('pegawai.index') }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">
+                                    Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save me-1"></i> Simpan Perubahan
+                                <button type="submit" class="btn btn-dark px-4 py-2 rounded-3">
+                                    Simpan Perubahan
                                 </button>
                             </div>
 
@@ -214,14 +201,25 @@
 
 @push('script')
     <script>
-        // SweetAlert error validasi jika ada error di server-side validation
+        $(document).on('click', '.toggle-password', function () {
+            const targetId = $(this).data('target');
+            const input = $('#' + targetId);
+            const icon = $(this).find('i');
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                icon.removeClass('bi-eye').addClass('bi-eye-slash');
+            } else {
+                input.attr('type', 'password');
+                icon.removeClass('bi-eye-slash').addClass('bi-eye');
+            }
+        });
+
         @if ($errors->any())
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal Menyimpan!',
                 html: `<ul class="text-start ps-3 mb-0">{!! implode('', $errors->all('<li>:message</li>')) !!}</ul>`,
                 confirmButtonColor: '#d33',
-                confirmButtonText: 'Oke, Perbaiki',
             });
         @endif
     </script>

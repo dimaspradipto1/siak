@@ -29,9 +29,6 @@
                                 <a href="{{ route('guru.export') }}" class="btn btn-info btn-sm text-white" title="Export Data">
                                     <i class="bi bi-file-earmark-arrow-down"></i> Export
                                 </a>
-                                <a href="{{ route('guru.create') }}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-plus-circle-fill"></i> Tambah Data
-                                </a>
                             </div>
                             @endif
                         </div>

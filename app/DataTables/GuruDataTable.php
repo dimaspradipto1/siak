@@ -53,7 +53,12 @@ class GuruDataTable extends DataTable
                 'pegawais.nama_pegawai as nama_pegawai',
                 'pegawais.jenis_kelamin as jenis_kelamin'
             ])
-            ->join('pegawais', 'gurus.pegawai_id', '=', 'pegawais.id');
+            ->join('pegawais', 'gurus.pegawai_id', '=', 'pegawais.id')
+            ->leftJoin('users', 'pegawais.user_id', '=', 'users.id')
+            ->where(function ($q) {
+                $q->where('users.roles', 'guru')
+                  ->orWhere('pegawais.jabatan', 'LIKE', '%Guru%');
+            });
     }
 
     /**
@@ -65,7 +70,7 @@ class GuruDataTable extends DataTable
                     ->setTableId('guru-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(2) // Urutkan berdasarkan Nama Guru (kolom indeks ke-2)
+                    ->orderBy(2)
                     ->selectStyleSingle()
                     ->buttons([
                         Button::make('excel'),
@@ -83,7 +88,7 @@ class GuruDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
+            Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false)->addClass('text-center'),
             Column::make('nip_guru')->title('NIP Guru'),
             Column::make('nama_pegawai')->title('Nama Guru'),
             Column::make('jenis_kelamin')->title('Jenis Kelamin'),
@@ -93,7 +98,7 @@ class GuruDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-start'),
+                  ->addClass('text-center'),
         ];
     }
 

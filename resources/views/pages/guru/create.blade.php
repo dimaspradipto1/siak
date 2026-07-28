@@ -102,10 +102,13 @@
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
-                                    <input type="text" id="pendidikan_terakhir" name="pendidikan_terakhir"
-                                        class="form-control @error('pendidikan_terakhir') is-invalid @enderror"
-                                        value="{{ old('pendidikan_terakhir') }}"
-                                        placeholder="Contoh: S1 PGSD, S1 Pendidikan Agama Islam">
+                                    <select id="pendidikan_terakhir" name="pendidikan_terakhir"
+                                        class="form-select @error('pendidikan_terakhir') is-invalid @enderror">
+                                        <option value="" disabled selected>-- Pilih Pendidikan Terakhir --</option>
+                                        @foreach(['SD', 'SMP', 'SMA/SMK', 'D3', 'S1', 'S2', 'S3'] as $pend)
+                                            <option value="{{ $pend }}" {{ old('pendidikan_terakhir') === $pend ? 'selected' : '' }}>{{ $pend }}</option>
+                                        @endforeach
+                                    </select>
                                     @error('pendidikan_terakhir')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
