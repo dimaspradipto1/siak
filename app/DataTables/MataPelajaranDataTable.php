@@ -16,25 +16,22 @@ class MataPelajaranDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->addColumn('kelas', function ($mapel) {
-                return $mapel->kelas ? $mapel->kelas->nama_kelas : '-';
+            ->addColumn('kode_mapel', function ($mapel) {
+                return $mapel->kode_mapel ?? ('MP' . str_pad($mapel->id, 3, '0', STR_PAD_LEFT));
             })
-            ->addColumn('tahun_ajaran', function ($mapel) {
-                return $mapel->tahunAjaran ? $mapel->tahunAjaran->nama_tahun_ajaran : '-';
+            ->addColumn('kkm', function ($mapel) {
+                return $mapel->kkm ?? 75;
             })
-            ->addColumn('semester', function ($mapel) {
-                return $mapel->semester ? $mapel->semester->nama_semester : '-';
+            ->addColumn('tp_optimal', function ($mapel) {
+                return $mapel->tp_optimal ?? '-';
             })
-            ->addColumn('nama_guru', function ($mapel) {
-                return $mapel->guru && $mapel->guru->pegawai ? $mapel->guru->pegawai->nama_pegawai : '-';
+            ->addColumn('tp_peningkatan', function ($mapel) {
+                return $mapel->tp_peningkatan ?? '-';
             })
             ->addColumn('action', function ($mapel) {
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
-                    <a href="' . route('matapelajaran.show', $mapel->id) . '" class="btn btn-info btn-sm text-white" title="Detail">
-                        <i class="bi bi-eye"></i>
-                    </a>
                     <a href="' . route('matapelajaran.edit', $mapel->id) . '" class="btn btn-warning btn-sm" title="Edit">
                         <i class="bi bi-pencil"></i>
                     </a>
@@ -54,7 +51,7 @@ class MataPelajaranDataTable extends DataTable
 
     public function query(MataPelajaran $model): QueryBuilder
     {
-        return $model->newQuery()->with(['kelas', 'tahunAjaran', 'semester', 'guru.pegawai']);
+        return $model->newQuery();
     }
 
     public function html(): HtmlBuilder
@@ -78,14 +75,12 @@ class MataPelajaranDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
-            Column::make('kelas')->title('Kelas'),
-            Column::make('tahun_ajaran')->title('Tahun Ajaran'),
-            Column::make('semester')->title('Semester'),
+            Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false)->addClass('text-center'),
+            Column::make('kode_mapel')->title('Kode Mapel'),
             Column::make('nama_mata_pelajaran')->title('Nama Mapel'),
-            Column::make('nama_guru')->title('Nama Guru'),
-            Column::make('hari_mengajar')->title('Hari Mengajar'),
-            Column::make('jam_mengajar')->title('Jam Mengajar'),
+            Column::make('kkm')->title('KKM'),
+            Column::make('tp_optimal')->title('TP yang Optimal'),
+            Column::make('tp_peningkatan')->title('TP Yang Perlu Peningkatan'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)

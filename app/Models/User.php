@@ -76,6 +76,38 @@ class User extends Authenticatable
     }
 
     /**
+     * Cek apakah guru ini juga sedang ditugaskan sebagai wali kelas
+     * pada tahun ajaran yang aktif.
+     */
+    public function isWaliKelasAktif(): bool
+    {
+        $guru = $this->pegawai?->guru;
+
+        if (!$guru) {
+            return false;
+        }
+
+        return $guru->waliKelas()
+            ->whereHas('tahunAjaran', fn($q) => $q->where('status', 'Aktif'))
+            ->exists();
+    }
+
+    /**
+     * Role yang sedang aktif dipakai untuk navigasi (bisa berbeda dari
+     * roles asli jika guru sedang beralih ke tampilan Wali Kelas).
+     */
+    public function activeRole(): string
+    {
+        $active = session('active_role');
+
+        if ($active && $this->roles === 'guru' && $this->isWaliKelasAktif()) {
+            return $active;
+        }
+
+        return $this->roles ?? '';
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

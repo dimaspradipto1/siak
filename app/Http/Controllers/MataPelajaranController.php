@@ -169,7 +169,7 @@ class MataPelajaranController extends Controller
 
         $matapelajaran = [];
         if ($selectedTa && $selectedSem && $selectedKelas) {
-            $matapelajaran = MataPelajaran::with(['kelas', 'semester', 'guru.pegawai'])
+            $matapelajaran = MataPelajaran::with(['kelas', 'tahunAjaran', 'semester', 'guru.pegawai'])
                 ->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa)
                 ->where('semester_id', $selectedSem)

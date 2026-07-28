@@ -56,6 +56,26 @@ class AuthController extends Controller
     }
 
     /**
+     * Beralih tampilan menu antara Guru dan Wali Kelas untuk guru
+     * yang juga sedang ditugaskan sebagai wali kelas.
+     */
+    public function switchRole(Request $request, string $role)
+    {
+        $user = Auth::user();
+        $target = $role === 'wali-kelas' ? 'wali kelas' : 'guru';
+
+        if ($user->roles !== 'guru' || !$user->isWaliKelasAktif()) {
+            abort(403, 'Anda tidak memiliki akses untuk beralih peran.');
+        }
+
+        $request->session()->put('active_role', $target);
+
+        toast('Anda sekarang login sebagai ' . ucwords($target) . '.', 'success');
+
+        return redirect()->route('dashboard');
+    }
+
+    /**
      * Logout pengguna.
      */
     public function logout(Request $request)

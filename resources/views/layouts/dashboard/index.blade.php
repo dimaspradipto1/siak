@@ -22,7 +22,7 @@
     @endif
 
     <section class="section dashboard">
-        @if ($user->roles === 'kepala sekolah')
+        @if ($activeRole === 'kepala sekolah')
             <div class="row">
                 <!-- Left side columns -->
                 <div class="col-lg-8">
@@ -184,7 +184,10 @@
                                             </h5>
                                             <p class="mb-0" style="opacity:.8;font-size:13px;">
                                                 <i class="bi bi-shield-check me-1"></i>
-                                                Role: <strong class="text-capitalize">{{ $user->roles ?? '-' }}</strong>
+                                                Role: <strong class="text-capitalize">{{ $activeRole ?: '-' }}</strong>
+                                                @if (($user->roles ?? '') === 'guru' && $user->isWaliKelasAktif())
+                                                    <span class="badge bg-light text-dark ms-1" style="font-size:11px;">Guru & Wali Kelas</span>
+                                                @endif
                                                 &nbsp;·&nbsp; SIAK SD Negeri 007 Sekupang
                                             </p>
                                         </div>
@@ -194,7 +197,7 @@
                         </div>
 
                         <!-- Statistik Cards -->
-                        @if (in_array($user->roles ?? '', ['admin', 'kepala sekolah']))
+                        @if (in_array($activeRole, ['admin', 'kepala sekolah']))
                             <div class="col-xxl-4 col-md-6">
                                 <div class="card info-card" style="border-left: 4px solid #4154f1;">
                                     <div class="card-body">
@@ -250,7 +253,7 @@
                             </div><!-- End Kelas Card -->
                         @endif
 
-                        @if (in_array($user->roles ?? '', ['guru', 'wali kelas']))
+                        @if (in_array($activeRole, ['guru', 'wali kelas']))
                             <div class="col-xxl-6 col-md-6">
                                 <div class="card info-card" style="border-left: 4px solid #4154f1;">
                                     <div class="card-body">
@@ -288,7 +291,7 @@
                             </div>
                         @endif
 
-                        @if (in_array($user->roles ?? '', ['siswa', 'orang tua']))
+                        @if (in_array($activeRole, ['siswa', 'orang tua']))
                             <div class="col-xxl-4 col-md-6">
                                 <div class="card info-card" style="border-left: 4px solid #4154f1;">
                                     <div class="card-body">
@@ -374,7 +377,7 @@
                                 </div>
                                 <h6 class="mt-2 mb-1">{{ $user->name ?? '-' }}</h6>
                                 <p class="text-muted small mb-0">{{ $user->email ?? '-' }}</p>
-                                <span class="badge bg-primary mt-1 text-capitalize">{{ $user->roles ?? '-' }}</span>
+                                <span class="badge bg-primary mt-1 text-capitalize">{{ $activeRole ?: '-' }}</span>
                             </div>
                             <hr>
                             <ul class="list-unstyled small">
@@ -388,7 +391,7 @@
                                 </li>
                                 <li class="d-flex justify-content-between py-1">
                                     <span class="text-muted"><i class="bi bi-shield-check me-2"></i>Role</span>
-                                    <strong class="text-capitalize">{{ $user->roles ?? '-' }}</strong>
+                                    <strong class="text-capitalize">{{ $activeRole ?: '-' }}</strong>
                                 </li>
                             </ul>
                         </div>
@@ -433,7 +436,7 @@
 @endsection
 
 @push('script')
-    @if ($user->roles === 'kepala sekolah')
+    @if ($activeRole === 'kepala sekolah')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {

@@ -19,8 +19,9 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
-        if ($user && $user->roles === 'kepala sekolah') {
+        $activeRole = $user?->activeRole() ?? '';
+
+        if ($user && $activeRole === 'kepala sekolah') {
             $totalPegawai = \App\Models\Pegawai::count();
             $guruCount = \App\Models\Pegawai::where(function($q) {
                 $q->where('jabatan', 'LIKE', '%Guru%')
@@ -60,12 +61,12 @@ class DashboardController extends Controller
                 ->get();
 
             return view('layouts.dashboard.index', compact(
-                'user', 'totalPegawai', 'guruCount', 'adminCount', 'kebersihanCount',
+                'user', 'activeRole', 'totalPegawai', 'guruCount', 'adminCount', 'kebersihanCount',
                 'totalSiswa', 'siswaCountByTingkat', 'kehadiranPercentage',
                 'akademikPercentage', 'schoolProfile', 'chartData'
             ));
         }
 
-        return view('layouts.dashboard.index', compact('user'));
+        return view('layouts.dashboard.index', compact('user', 'activeRole'));
     }
 }

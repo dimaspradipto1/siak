@@ -190,20 +190,27 @@
                     $nilai = $rec && $rec->nilai_raport !== null ? intval($rec->nilai_raport) : null;
                     $predikat = $rec && $rec->predikat ? $rec->predikat : null;
                     
-                    // Generate smart description
+                    // Generate smart description. Prioritaskan TP yang dipilih guru secara
+                    // spesifik per siswa di form Input Nilai Raport, baru fallback ke master TP mapel.
+                    $tpOptimalSiswa = $rec->tp_optimal ?? null;
+                    $tpPeningkatanSiswa = $rec->tp_perlu_peningkatan ?? null;
+
                     $desc = '-';
                     if ($nilai !== null) {
                         if ($nilai >= 85) {
-                            $desc = $mp->tp_optimal 
-                                ? 'Menunjukkan penguasaan yang sangat baik dalam ' . lcfirst($mp->tp_optimal)
+                            $tp = $tpOptimalSiswa ?: $mp->tp_optimal;
+                            $desc = $tp
+                                ? 'Menunjukkan penguasaan yang sangat baik dalam ' . lcfirst($tp)
                                 : 'Menunjukkan penguasaan kompetensi mata pelajaran dengan sangat baik.';
                         } elseif ($nilai >= 75) {
-                            $desc = $mp->tp_optimal 
-                                ? 'Menunjukkan penguasaan yang baik dalam ' . lcfirst($mp->tp_optimal)
+                            $tp = $tpOptimalSiswa ?: $mp->tp_optimal;
+                            $desc = $tp
+                                ? 'Menunjukkan penguasaan yang baik dalam ' . lcfirst($tp)
                                 : 'Menunjukkan penguasaan kompetensi mata pelajaran dengan baik.';
                         } else {
-                            $desc = $mp->tp_peningkatan 
-                                ? 'Perlu bimbingan dan peningkatan dalam ' . lcfirst($mp->tp_peningkatan)
+                            $tp = $tpPeningkatanSiswa ?: $mp->tp_peningkatan;
+                            $desc = $tp
+                                ? 'Perlu bimbingan dan peningkatan dalam ' . lcfirst($tp)
                                 : 'Perlu bimbingan lebih lanjut untuk meningkatkan kompetensi mata pelajaran.';
                         }
                     }

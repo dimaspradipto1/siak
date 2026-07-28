@@ -3,91 +3,77 @@
 @section('title', 'Tambah Kelas')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Tambah Kelas</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('kelas.index') }}">Kelas</a></li>
-                <li class="breadcrumb-item active">Tambah</li>
-            </ol>
-        </nav>
+    <div class="pagetitle mb-4">
+        <h1 class="fw-bold text-dark fs-4">Form Tambah Kelas</h1>
     </div>
 
     <section class="section">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-body pt-4">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4">
 
-                        <div class="d-flex align-items-center gap-2 mb-4">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle text-white"
-                                style="width:42px;height:42px;background:linear-gradient(135deg,#1a4fad,#0d9fd8);">
-                                <i class="bi bi-house-add fs-5"></i>
-                            </div>
-                            <h5 class="mb-0">Form Tambah Kelas Baru</h5>
-                        </div>
-
-                        <form action="{{ route('kelas.store') }}" method="POST">
+                        <form action="{{ route('kelas.store') }}" method="POST" id="formTambahKelas">
                             @csrf
 
+                            {{-- Kode Kelas --}}
                             <div class="mb-3">
-                                <label for="nama_kelas" class="form-label fw-semibold">
-                                    Nama Kelas <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-fonts"></i></span>
-                                    <input type="text" id="nama_kelas" name="nama_kelas"
-                                        class="form-control @error('nama_kelas') is-invalid @enderror"
-                                        value="{{ old('nama_kelas') }}"
-                                        placeholder="Contoh: I A, II B, III C">
-                                    @error('nama_kelas')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="kode_kelas" class="form-label fw-medium text-secondary">Kode Kelas</label>
+                                <input type="text" id="kode_kelas" name="kode_kelas"
+                                    class="form-control rounded-3 @error('kode_kelas') is-invalid @enderror"
+                                    value="{{ old('kode_kelas') }}"
+                                    placeholder="Masukkan Kode Kelas">
+                                @error('kode_kelas')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
+                            {{-- Nama Kelas --}}
                             <div class="mb-3">
-                                <label for="tingkat" class="form-label fw-semibold">
-                                    Tingkat <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-bar-chart-steps"></i></span>
-                                    <select id="tingkat" name="tingkat"
-                                        class="form-select @error('tingkat') is-invalid @enderror">
-                                        <option value="" disabled selected>-- Pilih Tingkat --</option>
-                                        @foreach(['1', '2', '3', '4', '5', '6'] as $tingkat)
-                                            <option value="{{ $tingkat }}" {{ old('tingkat') === $tingkat ? 'selected' : '' }}>Kelas {{ $tingkat }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('tingkat')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="nama_kelas" class="form-label fw-medium text-secondary">Nama Kelas</label>
+                                <input type="text" id="nama_kelas" name="nama_kelas"
+                                    class="form-control rounded-3 @error('nama_kelas') is-invalid @enderror"
+                                    value="{{ old('nama_kelas') }}"
+                                    placeholder="Masukkan Nama Kelas" required>
+                                @error('nama_kelas')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
+                            {{-- Tingkat --}}
+                            <div class="mb-3">
+                                <label for="tingkat" class="form-label fw-medium text-secondary">Tingkat</label>
+                                <select id="tingkat" name="tingkat"
+                                    class="form-select rounded-3 @error('tingkat') is-invalid @enderror" required>
+                                    <option value="" disabled selected>-- Pilih Tingkat --</option>
+                                    @foreach(['1', '2', '3', '4', '5', '6'] as $tingkat)
+                                        <option value="{{ $tingkat }}" {{ old('tingkat') == $tingkat ? 'selected' : '' }}>Kelas {{ $tingkat }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tingkat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Ruangan --}}
                             <div class="mb-4">
-                                <label for="ruangan" class="form-label fw-semibold">
-                                    Ruangan <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-door-open"></i></span>
-                                    <input type="text" id="ruangan" name="ruangan"
-                                        class="form-control @error('ruangan') is-invalid @enderror"
-                                        value="{{ old('ruangan') }}"
-                                        placeholder="Contoh: R-01, R-02, Lab Komputer">
-                                    @error('ruangan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="ruangan" class="form-label fw-medium text-secondary">Ruangan</label>
+                                <input type="text" id="ruangan" name="ruangan"
+                                    class="form-control rounded-3 @error('ruangan') is-invalid @enderror"
+                                    value="{{ old('ruangan') }}"
+                                    placeholder="Masukkan Nama Ruangan" required>
+                                @error('ruangan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <a href="{{ route('kelas.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left me-1"></i> Kembali
+                            {{-- Tombol Aksi --}}
+                            <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+                                <a href="{{ route('kelas.index') }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">
+                                    Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save me-1"></i> Simpan
+                                <button type="submit" class="btn btn-dark px-4 py-2 rounded-3">
+                                    Simpan
                                 </button>
                             </div>
 
@@ -107,7 +93,6 @@
                 title: 'Gagal Menyimpan!',
                 html: `<ul class="text-start ps-3 mb-0">{!! implode('', $errors->all('<li>:message</li>')) !!}</ul>`,
                 confirmButtonColor: '#d33',
-                confirmButtonText: 'Oke, Perbaiki',
             });
         @endif
     </script>

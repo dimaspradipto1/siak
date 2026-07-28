@@ -25,6 +25,7 @@ class MataPelajaran extends Model
         'guru_id',
         'hari_mengajar',
         'jam_mengajar',
+        'status',
     ];
 
     public function kelas(): BelongsTo

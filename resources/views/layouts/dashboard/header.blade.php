@@ -48,10 +48,16 @@
             </span>
           </a>
 
+          @php
+              $authUser = Auth::user();
+              $canSwitchRole = $authUser && $authUser->roles === 'guru' && $authUser->isWaliKelasAktif();
+              $currentActiveRole = $authUser?->activeRole();
+          @endphp
+
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
               <h6>{{ Auth::user()->name ?? 'Pengguna' }}</h6>
-              <span class="text-capitalize">{{ Auth::user()->roles ?? '-' }}</span>
+              <span class="text-capitalize">{{ $currentActiveRole ?: '-' }}</span>
             </li>
             <li><hr class="dropdown-divider"></li>
 
@@ -62,6 +68,26 @@
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
+
+            @if ($canSwitchRole)
+              <li>
+                <form method="POST" action="{{ route('switch-role', $currentActiveRole === 'wali kelas' ? 'guru' : 'wali-kelas') }}" id="switchRoleForm">
+                  @csrf
+                  <a class="dropdown-item d-flex align-items-center" href="#"
+                     onclick="event.preventDefault(); document.getElementById('switchRoleForm').submit();">
+                    <i class="bi bi-arrow-repeat"></i>
+                    <span>
+                      @if ($currentActiveRole === 'wali kelas')
+                        Login sebagai Guru
+                      @else
+                        Login sebagai Wali Kelas
+                      @endif
+                    </span>
+                  </a>
+                </form>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+            @endif
 
             <li>
               <a class="dropdown-item d-flex align-items-center" href="#">

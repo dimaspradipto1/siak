@@ -23,7 +23,7 @@ class PembagianKelasController extends Controller
     public function create()
     {
         $siswas = Siswa::orderBy('nama_siswa', 'asc')->get();
-        $kelas = Kelas::all();
+        $kelas = Kelas::with(['waliKelas.guru.pegawai'])->get();
         $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
 
         return view('pages.pembagiankelas.create', compact('siswas', 'kelas', 'tahunAjarans'));
@@ -55,8 +55,9 @@ class PembagianKelasController extends Controller
 
     public function edit(PembagianKelas $pembagiankela)
     {
+        $pembagiankela->load(['kelas.waliKelas.guru.pegawai', 'siswa']);
         $siswas = Siswa::orderBy('nama_siswa', 'asc')->get();
-        $kelas = Kelas::all();
+        $kelas = Kelas::with(['waliKelas.guru.pegawai'])->get();
         $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
 
         return view('pages.pembagiankelas.edit', [

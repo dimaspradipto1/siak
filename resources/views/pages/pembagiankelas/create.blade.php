@@ -3,103 +3,100 @@
 @section('title', 'Tambah Pembagian Kelas')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Tambah Pembagian Kelas</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('pembagiankelas.index') }}">Pembagian Kelas</a></li>
-                <li class="breadcrumb-item active">Tambah</li>
-            </ol>
-        </nav>
+    <div class="pagetitle mb-4">
+        <h1 class="fw-bold text-dark fs-4">Form Tambah Pembagian Kelas</h1>
     </div>
 
     <section class="section">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-body pt-4">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4">
 
-                        <div class="d-flex align-items-center gap-2 mb-4">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle text-white"
-                                style="width:42px;height:42px;background:linear-gradient(135deg,#1a4fad,#0d9fd8);">
-                                <i class="bi bi-building-add fs-5"></i>
-                            </div>
-                            <h5 class="mb-0">Form Pembagian Kelas Baru</h5>
-                        </div>
-
-                        <form action="{{ route('pembagiankelas.store') }}" method="POST">
+                        <form action="{{ route('pembagiankelas.store') }}" method="POST" id="formTambahPembagianKelas">
                             @csrf
 
+                            {{-- 1. Tahun Ajaran --}}
                             <div class="mb-3">
-                                <label for="tahun_ajaran_id" class="form-label fw-semibold">
-                                    Tahun Ajaran <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-                                    <select id="tahun_ajaran_id" name="tahun_ajaran_id"
-                                        class="form-select @error('tahun_ajaran_id') is-invalid @enderror">
-                                        <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
-                                        @foreach($tahunAjarans as $ta)
-                                            <option value="{{ $ta->id }}" {{ old('tahun_ajaran_id') == $ta->id || (empty(old('tahun_ajaran_id')) && $ta->status == 'Aktif') ? 'selected' : '' }}>
-                                                {{ $ta->nama_tahun_ajaran }} @if($ta->status == 'Aktif') (Aktif) @endif
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('tahun_ajaran_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="tahun_ajaran_id" class="form-label fw-medium text-secondary">Tahun Ajaran</label>
+                                <select id="tahun_ajaran_id" name="tahun_ajaran_id"
+                                    class="form-select rounded-3 @error('tahun_ajaran_id') is-invalid @enderror" required>
+                                    <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
+                                    @foreach($tahunAjarans as $ta)
+                                        <option value="{{ $ta->id }}" {{ old('tahun_ajaran_id') == $ta->id || (empty(old('tahun_ajaran_id')) && $ta->status == 'Aktif') ? 'selected' : '' }}>
+                                            {{ $ta->nama_tahun_ajaran }} @if($ta->status == 'Aktif') (Aktif) @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('tahun_ajaran_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
+                            {{-- 2. Tingkat --}}
                             <div class="mb-3">
-                                <label for="kelas_id" class="form-label fw-semibold">
-                                    Kelas <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-building"></i></span>
-                                    <select id="kelas_id" name="kelas_id"
-                                        class="form-select @error('kelas_id') is-invalid @enderror">
-                                        <option value="" disabled selected>-- Pilih Kelas --</option>
-                                        @foreach($kelas as $k)
-                                            <option value="{{ $k->id }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
-                                                {{ $k->nama_kelas }} (Tingkat {{ $k->tingkat }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('kelas_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="tingkat" class="form-label fw-medium text-secondary">Tingkat</label>
+                                <select id="tingkat" name="tingkat" class="form-select rounded-3">
+                                    <option value="" selected>-- Semua Tingkat --</option>
+                                    @foreach(['1', '2', '3', '4', '5', '6'] as $t)
+                                        <option value="{{ $t }}" {{ old('tingkat') == $t ? 'selected' : '' }}>Tingkat {{ $t }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
+                            {{-- 3. Kelas --}}
+                            <div class="mb-3">
+                                <label for="kelas_id" class="form-label fw-medium text-secondary">Kelas</label>
+                                <select id="kelas_id" name="kelas_id"
+                                    class="form-select rounded-3 @error('kelas_id') is-invalid @enderror" required>
+                                    <option value="" disabled selected>-- Pilih Kelas --</option>
+                                    @foreach($kelas as $k)
+                                        @php
+                                            $wali = $k->waliKelas->first()?->guru?->pegawai?->nama_pegawai ?? 'Belum ada wali kelas';
+                                        @endphp
+                                        <option value="{{ $k->id }}" data-tingkat="{{ $k->tingkat }}" data-walikelas="{{ $wali }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
+                                            {{ $k->nama_kelas }} (Tingkat {{ $k->tingkat }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('kelas_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- 4. Nama Siswa --}}
+                            <div class="mb-3">
+                                <label for="siswa_id" class="form-label fw-medium text-secondary">Nama Siswa</label>
+                                <select id="siswa_id" name="siswa_id"
+                                    class="form-select select2 rounded-3 @error('siswa_id') is-invalid @enderror" required>
+                                    <option value="" disabled selected>-- NISN + Nama Siswa --</option>
+                                    @foreach($siswas as $siswa)
+                                        <option value="{{ $siswa->id }}" {{ old('siswa_id') == $siswa->id ? 'selected' : '' }}>
+                                            {{ $siswa->nisn }} - {{ $siswa->nama_siswa }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('siswa_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- 5. Nama Walikelas (Readonly & Otomatis Terisi) --}}
                             <div class="mb-4">
-                                <label for="siswa_id" class="form-label fw-semibold">
-                                    Siswa <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <select id="siswa_id" name="siswa_id"
-                                        class="form-select select2 @error('siswa_id') is-invalid @enderror">
-                                        <option value="" disabled selected>-- Pilih Siswa --</option>
-                                        @foreach($siswas as $siswa)
-                                            <option value="{{ $siswa->id }}" {{ old('siswa_id') == $siswa->id ? 'selected' : '' }}>
-                                                {{ $siswa->nama_siswa }} (NISN: {{ $siswa->nisn }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('siswa_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="nama_walikelas" class="form-label fw-medium text-secondary">Nama Walikelas</label>
+                                <input type="text" id="nama_walikelas" class="form-control rounded-3 bg-light" 
+                                    placeholder="otomatis terisi" readonly disabled>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <a href="{{ route('pembagiankelas.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left me-1"></i> Kembali
+                            <!-- ==========================================
+                                 FOOTER BUTTONS
+                                 ========================================== -->
+                            <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+                                <a href="{{ route('pembagiankelas.index') }}" class="btn btn-outline-secondary px-4 py-2 rounded-3">
+                                    Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save me-1"></i> Simpan
+                                <button type="submit" class="btn btn-dark px-4 py-2 rounded-3">
+                                    Simpan
                                 </button>
                             </div>
 
@@ -113,13 +110,44 @@
 
 @push('script')
     <script>
+        $(document).ready(function() {
+            function updateWaliKelas() {
+                const selectedOption = $('#kelas_id option:selected');
+                const wali = selectedOption.data('walikelas');
+                if (wali) {
+                    $('#nama_walikelas').val(wali);
+                } else {
+                    $('#nama_walikelas').val('');
+                }
+            }
+
+            $('#kelas_id').on('change', function() {
+                updateWaliKelas();
+            });
+
+            // If a class is already selected on page load (e.g. old input)
+            updateWaliKelas();
+
+            // Filter Kelas berdasarkan Tingkat
+            $('#tingkat').on('change', function() {
+                const selectedTingkat = $(this).val();
+                $('#kelas_id option').each(function() {
+                    const optionTingkat = $(this).data('tingkat');
+                    if (!selectedTingkat || !optionTingkat || optionTingkat == selectedTingkat) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+
         @if ($errors->any())
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal Menyimpan!',
                 html: `<ul class="text-start ps-3 mb-0">{!! implode('', $errors->all('<li>:message</li>')) !!}</ul>`,
                 confirmButtonColor: '#d33',
-                confirmButtonText: 'Oke, Perbaiki',
             });
         @endif
     </script>

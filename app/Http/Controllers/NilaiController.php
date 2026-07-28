@@ -530,13 +530,13 @@ class NilaiController extends Controller
     }
 
     // ----------------------------------------------------
-    // BULK GRADING: NILAI RAPORT (2*Harian + UTS + UAS) / 4
+    // BULK GRADING: NILAI RAPORT -> Nilai Rata2 = (Harian + MID+ + PAS+) / 3
     // ----------------------------------------------------
     public function raportInput(Request $request)
     {
         $user = auth()->user();
         $isGuru = $user->roles === 'guru';
-        
+
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
         if ($isGuru) {
@@ -560,12 +560,26 @@ class NilaiController extends Controller
             ? Semester::query()->where('tahun_ajaran_id', $selectedTa)->get()
             : Semester::query()->get();
 
+        // Master TP (Tujuan Pembelajaran) diambil dari data Mata Pelajaran terpilih.
+        // Setiap baris non-kosong pada tp_optimal/tp_peningkatan dijadikan satu opsi pilihan.
+        $tpOptimalOptions = [];
+        $tpPeningkatanOptions = [];
+        if ($selectedMapel) {
+            $mapelTerpilih = MataPelajaran::query()->find($selectedMapel);
+            if ($mapelTerpilih) {
+                $tpOptimalOptions = collect(preg_split('/\r\n|\r|\n/', (string) $mapelTerpilih->tp_optimal))
+                    ->map(fn($line) => trim($line))->filter()->values()->all();
+                $tpPeningkatanOptions = collect(preg_split('/\r\n|\r|\n/', (string) $mapelTerpilih->tp_peningkatan))
+                    ->map(fn($line) => trim($line))->filter()->values()->all();
+            }
+        }
+
         $students = [];
         if ($selectedTa && $selectedSem && $selectedKelas && $selectedMapel) {
             $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa)
                 ->pluck('siswa_id');
-            
+
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
             foreach ($studentsList as $siswa) {
@@ -574,13 +588,19 @@ class NilaiController extends Controller
                     ->where('semester_id', $selectedSem)
                     ->where('tahun_ajaran_id', $selectedTa)
                     ->first();
-                
+
+                $rata2 = null;
+                if ($nilaiRecord && $nilaiRecord->nilai_harian !== null && $nilaiRecord->nilai_mid_plus !== null && $nilaiRecord->nilai_pas_plus !== null) {
+                    $rata2 = round(($nilaiRecord->nilai_harian + $nilaiRecord->nilai_mid_plus + $nilaiRecord->nilai_pas_plus) / 3, 1);
+                }
+
                 $siswa->nilai_record = $nilaiRecord;
+                $siswa->nilai_rata2_calc = $rata2;
                 $students[] = $siswa;
             }
         }
 
-        return view('pages.nilai.raport_input', compact('mapels', 'kelas', 'semesters', 'tahunAjarans', 'selectedTa', 'selectedSem', 'selectedKelas', 'selectedMapel', 'students'));
+        return view('pages.nilai.raport_input', compact('mapels', 'kelas', 'semesters', 'tahunAjarans', 'selectedTa', 'selectedSem', 'selectedKelas', 'selectedMapel', 'students', 'tpOptimalOptions', 'tpPeningkatanOptions'));
     }
 
     public function raportInputSave(Request $request)
@@ -601,6 +621,20 @@ class NilaiController extends Controller
         foreach ($gradesInput as $siswaId => $data) {
             $nilaiRaport = $data['nilai_raport'] !== '' ? round(floatval($data['nilai_raport'])) : null;
             $predikat = $nilaiRaport !== null ? Nilai::hitungPredikat($nilaiRaport) : null;
+            $tpOptimal = $data['tp_optimal'] ?? null;
+            $tpPeningkatan = $data['tp_perlu_peningkatan'] ?? null;
+
+            $existing = Nilai::query()->where([
+                'siswa_id' => $siswaId,
+                'mata_pelajaran_id' => $mapelId,
+                'semester_id' => $semId,
+                'tahun_ajaran_id' => $taId,
+            ])->first();
+
+            $rata2 = null;
+            if ($existing && $existing->nilai_harian !== null && $existing->nilai_mid_plus !== null && $existing->nilai_pas_plus !== null) {
+                $rata2 = round(($existing->nilai_harian + $existing->nilai_mid_plus + $existing->nilai_pas_plus) / 3, 1);
+            }
 
             Nilai::query()->updateOrCreate(
                 [
@@ -610,7 +644,10 @@ class NilaiController extends Controller
                     'tahun_ajaran_id' => $taId,
                 ],
                 [
+                    'nilai_rata2' => $rata2,
                     'nilai_raport' => $nilaiRaport,
+                    'tp_optimal' => $tpOptimal ?: null,
+                    'tp_perlu_peningkatan' => $tpPeningkatan ?: null,
                     'nilai' => $nilaiRaport, // sync main fallback column
                     'predikat' => $predikat,
                 ]

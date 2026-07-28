@@ -41,6 +41,7 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('switch-role/{role}', [AuthController::class, 'switchRole'])->name('switch-role');
     Route::resource('user', UserController::class);
     Route::get('pegawai/export', [PegawaiController::class, 'export'])->name('pegawai.export');
     Route::post('pegawai/import', [PegawaiController::class, 'import'])->name('pegawai.import');

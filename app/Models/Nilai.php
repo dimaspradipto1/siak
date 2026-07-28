@@ -29,7 +29,10 @@ class Nilai extends Model
         'nilai_mid_plus',
         'nilai_pas',
         'nilai_pas_plus',
+        'nilai_rata2',
         'nilai_raport',
+        'tp_optimal',
+        'tp_perlu_peningkatan',
 
         'nilai',
         'predikat',

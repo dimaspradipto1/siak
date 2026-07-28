@@ -2,7 +2,7 @@
 <aside id="sidebar" class="sidebar">
 
   @php
-      $role  = Auth::user()->roles ?? '';
+      $role  = Auth::user()?->activeRole() ?? '';
       $name  = Auth::user()->name  ?? 'Pengguna';
 
       $isAdmin    = $role === 'admin';
@@ -225,23 +225,6 @@
           <li><a href="{{ route('kehadiran.create') }}" class="{{ request()->routeIs('kehadiran.create') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Input Kehadiran</span></a></li>
           <li><a href="{{ route('kehadiran.rekap') }}" class="{{ request()->routeIs('kehadiran.rekap') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Kehadiran</span></a></li>
         </ul>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}"
-           data-bs-target="#catatan-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-journal-text"></i><span>Catatan Siswa</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="catatan-nav" class="nav-content collapse {{ request()->routeIs('catatansiswa.*') ? 'show' : '' }}" data-bs-parent="#sidebar-nav">
-          <li><a href="{{ route('catatansiswa.create') }}" class="{{ request()->routeIs('catatansiswa.create') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Input Catatan</span></a></li>
-          <li><a href="{{ route('catatansiswa.index') }}" class="{{ request()->routeIs('catatansiswa.index') ? 'active' : '' }}"><i class="bi bi-circle"></i><span>Rekap Catatan</span></a></li>
-        </ul>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('ekstrakurikuler.*') ? '' : 'collapsed' }}" href="{{ route('ekstrakurikuler.index') }}">
-          <i class="bi bi-trophy"></i><span>Ekstrakurikuler</span>
-        </a>
       </li>
 
       <li class="nav-heading">Informasi & Pengaturan</li>

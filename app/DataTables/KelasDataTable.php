@@ -16,6 +16,9 @@ class KelasDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
+            ->addColumn('kode_kelas', function ($kelas) {
+                return $kelas->kode_kelas ?? ('KLS-' . str_pad($kelas->id, 2, '0', STR_PAD_LEFT));
+            })
             ->addColumn('action', function ($kelas) {
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
@@ -48,7 +51,7 @@ class KelasDataTable extends DataTable
                     ->setTableId('kelas-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(1) // Urutkan berdasarkan nama_kelas
+                    ->orderBy(2) // Urutkan berdasarkan nama_kelas
                     ->selectStyleSingle()
                     ->buttons([
                         Button::make('excel'),
@@ -63,7 +66,8 @@ class KelasDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
+            Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false)->addClass('text-center'),
+            Column::make('kode_kelas')->title('Kode Kelas'),
             Column::make('nama_kelas')->title('Nama Kelas'),
             Column::make('tingkat')->title('Tingkat'),
             Column::make('ruangan')->title('Ruangan'),
@@ -71,7 +75,7 @@ class KelasDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-start'),
+                  ->addClass('text-center'),
         ];
     }
 
