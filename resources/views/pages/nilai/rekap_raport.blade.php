@@ -45,7 +45,7 @@ if (!function_exists('abbreviateMapel')) {
                         <h5 class="card-title text-primary fw-bold mb-3 p-0">Form Filter Kelas</h5>
                         
                         <form action="{{ route('nilai.rekap-raport') }}" method="GET" class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="tahun_ajaran_id" class="form-label fw-semibold">Tahun Ajaran <span class="text-danger">*</span></label>
                                 <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-select" required>
                                     <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
@@ -56,8 +56,8 @@ if (!function_exists('abbreviateMapel')) {
                                     @endforeach
                                 </select>
                             </div>
-                            
-                            <div class="col-md-4">
+
+                            <div class="col-md-6">
                                 <label for="semester_name" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
                                 <select name="semester_name" id="semester_name" class="form-select" required>
                                     <option value="" disabled selected>-- Pilih Semester --</option>
@@ -66,13 +66,25 @@ if (!function_exists('abbreviateMapel')) {
                                 </select>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="kelas_id" class="form-label fw-semibold">Kelas <span class="text-danger">*</span></label>
                                 <select name="kelas_id" id="kelas_id" class="form-select" required>
                                     <option value="" disabled selected>-- Pilih Kelas --</option>
                                     @foreach($kelas as $k)
                                         <option value="{{ $k->id }}" {{ $selectedKelas == $k->id ? 'selected' : '' }}>
                                             {{ $k->nama_kelas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="siswa_id" class="form-label fw-semibold">Nama Siswa</label>
+                                <select name="siswa_id" id="siswa_id" class="form-select">
+                                    <option value="">-- Semua Siswa --</option>
+                                    @foreach($siswaOptions as $s)
+                                        <option value="{{ $s->id }}" {{ (string) $selectedSiswa === (string) $s->id ? 'selected' : '' }}>
+                                            {{ $s->nama_siswa }}
                                         </option>
                                     @endforeach
                                 </select>

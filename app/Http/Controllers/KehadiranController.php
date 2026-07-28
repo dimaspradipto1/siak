@@ -25,6 +25,29 @@ use App\DataTables\KehadiranDataTable;
 class KehadiranController extends Controller
 {
     use \App\Traits\AuthorizeTransactionData;
+
+    private const BULAN_LABELS = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+    ];
+
+    /**
+     * Tahun kalender yang mungkin dicakup oleh sebuah Tahun Ajaran (mis. 2025/2026),
+     * dipakai untuk mencocokkan tanggal kehadiran tanpa bergantung pada asumsi
+     * semester Ganjil/Genap yang kaku.
+     */
+    private function candidateYearsForTahunAjaran(?int $tahunAjaranId): array
+    {
+        if (!$tahunAjaranId) {
+            return [];
+        }
+
+        $ta = TahunAjaran::find($tahunAjaranId);
+
+        return array_values(array_unique(array_filter([$ta?->tahun_mulai, $ta?->tahun_selesai])));
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -416,10 +439,45 @@ class KehadiranController extends Controller
         return redirect()->route('kehadiran.index');
     }
 
+    /**
+     * AJAX: Mata Pelajaran yang tersedia untuk kombinasi Tahun Ajaran + Semester + Kelas,
+     * dipakai oleh halaman Rekap Kehadiran agar dropdown Mata Pelajaran ter-update
+     * tanpa perlu submit ulang form.
+     */
+    public function rekapGetMapel(Request $request)
+    {
+        $user = auth()->user();
+        $isGuru = $user && $user->roles === 'guru';
+
+        $taId = $request->get('tahun_ajaran_id');
+        $semName = $request->get('semester_name');
+        $kelasId = $request->get('kelas_id');
+
+        $semId = Semester::query()
+            ->where('tahun_ajaran_id', $taId)
+            ->where('nama_semester', $semName)
+            ->value('id');
+
+        $mapelQuery = MataPelajaran::query()
+            ->where('kelas_id', $kelasId)
+            ->where('tahun_ajaran_id', $taId)
+            ->where('semester_id', $semId);
+
+        if ($isGuru) {
+            $guru = $user->pegawai?->guru;
+            $mapelQuery->where('guru_id', $guru ? $guru->id : 0);
+        }
+
+        $mapels = $mapelQuery->orderBy('nama_mata_pelajaran', 'asc')->get(['id', 'nama_mata_pelajaran']);
+
+        return response()->json(['mapels' => $mapels]);
+    }
+
     public function rekapKehadiran(Request $request)
     {
         $user = auth()->user();
         $isPersonal = $user && in_array($user->roles, ['siswa', 'orang tua']);
+        $isGuru = $user && $user->roles === 'guru';
         $mySiswa = null;
 
         if ($isPersonal) {
@@ -434,11 +492,9 @@ class KehadiranController extends Controller
         }
 
         $tahunAjarans = TahunAjaran::query()->get();
-        $jenisKehadirans = JenisKehadiran::all();
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedJenisKehadiran = $request->get('jenis_kehadiran_id');
 
         if (!$selectedTa) {
             $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
@@ -446,9 +502,6 @@ class KehadiranController extends Controller
         }
         if (!$selectedSemName) {
             $selectedSemName = 'Semester 1 (Ganjil)';
-        }
-        if (!$selectedJenisKehadiran) {
-            $selectedJenisKehadiran = $jenisKehadirans->first()?->id;
         }
 
         if ($isPersonal && $mySiswa) {
@@ -471,15 +524,36 @@ class KehadiranController extends Controller
         }
         $selectedSem = $semester ? $semester->id : null;
 
-        $students = [];
-        $classMapels = [];
-        if ($selectedTa && $selectedSem && $selectedKelas && $selectedJenisKehadiran) {
-            $classMapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
+        // Mata Pelajaran, tersedia setelah Kelas dipilih
+        $mapels = collect();
+        if ($selectedTa && $selectedSem && $selectedKelas) {
+            $mapelQuery = MataPelajaran::query()
+                ->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->orderBy('nama_mata_pelajaran', 'asc')
-                ->get();
+                ->where('semester_id', $selectedSem);
 
+            if ($isGuru) {
+                $guru = $user->pegawai?->guru;
+                $mapelQuery->where('guru_id', $guru ? $guru->id : 0);
+            }
+
+            $mapels = $mapelQuery->orderBy('nama_mata_pelajaran', 'asc')->get();
+        }
+
+        $selectedMapel = $request->get('mata_pelajaran_id');
+
+        // Bulan selalu menampilkan Januari - Desember; tanggal yang benar-benar
+        // muncul sebagai kolom tetap dibatasi hanya yang ada data absensinya.
+        $bulanOptions = collect(self::BULAN_LABELS)
+            ->map(fn($label, $value) => ['value' => $value, 'label' => $label])
+            ->values()
+            ->all();
+
+        $selectedBulan = $request->get('bulan');
+
+        $students = [];
+        $tanggalList = [];
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedMapel && $selectedBulan) {
             $siswaIdsQuery = PembagianKelas::query()->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa);
 
@@ -488,28 +562,47 @@ class KehadiranController extends Controller
             }
 
             $siswaIds = $siswaIdsQuery->pluck('siswa_id');
-            
+
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
+            $candidateYears = $this->candidateYearsForTahunAjaran($selectedTa);
+
+            // Tanggal kehadiran yang muncul sebagai kolom adalah tanggal yang
+            // benar-benar diisi saat absensi dilakukan (bukan seluruh hari dalam bulan).
+            $kehadiranBulanIni = Kehadiran::query()
+                ->where('mata_pelajaran_id', $selectedMapel)
+                ->whereIn('siswa_id', $siswaIds)
+                ->whereMonth('tanggal', $selectedBulan)
+                ->when(!empty($candidateYears), function ($q) use ($candidateYears) {
+                    $q->where(function ($qq) use ($candidateYears) {
+                        foreach ($candidateYears as $year) {
+                            $qq->orWhereYear('tanggal', $year);
+                        }
+                    });
+                })
+                ->with('jenisKehadiran')
+                ->get();
+
+            $tanggalList = $kehadiranBulanIni->pluck('tanggal')
+                ->map(fn($t) => \Carbon\Carbon::parse($t)->format('Y-m-d'))
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
+
             foreach ($studentsList as $siswa) {
-                $counts = [];
-                foreach ($classMapels as $mp) {
-                    $counts[$mp->id] = Kehadiran::query()->where('siswa_id', $siswa->id)
-                        ->where('mata_pelajaran_id', $mp->id)
-                        ->where('jenis_kehadiran_id', $selectedJenisKehadiran)
-                        ->count();
-                }
-                $siswa->attendance_counts = $counts;
+                $siswa->kehadiran_by_date = $kehadiranBulanIni
+                    ->where('siswa_id', $siswa->id)
+                    ->keyBy(fn($k) => \Carbon\Carbon::parse($k->tanggal)->format('Y-m-d'));
                 $students[] = $siswa;
             }
         }
 
-        $selectedJenisModel = JenisKehadiran::find($selectedJenisKehadiran);
-
         return view('pages.kehadiran.rekap', compact(
-            'kelas', 'tahunAjarans', 'jenisKehadirans',
-            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedJenisKehadiran',
-            'students', 'classMapels', 'selectedJenisModel'
+            'kelas', 'tahunAjarans', 'mapels',
+            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedMapel',
+            'bulanOptions', 'selectedBulan',
+            'students', 'tanggalList'
         ));
     }
 
@@ -532,10 +625,11 @@ class KehadiranController extends Controller
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedJenisKehadiran = $request->get('jenis_kehadiran_id');
+        $selectedMapel = $request->get('mata_pelajaran_id');
+        $selectedBulan = $request->get('bulan');
 
         $tahunAjaran = TahunAjaran::find($selectedTa);
-        
+
         $semester = Semester::query()
             ->where('tahun_ajaran_id', $selectedTa)
             ->where('nama_semester', $selectedSemName)
@@ -552,18 +646,13 @@ class KehadiranController extends Controller
         }
 
         $kelasModel = Kelas::find($selectedKelas);
-        $jenisModel = JenisKehadiran::find($selectedJenisKehadiran);
+        $mapelModel = MataPelajaran::find($selectedMapel);
+        $bulanLabel = self::BULAN_LABELS[(int) $selectedBulan] ?? '-';
         $school = \App\Models\ProfilSekolah::query()->first();
 
         $students = [];
-        $classMapels = [];
-        if ($selectedTa && $selectedSem && $selectedKelas && $selectedJenisKehadiran) {
-            $classMapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->orderBy('nama_mata_pelajaran', 'asc')
-                ->get();
-
+        $tanggalList = [];
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedMapel && $selectedBulan) {
             $siswaIdsQuery = PembagianKelas::query()->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa);
 
@@ -572,18 +661,36 @@ class KehadiranController extends Controller
             }
 
             $siswaIds = $siswaIdsQuery->pluck('siswa_id');
-            
+
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
+            $candidateYears = $this->candidateYearsForTahunAjaran($selectedTa);
+
+            $kehadiranBulanIni = Kehadiran::query()
+                ->where('mata_pelajaran_id', $selectedMapel)
+                ->whereIn('siswa_id', $siswaIds)
+                ->whereMonth('tanggal', $selectedBulan)
+                ->when(!empty($candidateYears), function ($q) use ($candidateYears) {
+                    $q->where(function ($qq) use ($candidateYears) {
+                        foreach ($candidateYears as $year) {
+                            $qq->orWhereYear('tanggal', $year);
+                        }
+                    });
+                })
+                ->with('jenisKehadiran')
+                ->get();
+
+            $tanggalList = $kehadiranBulanIni->pluck('tanggal')
+                ->map(fn($t) => \Carbon\Carbon::parse($t)->format('Y-m-d'))
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
+
             foreach ($studentsList as $siswa) {
-                $counts = [];
-                foreach ($classMapels as $mp) {
-                    $counts[$mp->id] = Kehadiran::query()->where('siswa_id', $siswa->id)
-                        ->where('mata_pelajaran_id', $mp->id)
-                        ->where('jenis_kehadiran_id', $selectedJenisKehadiran)
-                        ->count();
-                }
-                $siswa->attendance_counts = $counts;
+                $siswa->kehadiran_by_date = $kehadiranBulanIni
+                    ->where('siswa_id', $siswa->id)
+                    ->keyBy(fn($k) => \Carbon\Carbon::parse($k->tanggal)->format('Y-m-d'));
                 $students[] = $siswa;
             }
         }
@@ -593,8 +700,8 @@ class KehadiranController extends Controller
             ->first();
 
         return view('pages.kehadiran.rekap_print', compact(
-            'tahunAjaran', 'semester', 'kelasModel', 'jenisModel', 'school',
-            'students', 'classMapels', 'waliKelas', 'selectedSemName'
+            'tahunAjaran', 'semester', 'kelasModel', 'mapelModel', 'bulanLabel', 'school',
+            'students', 'tanggalList', 'waliKelas', 'selectedSemName'
         ));
     }
 

@@ -130,36 +130,12 @@
 </head>
 <body>
 
-    @php
-    if (!function_exists('abbreviateMapel')) {
-        function abbreviateMapel($name) {
-            $map = [
-                'Pendidikan Agama Islam' => 'PAI',
-                'Pendidikan Agama Islam dan Budi Pekerti' => 'PAI',
-                'Pendidikan Pancasila dan Kewarganegaraan' => 'PKN',
-                'Pendidikan Pancasila' => 'PKN',
-                'Bahasa Indonesia' => 'B.INDO',
-                'Matematika' => 'MTK',
-                'Ilmu Pengetahuan Alam dan Sosial' => 'IPAS',
-                'Ilmu Pengetahuan Alam' => 'IPA',
-                'Ilmu Pengetahuan Sosial' => 'IPS',
-                'Seni Budaya dan Prakarya' => 'SBDP',
-                'Seni Budaya dan Musik' => 'SBDM',
-                'Seni Rupa' => 'Seni Rupa',
-                'Bahasa Inggris' => 'B.ING',
-                'Pendidikan Jasmani, Olahraga, dan Kesehatan' => 'PJOK',
-            ];
-            return $map[$name] ?? $name;
-        }
-    }
-    @endphp
-
     <div class="print-btn-container">
         <button class="btn-print" onclick="window.print()">Cetak Rekap</button>
     </div>
 
     <div class="title">REKAPITULASI KEHADIRAN SISWA</div>
-    <div class="subtitle">Kategori Kehadiran: {{ $jenisModel->nama_kehadiran ?? '-' }}</div>
+    <div class="subtitle">Mata Pelajaran: {{ $mapelModel->nama_mata_pelajaran ?? '-' }} &middot; Bulan: {{ $bulanLabel }}</div>
 
     <table class="header-table">
         <tr>
@@ -194,8 +170,8 @@
                 <th style="width: 5%;">No</th>
                 <th style="width: 15%;">NISN</th>
                 <th class="text-start">Nama Siswa</th>
-                @foreach($classMapels as $mp)
-                    <th>{{ abbreviateMapel($mp->nama_mata_pelajaran) }}</th>
+                @foreach($tanggalList as $tgl)
+                    <th>{{ \Carbon\Carbon::parse($tgl)->format('d') }}</th>
                 @endforeach
             </tr>
         </thead>
@@ -205,9 +181,13 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">{{ $siswa->nisn }}</td>
                     <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
-                    @foreach($classMapels as $mp)
+                    @foreach($tanggalList as $tgl)
+                        @php
+                            $rec = $siswa->kehadiran_by_date->get($tgl);
+                            $kode = $rec?->jenisKehadiran?->kode_kehadiran;
+                        @endphp
                         <td class="text-center">
-                            {{ $siswa->attendance_counts[$mp->id] ?? 0 }}
+                            {{ $kode ?: '.' }}
                         </td>
                     @endforeach
                 </tr>

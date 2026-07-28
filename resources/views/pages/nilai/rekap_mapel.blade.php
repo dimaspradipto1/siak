@@ -96,18 +96,22 @@
                                         <th style="padding: 12px 16px;">Nilai Harian</th>
                                         <th style="padding: 12px 16px;">Nilai MID+</th>
                                         <th style="padding: 12px 16px;">Nilai PAS+</th>
-                                        <th style="padding: 12px 16px;">Nilai Akhir</th>
+                                        <th style="padding: 12px 16px;">Nilai Rata2</th>
+                                        <th style="padding: 12px 16px;">Nilai Raport</th>
+                                        <th style="padding: 12px 16px;">TP Optimal</th>
+                                        <th style="padding: 12px 16px;">TP Yang Perlu Peningkatan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($students as $siswa)
                                         @php
                                             $rec = $siswa->nilai_record;
-                                            
+
                                             $harian = $rec && $rec->nilai_harian !== null ? floatval($rec->nilai_harian) : null;
-                                            $midPlus = $rec && $rec->nilai_mid_plus !== null ? floatval($rec->nilai_mid_plus) : ($rec && $rec->nilai_mid !== null ? floatval($rec->nilai_mid) : null);
-                                            $pasPlus = $rec && $rec->nilai_pas_plus !== null ? floatval($rec->nilai_pas_plus) : ($rec && $rec->nilai_pas !== null ? floatval($rec->nilai_pas) : null);
-                                            $akhir = $rec && $rec->nilai_raport !== null ? floatval($rec->nilai_raport) : null;
+                                            $midPlus = $rec && $rec->nilai_mid_plus !== null ? floatval($rec->nilai_mid_plus) : null;
+                                            $pasPlus = $rec && $rec->nilai_pas_plus !== null ? floatval($rec->nilai_pas_plus) : null;
+                                            $rata2 = $siswa->nilai_rata2_calc;
+                                            $raport = $rec && $rec->nilai_raport !== null ? floatval($rec->nilai_raport) : null;
 
                                             if (!function_exists('formatVal')) {
                                                 function formatVal($val) {
@@ -122,7 +126,10 @@
                                             <td style="padding: 14px 16px;">{{ formatVal($harian) }}</td>
                                             <td style="padding: 14px 16px;">{{ formatVal($midPlus) }}</td>
                                             <td style="padding: 14px 16px;">{{ formatVal($pasPlus) }}</td>
-                                            <td class="fw-bold text-dark" style="padding: 14px 16px;">{{ formatVal($akhir) }}</td>
+                                            <td class="fw-semibold text-primary" style="padding: 14px 16px;">{{ formatVal($rata2) }}</td>
+                                            <td class="fw-bold text-dark" style="padding: 14px 16px;">{{ formatVal($raport) }}</td>
+                                            <td class="text-start" style="padding: 14px 16px;">{{ $rec && $rec->tp_optimal ? $rec->tp_optimal : '-' }}</td>
+                                            <td class="text-start" style="padding: 14px 16px;">{{ $rec && $rec->tp_perlu_peningkatan ? $rec->tp_perlu_peningkatan : '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

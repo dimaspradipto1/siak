@@ -720,8 +720,14 @@ class NilaiController extends Controller
                     ->where('semester_id', $selectedSem)
                     ->where('tahun_ajaran_id', $selectedTa)
                     ->first();
-                
+
+                $rata2 = null;
+                if ($nilaiRecord && $nilaiRecord->nilai_harian !== null && $nilaiRecord->nilai_mid_plus !== null && $nilaiRecord->nilai_pas_plus !== null) {
+                    $rata2 = round(($nilaiRecord->nilai_harian + $nilaiRecord->nilai_mid_plus + $nilaiRecord->nilai_pas_plus) / 3, 1);
+                }
+
                 $siswa->nilai_record = $nilaiRecord;
+                $siswa->nilai_rata2_calc = $rata2;
                 $students[] = $siswa;
             }
         }
@@ -737,6 +743,7 @@ class NilaiController extends Controller
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
         $selectedKelas = $request->get('kelas_id');
+        $selectedSiswa = $request->get('siswa_id');
 
         if (!$selectedTa) {
             $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
@@ -757,7 +764,16 @@ class NilaiController extends Controller
 
         $students = [];
         $classMapels = [];
-        
+        $siswaOptions = [];
+
+        if ($selectedTa && $selectedKelas) {
+            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+
+            $siswaOptions = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+        }
+
         if ($selectedTa && $selectedSem && $selectedKelas) {
             // Get all mapels bound to this class in academic year
             $classMapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
@@ -766,11 +782,10 @@ class NilaiController extends Controller
                 ->orderBy('nama_mata_pelajaran', 'asc')
                 ->get();
 
-            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->pluck('siswa_id');
-            
-            $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
+            $studentsList = $siswaOptions;
+            if ($selectedSiswa) {
+                $studentsList = $studentsList->where('id', $selectedSiswa);
+            }
 
             foreach ($studentsList as $siswa) {
                 $mapelGrades = [];
@@ -803,7 +818,7 @@ class NilaiController extends Controller
             }
         }
 
-        return view('pages.nilai.rekap_raport', compact('kelas', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'students', 'classMapels'));
+        return view('pages.nilai.rekap_raport', compact('kelas', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedSiswa', 'siswaOptions', 'students', 'classMapels'));
     }
 
     public function cetakRaportList(Request $request)
