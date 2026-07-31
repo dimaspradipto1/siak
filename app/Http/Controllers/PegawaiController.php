@@ -188,7 +188,7 @@ class PegawaiController extends Controller
 
     public function template()
     {
-        $headers = [['NIP/NIK', 'Nama Pegawai', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'No HP', 'Alamat']];
+        $headers = [['NIP', 'Nama Lengkap', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Pendidikan Terakhir', 'Golongan', 'Email', 'Alamat Lengkap', 'No Whatsapp', 'Role', 'Status']];
         $export = new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
             protected $data;
             public function __construct(array $data) { $this->data = $data; }

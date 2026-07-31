@@ -11,22 +11,31 @@ class SiswaExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return Siswa::with(['kelas', 'orangTua'])->get();
+        return Siswa::with(['kelas', 'orangTua', 'user'])->get();
     }
 
     public function headings(): array
     {
         return [
             'NISN',
-            'NIS',
-            'Nama Siswa',
+            'Nama Lengkap',
             'Jenis Kelamin',
             'Tempat Lahir',
             'Tanggal Lahir',
             'Agama',
+            'No Whatsapp',
             'Alamat',
-            'Nama Kelas',
-            'Nama Ibu Kandung'
+            'Tanggal Masuk',
+            'Status',
+            'Email Siswa',
+            'Nama Ayah',
+            'Pekerjaan Ayah',
+            'No Whatsapp Ayah',
+            'Nama Ibu',
+            'Pekerjaan Ibu',
+            'No Whatsapp Ibu',
+            'Alamat Orang Tua',
+            'Email Orang Tua'
         ];
     }
 
@@ -34,15 +43,24 @@ class SiswaExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $siswa->nisn,
-            $siswa->nis,
             $siswa->nama_siswa,
             $siswa->jenis_kelamin,
             $siswa->tempat_lahir,
-            $siswa->tanggal_lahir,
+            $siswa->tgl_lahir,
             $siswa->agama,
+            $siswa->nomor_wa,
             $siswa->alamat,
-            $siswa->kelas->nama_kelas ?? '',
-            $siswa->orangTua->nama_ibu ?? ''
+            $siswa->tgl_masuk,
+            $siswa->status,
+            $siswa->user->email ?? '',
+            $siswa->orangTua->nama_ayah ?? '',
+            $siswa->orangTua->pekerjaan_ayah ?? '',
+            $siswa->orangTua->nomor_wa ?? '',
+            $siswa->orangTua->nama_ibu ?? '',
+            $siswa->orangTua->pekerjaan_ibu ?? '',
+            $siswa->orangTua->nomor_wa_ibu ?? '',
+            $siswa->orangTua->alamat ?? '',
+            $siswa->orangTua->email ?? ''
         ];
     }
 }

@@ -3,8 +3,15 @@
 @section('title', 'Tambah Pembagian Kelas')
 
 @section('content')
-    <div class="pagetitle mb-4">
-        <h1 class="fw-bold text-dark fs-4">Form Tambah Pembagian Kelas</h1>
+    <div class="pagetitle">
+        <h1>Tambah Data Pembagian Kelas</h1>
+        <nav class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('pembagiankelas.index') }}">Pembagian Kelas</a></li>
+                <li class="breadcrumb-item active">Tambah</li>
+            </ol>
+        </nav>
     </div>
 
     <section class="section">
@@ -21,7 +28,7 @@
                                 <label for="tahun_ajaran_id" class="form-label fw-medium text-secondary">Tahun Ajaran</label>
                                 <select id="tahun_ajaran_id" name="tahun_ajaran_id"
                                     class="form-select rounded-3 @error('tahun_ajaran_id') is-invalid @enderror" required>
-                                    <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
+                                    <option value="" disabled selected></option>
                                     @foreach($tahunAjarans as $ta)
                                         <option value="{{ $ta->id }}" {{ old('tahun_ajaran_id') == $ta->id || (empty(old('tahun_ajaran_id')) && $ta->status == 'Aktif') ? 'selected' : '' }}>
                                             {{ $ta->nama_tahun_ajaran }} @if($ta->status == 'Aktif') (Aktif) @endif
@@ -37,7 +44,7 @@
                             <div class="mb-3">
                                 <label for="tingkat" class="form-label fw-medium text-secondary">Tingkat</label>
                                 <select id="tingkat" name="tingkat" class="form-select rounded-3">
-                                    <option value="" selected>-- Semua Tingkat --</option>
+                                    <option value="" disabled selected></option>
                                     @foreach(['1', '2', '3', '4', '5', '6'] as $t)
                                         <option value="{{ $t }}" {{ old('tingkat') == $t ? 'selected' : '' }}>Tingkat {{ $t }}</option>
                                     @endforeach
@@ -49,7 +56,7 @@
                                 <label for="kelas_id" class="form-label fw-medium text-secondary">Kelas</label>
                                 <select id="kelas_id" name="kelas_id"
                                     class="form-select rounded-3 @error('kelas_id') is-invalid @enderror" required>
-                                    <option value="" disabled selected>-- Pilih Kelas --</option>
+                                    <option value="" disabled selected></option>
                                     @foreach($kelas as $k)
                                         @php
                                             $wali = $k->waliKelas->first()?->guru?->pegawai?->nama_pegawai ?? 'Belum ada wali kelas';
@@ -69,7 +76,7 @@
                                 <label for="siswa_id" class="form-label fw-medium text-secondary">Nama Siswa</label>
                                 <select id="siswa_id" name="siswa_id"
                                     class="form-select select2 rounded-3 @error('siswa_id') is-invalid @enderror" required>
-                                    <option value="" disabled selected>-- NISN + Nama Siswa --</option>
+                                    <option value="" disabled selected>NISN + Nama Siswa</option>
                                     @foreach($siswas as $siswa)
                                         <option value="{{ $siswa->id }}" {{ old('siswa_id') == $siswa->id ? 'selected' : '' }}>
                                             {{ $siswa->nisn }} - {{ $siswa->nama_siswa }}
@@ -84,7 +91,7 @@
                             {{-- 5. Nama Walikelas (Readonly & Otomatis Terisi) --}}
                             <div class="mb-4">
                                 <label for="nama_walikelas" class="form-label fw-medium text-secondary">Nama Walikelas</label>
-                                <input type="text" id="nama_walikelas" class="form-control rounded-3 bg-light" 
+                                <input type="text" id="nama_walikelas" class="form-control rounded-3 bg-white" 
                                     placeholder="otomatis terisi" readonly disabled>
                             </div>
 

@@ -208,7 +208,7 @@
                                                 <i class="bi bi-person-lines-fill" style="color:#4154f1;"></i>
                                             </div>
                                             <div class="ps-3">
-                                                <h6>—</h6>
+                                                <h6>{{ $totalSiswa ?? '—' }}</h6>
                                                 <span class="text-muted small">Data dari database</span>
                                             </div>
                                         </div>
@@ -226,7 +226,7 @@
                                                 <i class="bi bi-person-badge" style="color:#2eca6a;"></i>
                                             </div>
                                             <div class="ps-3">
-                                                <h6>—</h6>
+                                                <h6>{{ $totalGuru ?? '—' }}</h6>
                                                 <span class="text-muted small">Data dari database</span>
                                             </div>
                                         </div>
@@ -244,7 +244,7 @@
                                                 <i class="bi bi-building" style="color:#ff771d;"></i>
                                             </div>
                                             <div class="ps-3">
-                                                <h6>—</h6>
+                                                <h6>{{ $totalKelas ?? '—' }}</h6>
                                                 <span class="text-muted small">Data dari database</span>
                                             </div>
                                         </div>

@@ -268,7 +268,7 @@ class SiswaController extends Controller
 
     public function template()
     {
-        $headers = [['NISN', 'NIS', 'Nama Siswa', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Alamat', 'Nama Kelas', 'Nama Ibu Kandung']];
+        $headers = [['NISN', 'Nama Lengkap', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'No Whatsapp', 'Alamat', 'Tanggal Masuk', 'Status', 'Email Siswa', 'Nama Ayah', 'Pekerjaan Ayah', 'No Whatsapp Ayah', 'Nama Ibu', 'Pekerjaan Ibu', 'No Whatsapp Ibu', 'Alamat Orang Tua', 'Email Orang Tua']];
         $export = new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
             protected $data;
             public function __construct(array $data) { $this->data = $data; }

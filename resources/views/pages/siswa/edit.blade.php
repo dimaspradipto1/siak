@@ -133,6 +133,7 @@
                                     <div class="input-group">
                                         <input type="password" id="password_siswa" name="password_siswa" 
                                             class="form-control rounded-start-3 @error('password_siswa') is-invalid @enderror" 
+                                            value="{{ old('password_siswa') }}"
                                             placeholder="Kosongkan jika tidak diubah">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_siswa">
                                             <i class="bi bi-eye"></i>
@@ -147,6 +148,7 @@
                                     <div class="input-group">
                                         <input type="password" id="password_siswa_confirmation" name="password_siswa_confirmation" 
                                             class="form-control rounded-start-3" 
+                                            value="{{ old('password_siswa_confirmation') }}"
                                             placeholder="Ulangi Password Baru">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_siswa_confirmation">
                                             <i class="bi bi-eye"></i>
@@ -154,20 +156,13 @@
                                     </div>
                                 </div>
 
-                                {{-- Tanggal Masuk & Kelas --}}
+                                {{-- Tanggal Masuk --}}
                                 <div class="col-md-3">
                                     <label for="tgl_masuk" class="form-label fw-medium text-secondary">Tanggal Masuk</label>
                                     <input type="date" id="tgl_masuk" name="tgl_masuk" 
-                                        class="form-control rounded-3 mb-2 @error('tgl_masuk') is-invalid @enderror" 
+                                        class="form-control rounded-3 @error('tgl_masuk') is-invalid @enderror" 
                                         value="{{ old('tgl_masuk', $siswa->tgl_masuk) }}">
-
-                                    <label for="kelas_id" class="form-label fw-medium text-secondary">Kelas</label>
-                                    <select id="kelas_id" name="kelas_id" class="form-select rounded-3 @error('kelas_id') is-invalid @enderror">
-                                        @foreach($kelas as $k)
-                                            <option value="{{ $k->id }}" {{ old('kelas_id', $siswa->kelas_id) == $k->id ? 'selected' : '' }}>{{ $k->nama_kelas }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('kelas_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    @error('tgl_masuk')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
 
@@ -259,6 +254,7 @@
                                     <div class="input-group">
                                         <input type="password" id="password_ortu" name="password_ortu" 
                                             class="form-control rounded-start-3 @error('password_ortu') is-invalid @enderror" 
+                                            value="{{ old('password_ortu') }}"
                                             placeholder="Kosongkan jika tidak diubah">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_ortu">
                                             <i class="bi bi-eye"></i>
@@ -290,6 +286,7 @@
                                     <div class="input-group">
                                         <input type="password" id="password_ortu_confirmation" name="password_ortu_confirmation" 
                                             class="form-control rounded-start-3" 
+                                            value="{{ old('password_ortu_confirmation') }}"
                                             placeholder="Ulangi Password Baru">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_ortu_confirmation">
                                             <i class="bi bi-eye"></i>

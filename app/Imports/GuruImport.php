@@ -18,6 +18,14 @@ class GuruImport implements ToModel, WithHeadingRow, WithValidation
             return null; // Skip if pegawai not found
         }
 
+        // Sync user role to guru if not already guru or wali kelas
+        if ($pegawai->user) {
+            $currentRole = $pegawai->user->roles;
+            if (!in_array($currentRole, ['guru', 'wali kelas'])) {
+                $pegawai->user->update(['roles' => 'guru']);
+            }
+        }
+
         return Guru::updateOrCreate(
             ['pegawai_id' => $pegawai->id],
             [

@@ -21,6 +21,9 @@ class GuruDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
+            ->addColumn('status', function ($guru) {
+                return $guru->status ?? 'Aktif';
+            })
             ->addColumn('action', function($guru) {
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
@@ -51,14 +54,12 @@ class GuruDataTable extends DataTable
             ->select([
                 'gurus.*',
                 'pegawais.nama_pegawai as nama_pegawai',
-                'pegawais.jenis_kelamin as jenis_kelamin'
+                'pegawais.jenis_kelamin as jenis_kelamin',
+                'pegawais.status as status'
             ])
             ->join('pegawais', 'gurus.pegawai_id', '=', 'pegawais.id')
-            ->leftJoin('users', 'pegawais.user_id', '=', 'users.id')
-            ->where(function ($q) {
-                $q->where('users.roles', 'guru')
-                  ->orWhere('pegawais.jabatan', 'LIKE', '%Guru%');
-            });
+            ->join('users', 'pegawais.user_id', '=', 'users.id')
+            ->where('users.roles', 'guru');
     }
 
     /**
@@ -94,6 +95,7 @@ class GuruDataTable extends DataTable
             Column::make('jenis_kelamin')->title('Jenis Kelamin'),
             Column::make('golongan')->title('Golongan'),
             Column::make('pendidikan_terakhir')->title('Pendidikan Terakhir'),
+            Column::make('status')->title('Status')->searchable(false)->orderable(false),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)

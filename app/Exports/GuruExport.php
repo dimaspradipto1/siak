@@ -11,7 +11,9 @@ class GuruExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return Guru::with('pegawai')->get();
+        return Guru::whereHas('pegawai.user', function($q) {
+            $q->where('roles', 'guru');
+        })->with('pegawai')->get();
     }
 
     public function headings(): array
@@ -19,8 +21,11 @@ class GuruExport implements FromCollection, WithHeadings, WithMapping
         return [
             'NIP Pegawai',
             'NIP Guru',
+            'Nama Guru',
+            'Jenis Kelamin',
             'Golongan',
-            'Pendidikan Terakhir'
+            'Pendidikan Terakhir',
+            'Status'
         ];
     }
 
@@ -29,8 +34,11 @@ class GuruExport implements FromCollection, WithHeadings, WithMapping
         return [
             $guru->pegawai->nip ?? '',
             $guru->nip_guru,
+            $guru->pegawai->nama_pegawai ?? '',
+            $guru->pegawai->jenis_kelamin ?? '',
             $guru->golongan,
-            $guru->pendidikan_terakhir
+            $guru->pendidikan_terakhir,
+            $guru->pegawai->status ?? 'Aktif'
         ];
     }
 }

@@ -15,16 +15,25 @@ class SiswaTemplateExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'nisn',
-            'nis',
-            'nama_siswa',
-            'jenis_kelamin',
-            'tempat_lahir',
-            'tanggal_lahir',
-            'agama',
-            'alamat',
-            'nama_kelas',
-            'nama_ibu_kandung'
+            'NISN',
+            'Nama Lengkap',
+            'Jenis Kelamin',
+            'Tempat Lahir',
+            'Tanggal Lahir',
+            'Agama',
+            'No Whatsapp',
+            'Alamat',
+            'Tanggal Masuk',
+            'Status',
+            'Email Siswa',
+            'Nama Ayah',
+            'Pekerjaan Ayah',
+            'No Whatsapp Ayah',
+            'Nama Ibu',
+            'Pekerjaan Ibu',
+            'No Whatsapp Ibu',
+            'Alamat Orang Tua',
+            'Email Orang Tua'
         ];
     }
 }

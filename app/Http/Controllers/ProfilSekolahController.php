@@ -13,17 +13,22 @@ class ProfilSekolahController extends Controller
     use \App\Traits\AuthorizeMasterData;
 
     /**
-     * Display a listing of the resource (Directs to Edit if exists, or Create if not).
+     * Display a listing of the resource (Renders View Profile).
      */
     public function index(Request $request = null)
     {
-        $profil = ProfilSekolah::first();
+        $profil = ProfilSekolah::with('tahunAjaran')->first();
 
-        if ($profil) {
-            return redirect()->route('profil-sekolah.edit', $profil->id);
+        if (!$profil) {
+            $user = auth()->user();
+            if ($user && in_array($user->roles, ['admin', 'kepala sekolah'])) {
+                return redirect()->route('profil-sekolah.create');
+            } else {
+                abort(404, 'Profil sekolah belum dibuat.');
+            }
         }
 
-        return redirect()->route('profil-sekolah.create');
+        return view('pages.profil-sekolah.index', compact('profil'));
     }
 
     /**
@@ -33,7 +38,7 @@ class ProfilSekolahController extends Controller
     {
         $profil = ProfilSekolah::first();
         if ($profil) {
-            return redirect()->route('profil-sekolah.edit', $profil->id);
+            return redirect()->route('profil-sekolah.index');
         }
 
         $tahunAjarans = TahunAjaran::all();
@@ -61,7 +66,7 @@ class ProfilSekolahController extends Controller
 
         Alert::success('Berhasil', 'Profil sekolah berhasil ditambahkan.');
 
-        return redirect()->route('profil-sekolah.edit', $profil->id);
+        return redirect()->route('profil-sekolah.index');
     }
 
     /**
@@ -69,11 +74,7 @@ class ProfilSekolahController extends Controller
      */
     public function show($id = null)
     {
-        $profil = ProfilSekolah::find($id) ?? ProfilSekolah::first();
-        if ($profil) {
-            return redirect()->route('profil-sekolah.edit', $profil->id);
-        }
-        return redirect()->route('profil-sekolah.create');
+        return redirect()->route('profil-sekolah.index');
     }
 
     /**
@@ -110,7 +111,7 @@ class ProfilSekolahController extends Controller
 
         Alert::success('Berhasil', 'Profil sekolah berhasil diperbarui.');
 
-        return redirect()->route('profil-sekolah.edit', $profil_sekolah->id);
+        return redirect()->route('profil-sekolah.index');
     }
 
     /**
@@ -129,6 +130,6 @@ class ProfilSekolahController extends Controller
 
         Alert::success('Berhasil', 'Profil sekolah berhasil dihapus.');
 
-        return redirect()->route('profil-sekolah.create');
+        return redirect()->route('profil-sekolah.index');
     }
 }

@@ -94,7 +94,7 @@ class MataPelajaranController extends Controller
 
     public function template()
     {
-        $headers = [['Kelas', 'Tahun Ajaran', 'Semester', 'Kode Mapel', 'Nama Mapel', 'KKM', 'Nama Guru', 'Hari Mengajar', 'Jam Mengajar']];
+        $headers = [['Kode Mapel', 'Nama Mapel', 'KKM', 'TP yang Optimal', 'TP Yang Perlu Peningkatan']];
         $export = new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
             protected $data;
             public function __construct(array $data) { $this->data = $data; }

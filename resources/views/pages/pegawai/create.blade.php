@@ -83,13 +83,9 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
                                     <label for="pendidikan_terakhir" class="form-label fw-medium text-secondary">Pendidikan Terakhir</label>
-                                    <select id="pendidikan_terakhir" name="pendidikan_terakhir" 
-                                        class="form-select rounded-3 @error('pendidikan_terakhir') is-invalid @enderror">
-                                        <option value="" selected>-- Pilih Pendidikan --</option>
-                                        @foreach(['SD', 'SMP', 'SMA/SMK', 'D3', 'S1', 'S2', 'S3'] as $pend)
-                                            <option value="{{ $pend }}" {{ old('pendidikan_terakhir') == $pend ? 'selected' : '' }}>{{ $pend }}</option>
-                                        @endforeach
-                                    </select>
+                                    <input type="text" id="pendidikan_terakhir" name="pendidikan_terakhir" 
+                                        class="form-control rounded-3 @error('pendidikan_terakhir') is-invalid @enderror" 
+                                        value="{{ old('pendidikan_terakhir') }}" placeholder="Masukkan Pendidikan Terakhir">
                                     @error('pendidikan_terakhir')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
@@ -151,6 +147,7 @@
                                     <div class="input-group">
                                         <input type="password" id="password" name="password" 
                                             class="form-control rounded-start-3 @error('password') is-invalid @enderror" 
+                                            value="{{ old('password') }}"
                                             placeholder="Masukkan Password">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
                                             <i class="bi bi-eye"></i>
@@ -164,6 +161,7 @@
                                     <div class="input-group">
                                         <input type="password" id="password_confirmation" name="password_confirmation" 
                                             class="form-control rounded-start-3" 
+                                            value="{{ old('password_confirmation') }}"
                                             placeholder="Konfirmasi Password">
                                         <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirmation">
                                             <i class="bi bi-eye"></i>

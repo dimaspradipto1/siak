@@ -67,6 +67,13 @@ class DashboardController extends Controller
             ));
         }
 
+        if ($user && $activeRole === 'admin') {
+            $totalSiswa = \App\Models\Siswa::count();
+            $totalGuru = \App\Models\Guru::count();
+            $totalKelas = \App\Models\Kelas::count();
+            return view('layouts.dashboard.index', compact('user', 'activeRole', 'totalSiswa', 'totalGuru', 'totalKelas'));
+        }
+
         return view('layouts.dashboard.index', compact('user', 'activeRole'));
     }
 }
