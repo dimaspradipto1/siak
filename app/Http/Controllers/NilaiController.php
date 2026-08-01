@@ -95,29 +95,29 @@ class NilaiController extends Controller
             }
             $selectedSem = $semester ? $semester->id : null;
 
-            $grades = [];
+            $selectedKelas = $siswa->kelas_id;
+            $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+
+            $mapels = collect();
             if ($selectedTa && $selectedSem) {
-                $classMapels = MataPelajaran::query()->where('kelas_id', $siswa->kelas_id)
+                $mapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
                     ->where('tahun_ajaran_id', $selectedTa)
                     ->where('semester_id', $selectedSem)
                     ->orderBy('nama_mata_pelajaran', 'asc')
                     ->get();
-
-                foreach ($classMapels as $mapel) {
-                    $nilaiRecord = Nilai::query()->where('siswa_id', $siswa->id)
-                        ->where('mata_pelajaran_id', $mapel->id)
-                        ->where('semester_id', $selectedSem)
-                        ->where('tahun_ajaran_id', $selectedTa)
-                        ->first();
-                    
-                    $grades[] = [
-                        'mapel' => $mapel->nama_mata_pelajaran,
-                        'nilai_record' => $nilaiRecord
-                    ];
-                }
             }
 
-            return view('pages.nilai.rekap_personal', compact('siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'grades'));
+            $selectedMapel = $request->get('mata_pelajaran_id');
+            $gradeRecord = null;
+            if ($selectedTa && $selectedSem && $selectedMapel) {
+                $gradeRecord = Nilai::query()->where('siswa_id', $siswa->id)
+                    ->where('mata_pelajaran_id', $selectedMapel)
+                    ->where('semester_id', $selectedSem)
+                    ->where('tahun_ajaran_id', $selectedTa)
+                    ->first();
+            }
+
+            return view('pages.nilai.rekap_personal', compact('siswa', 'tahunAjarans', 'kelas', 'mapels', 'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedMapel', 'gradeRecord'));
         }
 
         return $dataTable->render('pages.nilai.index');
