@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>Edit Pengumuman</h1>
+        <h1 class="text-primary fw-bold">Edit Pengumuman</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
@@ -15,52 +15,33 @@
     </div>
 
     <section class="section">
-        <form action="{{ route('pengumuman.update', $pengumuman->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm border-0 pb-3">
-                        <div class="card-body pt-4">
-                            <h5 class="card-title p-0 mb-3 fs-5">Informasi Pengumuman</h5>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body pt-4">
+                        <h5 class="card-title text-dark fw-bold mb-4 p-0">Form Edit Data Pengumuman</h5>
 
-                            <div class="mb-3">
-                                <label for="judul" class="form-label fw-semibold">Judul Pengumuman <span class="text-danger">*</span></label>
-                                <input type="text" id="judul" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul', $pengumuman->judul) }}" placeholder="Masukkan judul pengumuman">
-                                @error('judul')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-0">
-                                <label for="keterangan" class="form-label fw-semibold">Isi Pengumuman <span class="text-danger">*</span></label>
-                                <textarea id="keterangan" name="keterangan" rows="8" class="form-control @error('keterangan') is-invalid @enderror" placeholder="Tulis isi pengumuman secara detail...">{{ old('keterangan', $pengumuman->keterangan) }}</textarea>
-                                @error('keterangan')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card shadow-sm border-0 pb-3">
-                        <div class="card-body pt-4">
-                            <h5 class="card-title p-0 mb-3 fs-5">Target Publikasi</h5>
-
-                            <div class="mb-3">
-                                <label for="tahun_ajaran_id" class="form-label fw-semibold">Tahun Ajaran <span class="text-danger">*</span></label>
-                                <select id="tahun_ajaran_id" name="tahun_ajaran_id" class="form-select @error('tahun_ajaran_id') is-invalid @enderror">
-                                    <option value="" disabled>-- Pilih Tahun Ajaran --</option>
+                        <form action="{{ route('pengumuman.update', $pengumuman->id) }}" method="POST" class="row g-4">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="col-md-6">
+                                <label for="tahun_ajaran_id" class="form-label fw-semibold text-dark">Tahun Ajaran <span class="text-danger">*</span></label>
+                                <select id="tahun_ajaran_id" name="tahun_ajaran_id" class="form-select py-2 @error('tahun_ajaran_id') is-invalid @enderror" style="border-radius: 8px;">
+                                    <option value="" disabled></option>
                                     @foreach($tahunAjarans as $ta)
                                         <option value="{{ $ta->id }}" {{ old('tahun_ajaran_id', $pengumuman->tahun_ajaran_id) == $ta->id ? 'selected' : '' }}>
-                                            {{ $ta->tahun_mulai }}/{{ $ta->tahun_selesai }}
+                                            {{ $ta->nama_tahun_ajaran }}
                                         </option>
                                     @endforeach
                                 </select>
                                 @error('tahun_ajaran_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="semester_id" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
-                                <select id="semester_id" name="semester_id" class="form-select @error('semester_id') is-invalid @enderror">
-                                    <option value="" disabled>-- Pilih Semester --</option>
+                            <div class="col-md-6">
+                                <label for="semester_id" class="form-label fw-semibold text-dark">Semester <span class="text-danger">*</span></label>
+                                <select id="semester_id" name="semester_id" class="form-select py-2 @error('semester_id') is-invalid @enderror" style="border-radius: 8px;">
+                                    <option value="" disabled></option>
                                     @foreach($semesters as $sem)
                                         <option value="{{ $sem->id }}" {{ old('semester_id', $pengumuman->semester_id) == $sem->id ? 'selected' : '' }}>
                                             {{ $sem->nama_semester }}
@@ -70,9 +51,9 @@
                                 @error('semester_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="kelas_id" class="form-label fw-semibold">Kelas</label>
-                                <select id="kelas_id" name="kelas_id" class="form-select @error('kelas_id') is-invalid @enderror">
+                            <div class="col-md-6">
+                                <label for="kelas_id" class="form-label fw-semibold text-dark">Kelas</label>
+                                <select id="kelas_id" name="kelas_id" class="form-select py-2 @error('kelas_id') is-invalid @enderror" style="border-radius: 8px;">
                                     <option value="">Semua Kelas</option>
                                     @foreach($kelas as $k)
                                         <option value="{{ $k->id }}" {{ old('kelas_id', $pengumuman->kelas_id) == $k->id ? 'selected' : '' }}>
@@ -83,9 +64,9 @@
                                 @error('kelas_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            <div class="mb-0">
-                                <label for="mata_pelajaran_id" class="form-label fw-semibold">Mata Pelajaran</label>
-                                <select id="mata_pelajaran_id" name="mata_pelajaran_id" class="form-select @error('mata_pelajaran_id') is-invalid @enderror">
+                            <div class="col-md-6">
+                                <label for="mata_pelajaran_id" class="form-label fw-semibold text-dark">Mata Pelajaran</label>
+                                <select id="mata_pelajaran_id" name="mata_pelajaran_id" class="form-select py-2 @error('mata_pelajaran_id') is-invalid @enderror" style="border-radius: 8px;">
                                     <option value="">Semua Mata Pelajaran</option>
                                     @foreach($matapelajarans as $mp)
                                         <option value="{{ $mp->id }}" {{ old('mata_pelajaran_id', $pengumuman->mata_pelajaran_id) == $mp->id ? 'selected' : '' }}>
@@ -95,19 +76,31 @@
                                 </select>
                                 @error('mata_pelajaran_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col-12 mt-3">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                            <a href="{{ route('pengumuman.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i> Kembali</a>
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Simpan Perubahan</button>
-                        </div>
+                            <div class="col-12">
+                                <label for="judul" class="form-label fw-semibold text-dark">Judul Pengumuman <span class="text-danger">*</span></label>
+                                <input type="text" id="judul" name="judul" class="form-control py-2 @error('judul') is-invalid @enderror" value="{{ old('judul', $pengumuman->judul) }}" placeholder="Masukkan judul pengumuman" style="border-radius: 8px;">
+                                @error('judul')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label for="keterangan" class="form-label fw-semibold text-dark">Isi Pengumuman <span class="text-danger">*</span></label>
+                                <textarea id="keterangan" name="keterangan" rows="8" class="form-control @error('keterangan') is-invalid @enderror" placeholder="Tulis isi pengumuman secara detail..." style="border-radius: 8px;">{{ old('keterangan', $pengumuman->keterangan) }}</textarea>
+                                @error('keterangan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-end align-items-center gap-4 pt-2">
+                                <a href="{{ route('pengumuman.index') }}" class="text-dark fw-bold text-decoration-none small" style="font-size: 0.95rem;">
+                                    Batal
+                                </a>
+                                <button type="submit" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold; font-size: 0.95rem;">
+                                    Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </section>
 @endsection

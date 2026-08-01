@@ -40,29 +40,20 @@ class PengumumanDataTable extends DataTable
             })
             ->addColumn('action', function ($p) {
                 if (in_array(auth()->user()->roles, ['siswa', 'orang tua'])) {
-                    return '
-                    <div class="d-flex gap-1 justify-content-center">
-                        <a href="' . route('pengumuman.show', $p->id) . '" class="btn btn-info btn-sm text-white" title="Detail">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </div>
-                    ';
+                    return '-';
                 }
                 return '
-                <div class="d-flex gap-1 justify-content-center">
-                    <a href="' . route('pengumuman.show', $p->id) . '" class="btn btn-info btn-sm text-white" title="Detail">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    <a href="' . route('pengumuman.edit', $p->id) . '" class="btn btn-warning btn-sm" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </a>
+                <div class="d-flex gap-2 justify-content-center">
                     <form action="' . route('pengumuman.destroy', $p->id) . '" method="POST" class="d-inline">
                         ' . csrf_field() . '
                         ' . method_field('DELETE') . '
-                        <button type="button" class="btn btn-danger btn-sm btn-hapus" data-nama="' . e($p->judul) . '" title="Hapus">
-                            <i class="bi bi-trash"></i>
+                        <button type="button" class="btn-link text-dark border-0 bg-transparent btn-hapus p-0" data-nama="' . e($p->judul) . '" title="Hapus" style="font-size: 0.9rem; text-decoration: none;">
+                            Delete
                         </button>
                     </form>
+                    <a href="' . route('pengumuman.edit', $p->id) . '" class="text-dark" title="Edit" style="font-size: 0.9rem; text-decoration: none;">
+                        Edit
+                    </a>
                 </div>
                 ';
             })
