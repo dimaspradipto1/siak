@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap_Kehadiran_{{ $kelasModel->nama_kelas ?? 'Kelas' }}_{{ str_replace(' ', '_', $selectedSemName) }}</title>
+    <title>Rekap_Kehadiran_{{ $kelasModel->nama_kelas ?? 'Kelas' }}</title>
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
             color: #000;
             background-color: #fff;
             margin: 0;
-            padding: 40px;
-            font-size: 14px;
-            line-height: 1.4;
+            padding: 30px;
+            font-size: 13px;
+            line-height: 1.3;
         }
 
         .header-table {
@@ -29,28 +29,27 @@
         .title {
             text-align: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 5px;
             text-transform: uppercase;
         }
 
         .subtitle {
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 25px;
-            font-style: italic;
+            font-weight: bold;
         }
 
         table.main-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            font-size: 11px;
         }
 
         table.main-table th, table.main-table td {
             border: 1px solid #000;
-            padding: 4px 2px;
+            padding: 6px 4px;
             vertical-align: middle;
         }
 
@@ -74,7 +73,7 @@
 
         .signature-container {
             width: 100%;
-            margin-top: 40px;
+            margin-top: 30px;
             page-break-inside: avoid;
         }
 
@@ -86,7 +85,7 @@
 
         .signature-table td {
             border: none;
-            padding: 10px;
+            padding: 5px;
             text-align: center;
             vertical-align: top;
             width: 50%;
@@ -104,15 +103,11 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-
-        .btn-print:hover {
-            background-color: #000;
         }
 
         @media print {
@@ -124,19 +119,19 @@
             }
             @page {
                 size: A4 landscape;
-                margin: 0.5cm;
+                margin: 1cm;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="print-btn-container">
-        <button class="btn-print" onclick="window.print()">Cetak Rekap</button>
+    <div class="print-btn-container text-end">
+        <button class="btn-print" onclick="window.print()">Cetak</button>
     </div>
 
     <div class="title">REKAPITULASI KEHADIRAN SISWA</div>
-    <div class="subtitle">Mata Pelajaran: {{ $mapelModel->nama_mata_pelajaran ?? '-' }} &middot; Bulan: {{ $bulanLabel }}</div>
+    <div class="subtitle">STATUS KEHADIRAN: {{ strtoupper($statusModel->nama_kehadiran ?? '-') }}</div>
 
     <table class="header-table">
         <tr>
@@ -171,8 +166,8 @@
                 <th style="width: 5%;">No</th>
                 <th style="width: 15%;">NISN</th>
                 <th class="text-start">Nama Siswa</th>
-                @foreach($tanggalList as $tgl)
-                    <th>{{ \Carbon\Carbon::parse($tgl)->format('d') }}</th>
+                @foreach($classMapels as $mp)
+                    <th>{{ $mp->nama_mata_pelajaran }}</th>
                 @endforeach
             </tr>
         </thead>
@@ -182,13 +177,9 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">{{ $siswa->nisn }}</td>
                     <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
-                    @foreach($tanggalList as $tgl)
-                        @php
-                            $rec = $siswa->kehadiran_by_date->get($tgl);
-                            $kode = $rec?->jenisKehadiran?->kode_kehadiran;
-                        @endphp
+                    @foreach($classMapels as $mp)
                         <td class="text-center">
-                            {{ $kode ?: '.' }}
+                            {{ $siswa->attendance_counts[$mp->id] ?? 0 }}
                         </td>
                     @endforeach
                 </tr>
@@ -201,13 +192,13 @@
             <tr>
                 <td>
                     Mengetahui,<br>
-                    Kepala Sekolah<br><br><br><br>
+                    Kepala Sekolah<br><br><br><br><br>
                     <strong><u>{{ $school->nama_kepala_sekolah ?? '..........................................' }}</u></strong><br>
                     NIP. {{ $school->nip_kepala_sekolah ?? '..........................................' }}
                 </td>
                 <td>
                     Batam, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}<br>
-                    Wali Kelas,<br><br><br><br>
+                    Wali Kelas,<br><br><br><br><br>
                     <strong><u>{{ $waliKelas->guru->pegawai->nama_pegawai ?? '..........................................' }}</u></strong><br>
                     NIP. {{ $waliKelas->guru->pegawai->nip ?? '..........................................' }}
                 </td>
