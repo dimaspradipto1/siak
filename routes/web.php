@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\MataPelajaranAktifController;
 use App\Http\Controllers\TahunAjaranController;
 use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\KelasController;
@@ -51,6 +52,7 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::post('guru/import', [GuruController::class, 'import'])->name('guru.import');
     Route::get('guru/template', [GuruController::class, 'template'])->name('guru.template');
     Route::resource('guru', GuruController::class);
+    Route::resource('matapelajaranaktif', MataPelajaranAktifController::class);
     Route::resource('tahun-ajaran', TahunAjaranController::class);
     Route::resource('semester', SemesterController::class);
     Route::resource('kelas', KelasController::class);

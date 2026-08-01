@@ -10,32 +10,32 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class MataPelajaranDataTable extends DataTable
+class MataPelajaranAktifDataTable extends DataTable
 {
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->addColumn('kode_mapel', function ($mapel) {
-                return $mapel->kode_mapel ?? ('MP' . str_pad($mapel->id, 3, '0', STR_PAD_LEFT));
+            ->addColumn('nama_kelas', function ($mapel) {
+                return $mapel->kelas?->nama_kelas ?? '-';
             })
-            ->addColumn('kkm', function ($mapel) {
-                return $mapel->kkm ?? 75;
+            ->addColumn('nama_tahun_ajaran', function ($mapel) {
+                return $mapel->tahunAjaran ? ($mapel->tahunAjaran->tahun_mulai . '/' . $mapel->tahunAjaran->tahun_selesai) : '-';
             })
-            ->addColumn('tp_optimal', function ($mapel) {
-                return $mapel->tp_optimal ?? '-';
+            ->addColumn('nama_semester', function ($mapel) {
+                return $mapel->semester?->nama_semester ?? '-';
             })
-            ->addColumn('tp_peningkatan', function ($mapel) {
-                return $mapel->tp_peningkatan ?? '-';
+            ->addColumn('nama_guru', function ($mapel) {
+                return $mapel->guru?->pegawai?->nama_pegawai ?? '-';
             })
             ->addColumn('action', function ($mapel) {
                 if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
-                    <a href="' . route('matapelajaran.edit', $mapel->id) . '" class="btn btn-warning btn-sm" title="Edit">
+                    <a href="' . route('matapelajaranaktif.edit', $mapel->id) . '" class="btn btn-warning btn-sm" title="Edit">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <form action="' . route('matapelajaran.destroy', $mapel->id) . '" method="POST" class="d-inline">
+                    <form action="' . route('matapelajaranaktif.destroy', $mapel->id) . '" method="POST" class="d-inline">
                         ' . csrf_field() . '
                         ' . method_field('DELETE') . '
                         <button type="button" class="btn btn-danger btn-sm btn-hapus" data-nama="' . e($mapel->nama_mata_pelajaran) . '" title="Hapus">
@@ -51,13 +51,15 @@ class MataPelajaranDataTable extends DataTable
 
     public function query(MataPelajaran $model): QueryBuilder
     {
-        return $model->newQuery()->whereNull('kelas_id');
+        return $model->newQuery()
+            ->with(['kelas', 'tahunAjaran', 'semester', 'guru.pegawai'])
+            ->whereNotNull('mata_pelajarans.kelas_id');
     }
 
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('matapelajaran-table')
+                    ->setTableId('matapelajaranaktif-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->orderBy(1)
@@ -76,11 +78,13 @@ class MataPelajaranDataTable extends DataTable
     {
         return [
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false)->addClass('text-center'),
-            Column::make('kode_mapel')->title('Kode Mapel'),
+            Column::make('nama_kelas')->title('Kelas'),
+            Column::make('nama_tahun_ajaran')->title('Tahun Ajaran'),
+            Column::make('nama_semester')->title('Semester'),
             Column::make('nama_mata_pelajaran')->title('Nama Mapel'),
-            Column::make('kkm')->title('KKM'),
-            Column::make('tp_optimal')->title('TP yang Optimal'),
-            Column::make('tp_peningkatan')->title('TP Yang Perlu Peningkatan'),
+            Column::make('nama_guru')->title('Nama Guru'),
+            Column::make('hari_mengajar')->title('Hari Mengajar'),
+            Column::make('jam_mengajar')->title('Jam Mengajar'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
@@ -91,6 +95,6 @@ class MataPelajaranDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'MataPelajaran_' . date('YmdHis');
+        return 'MataPelajaranAktif_' . date('YmdHis');
     }
 }

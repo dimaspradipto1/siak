@@ -95,7 +95,7 @@
       </li> --}}
 
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('matapelajaran.jadwal') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.jadwal') }}">
+        <a class="nav-link {{ request()->routeIs('matapelajaranaktif.*') ? '' : 'collapsed' }}" href="{{ route('matapelajaranaktif.index') }}">
           <i class="bi bi-calendar-week"></i><span>Mata Pelajaran Aktif</span>
         </a>
       </li>
@@ -182,7 +182,7 @@
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.index') }}"><i class="bi bi-book"></i><span>Mata Pelajaran</span></a></li>
 
       <li class="nav-heading">Laporan & Rekapitulasi</li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('nilai.*') ? '' : 'collapsed' }}" href="{{ route('nilai.index') }}"><i class="bi bi-journal-check"></i><span>Rekap Nilai</span></a></li>
+      <li class="nav-item"><a class="nav-link {{ request()->routeIs('nilai.cetak-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.cetak-raport') }}"><i class="bi bi-printer"></i><span>Cetak Raport</span></a></li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}" href="{{ route('kehadiran.rekap') }}"><i class="bi bi-calendar-check"></i><span>Rekap Kehadiran</span></a></li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}" href="{{ route('catatansiswa.index') }}"><i class="bi bi-journal-text"></i><span>Rekap Catatan</span></a></li>
 
