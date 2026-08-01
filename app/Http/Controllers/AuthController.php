@@ -14,6 +14,9 @@ class AuthController extends Controller
     public function index()
     {
         if (Auth::check()) {
+            if (Auth::user()->roles === 'siswa') {
+                return redirect()->route('siswa.profile');
+            }
             return redirect()->route('dashboard');
         }
 
@@ -45,6 +48,9 @@ class AuthController extends Controller
 
             toast('Selamat datang, ' . $nama . '! Anda login sebagai ' . $role . '.', 'success');
 
+            if (Auth::user()->roles === 'siswa') {
+                return redirect()->route('siswa.profile');
+            }
             return redirect()->intended(route('dashboard'));
         }
 

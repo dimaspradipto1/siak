@@ -11,6 +11,16 @@ class TahunAjaran extends Model
     use HasFactory;
 
     /**
+     * Boot the model.
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope('order', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            $builder->orderBy('tahun_mulai', 'desc');
+        });
+    }
+
+    /**
      * Nama tabel yang terkait dengan model.
      *
      * @var string

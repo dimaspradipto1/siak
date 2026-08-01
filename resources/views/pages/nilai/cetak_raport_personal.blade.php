@@ -1,5 +1,46 @@
 @extends('layouts.dashboard.template')
 
+@php
+if (!function_exists('abbreviateMapel')) {
+    function abbreviateMapel($name) {
+        $map = [
+            'Pendidikan Agama Islam' => 'PAI',
+            'Pendidikan Agama Islam dan Budi Pekerti' => 'PAI',
+            'Pendidikan Pancasila dan Kewarganegaraan' => 'PKN',
+            'Pendidikan Pancasila' => 'PKN',
+            'Bahasa Indonesia' => 'B.INDO',
+            'Matematika' => 'MTK',
+            'Ilmu Pengetahuan Alam dan Sosial' => 'IPAS',
+            'Ilmu Pengetahuan Alam' => 'IPA',
+            'Ilmu Pengetahuan Sosial' => 'IPS',
+            'Seni Budaya dan Prakarya' => 'SBDP',
+            'Seni Budaya dan Musik' => 'SBDM',
+            'Seni Rupa' => 'Seni Rupa',
+            'Bahasa Inggris' => 'B.ING',
+            'Pendidikan Jasmani, Olahraga, dan Kesehatan' => 'PJOK',
+        ];
+        return $map[$name] ?? $name;
+    }
+}
+if (!function_exists('terbilang')) {
+    function terbilang($number) {
+        $number = abs($number);
+        $words = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+        $temp = "";
+        if ($number < 12) {
+            $temp = " " . $words[$number];
+        } else if ($number < 20) {
+            $temp = terbilang($number - 10) . " belas";
+        } else if ($number < 100) {
+            $temp = terbilang((int)($number / 10)) . " puluh" . terbilang($number % 10);
+        } else if ($number < 200) {
+            $temp = " seratus" . terbilang($number - 100);
+        }
+        return trim($temp);
+    }
+}
+@endphp
+
 @section('title', 'Cetak Raport')
 
 @section('content')
@@ -16,15 +57,15 @@
     <section class="section">
         <div class="row">
             <div class="col-lg-12">
-                <div class="card shadow-sm border-0 mb-4">
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
                     <div class="card-body pt-4">
-                        <h5 class="card-title text-primary fw-bold mb-3 p-0">Filter Cetak Raport</h5>
+                        <h5 class="card-title text-dark fw-bold mb-4 p-0">Form Cetak Raport Siswa</h5>
                         
-                        <form action="{{ route('nilai.raport.personal') }}" method="GET" class="row g-3">
-                            <div class="col-md-6">
-                                <label for="tahun_ajaran_id" class="form-label fw-semibold">Tahun Ajaran <span class="text-danger">*</span></label>
-                                <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-select" required>
-                                    <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
+                        <form action="{{ route('nilai.raport.personal') }}" method="GET" class="row g-4">
+                            <div class="col-md-4">
+                                <label for="tahun_ajaran_id" class="form-label fw-semibold text-dark">Tahun Ajaran <span class="text-danger">*</span></label>
+                                <select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-select py-2" style="border-radius: 8px;" required>
+                                    <option value="" disabled selected></option>
                                     @foreach($tahunAjarans as $ta)
                                         <option value="{{ $ta->id }}" {{ $selectedTa == $ta->id ? 'selected' : '' }}>
                                             {{ $ta->nama_tahun_ajaran }}
@@ -33,21 +74,28 @@
                                 </select>
                             </div>
                             
-                            <div class="col-md-6">
-                                <label for="semester_name" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
-                                <select name="semester_name" id="semester_name" class="form-select" required>
-                                    <option value="" disabled selected>-- Pilih Semester --</option>
+                            <div class="col-md-4">
+                                <label for="semester_name" class="form-label fw-semibold text-dark">Semester <span class="text-danger">*</span></label>
+                                <select name="semester_name" id="semester_name" class="form-select py-2" style="border-radius: 8px;" required>
+                                    <option value="" disabled selected></option>
                                     <option value="Semester 1 (Ganjil)" {{ $selectedSemName == 'Semester 1 (Ganjil)' ? 'selected' : '' }}>Semester 1 (Ganjil)</option>
                                     <option value="Semester 2 (Genap)" {{ $selectedSemName == 'Semester 2 (Genap)' ? 'selected' : '' }}>Semester 2 (Genap)</option>
                                 </select>
                             </div>
 
-                            <div class="col-12 d-flex justify-content-end gap-2 pt-2">
-                                <a href="{{ route('nilai.raport.personal') }}" class="btn btn-secondary text-white btn-sm px-3" style="background-color: #6c757d; border-color: #6c757d;">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            <div class="col-md-4">
+                                <label for="kelas_id" class="form-label fw-semibold text-dark">Kelas <span class="text-danger">*</span></label>
+                                <select name="kelas_id" id="kelas_id" class="form-select py-2 bg-light" style="border-radius: 8px;" readonly required>
+                                    <option value="{{ $kelasModel->id }}" selected>{{ $kelasModel->nama_kelas }}</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-end align-items-center gap-4 pt-2">
+                                <a href="{{ route('nilai.raport.personal') }}" class="text-dark fw-bold text-decoration-none small" style="font-size: 0.95rem;">
+                                    Reset
                                 </a>
-                                <button type="submit" class="btn btn-dark btn-sm px-3" style="background-color: #212529; border-color: #212529;">
-                                    <i class="bi bi-search"></i> Tampilkan Data
+                                <button type="submit" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold; font-size: 0.95rem;">
+                                    Tampilkan
                                 </button>
                             </div>
                         </form>
@@ -55,41 +103,100 @@
                 </div>
 
                 @if($selectedTa && $selectedSem)
-                <div class="card shadow-sm border-0">
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
                     <div class="card-body pt-4">
-                        <h5 class="card-title text-primary fw-bold p-0 mb-4">Informasi Raport Siswa</h5>
-                        
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <table class="table table-borderless">
+                        @if(count($classMapels) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover align-middle text-center">
+                                <thead class="table-light fw-bold text-dark">
                                     <tr>
-                                        <td style="width: 250px;" class="fw-semibold">Nama Siswa</td>
+                                        <th style="width: 50px;">No</th>
+                                        <th style="width: 200px;">Mata Pelajaran</th>
+                                        <th style="width: 80px;">KKM</th>
+                                        <th style="width: 80px;">Angka</th>
+                                        <th>Huruf</th>
+                                        <th style="width: 100px;">Keterangan</th>
+                                        <th>TP Yang Diukur dan Tercapai Optimal</th>
+                                        <th>TP Yang Perlu Peningkatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $totalNilai = 0;
+                                        $countNilai = 0;
+                                    @endphp
+                                    @foreach($classMapels as $index => $mp)
+                                        @php
+                                            $rec = $grades[$mp->id] ?? null;
+                                            $nilai = $rec && $rec->nilai_raport !== null ? intval($rec->nilai_raport) : null;
+                                            $predikat = $rec && $rec->predikat ? $rec->predikat : null;
+                                            
+                                            if ($nilai !== null) {
+                                                $totalNilai += $nilai;
+                                                $countNilai++;
+                                            }
+
+                                            $tpOptimalSiswa = $rec->tp_optimal ?? null;
+                                            $tpPeningkatanSiswa = $rec->tp_perlu_peningkatan ?? null;
+
+                                            $optText = $tpOptimalSiswa ?: $mp->tp_optimal ?: 'Menunjukkan penguasaan kompetensi dengan sangat baik.';
+                                            $impText = $tpPeningkatanSiswa ?: $mp->tp_peningkatan ?: 'Perlu bimbingan lebih lanjut untuk meningkatkan kompetensi.';
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td class="text-start fw-semibold">{{ $mp->nama_mata_pelajaran }}</td>
+                                            <td>{{ $mp->kkm ?? 75 }}</td>
+                                            <td class="fw-bold">{{ $nilai !== null ? $nilai : '-' }}</td>
+                                            <td style="text-transform: capitalize;">
+                                                {{ $nilai !== null ? terbilang($nilai) : '-' }}
+                                            </td>
+                                            <td class="fw-bold">{{ $predikat !== null ? $predikat : '-' }}</td>
+                                            <td class="text-start" style="font-size: 0.85rem;">{{ $optText }}</td>
+                                            <td class="text-start" style="font-size: 0.85rem;">{{ $impText }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @php
+                            $rataRata = $countNilai > 0 ? round($totalNilai / $countNilai, 1) : 0;
+                        @endphp
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <table class="table table-borderless align-middle fw-bold">
+                                    <tr>
+                                        <td style="width: 180px;">Jumlah Nilai</td>
                                         <td style="width: 20px;">:</td>
-                                        <td class="fw-bold text-dark">{{ $siswa->nama_siswa }}</td>
+                                        <td>{{ $totalNilai > 0 ? $totalNilai : '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold">NISN</td>
+                                        <td>Rata-Rata</td>
                                         <td>:</td>
-                                        <td>{{ $siswa->nisn }}</td>
+                                        <td>{{ $rataRata > 0 ? $rataRata : '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold">Kelas</td>
+                                        <td>Rangking</td>
                                         <td>:</td>
-                                        <td>{{ $kelasModel->nama_kelas ?? '-' }}</td>
+                                        <td>{{ $ranking }} dari {{ $totalStudents }} siswa</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold">Tahun Ajaran / Semester</td>
+                                        <td>Ekstrakurikuler</td>
                                         <td>:</td>
-                                        <td>{{ $tahunAjarans->firstWhere('id', $selectedTa)->nama_tahun_ajaran ?? '-' }} / {{ $selectedSemName }}</td>
+                                        <td>{{ $ekskulText }}</td>
                                     </tr>
                                 </table>
                             </div>
-                            <div class="col-md-4 text-md-end text-center pt-3 pt-md-0">
-                                <a href="{{ route('nilai.cetak-raport.print', ['siswa_id' => $siswa->id, 'tahun_ajaran_id' => $selectedTa, 'semester_id' => $selectedSem]) }}" target="_blank" class="btn btn-dark btn-lg px-4" style="background-color: #212529; border-color: #212529; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">
-                                    <i class="bi bi-printer-fill me-2"></i> Cetak Raport
+                            <div class="col-md-6 d-flex justify-content-end align-items-end pb-3">
+                                <a href="{{ route('nilai.cetak-raport.print', ['siswa_id' => $siswa->id, 'tahun_ajaran_id' => $selectedTa, 'semester_id' => $selectedSem]) }}" target="_blank" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold;">
+                                    Cetak
                                 </a>
                             </div>
                         </div>
+                        @else
+                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data nilai raport untuk periode terpilih.</div>
+                        @endif
                     </div>
                 </div>
                 @endif

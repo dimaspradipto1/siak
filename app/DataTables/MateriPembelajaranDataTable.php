@@ -159,10 +159,8 @@ class MateriPembelajaranDataTable extends DataTable
             Column::make('tahun_ajaran')->title('Tahun Ajaran')->searchable(false)->orderable(false),
             Column::make('semester')->title('Semester')->searchable(false)->orderable(false),
             Column::make('kelas')->title('Kelas')->searchable(false)->orderable(false),
-            Column::make('mata_pelajaran')->title('Mata Pelajaran')->searchable(false)->orderable(false),
-            Column::make('diupload_oleh')->title('Diupload Oleh')->searchable(false)->orderable(false),
-            Column::make('tanggal_upload')->title('Tanggal Upload')->searchable(false)->orderable(false),
-            Column::make('file_size')->title('Ukuran File'),
+            Column::make('diupload_oleh')->title('Dipublikasi Oleh')->searchable(false)->orderable(false),
+            Column::make('tanggal_upload')->title('Tanggal Publikasi')->searchable(false)->orderable(false),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)

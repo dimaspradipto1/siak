@@ -1023,9 +1023,133 @@ class NilaiController extends Controller
         }
         $selectedSem = $semester ? $semester->id : null;
 
-        $kelasModel = $siswa->kelas;
+        $kelasId = $siswa->kelas_id;
+        $kelasModel = Kelas::query()->find($kelasId);
         $school = \App\Models\ProfilSekolah::query()->first();
 
-        return view('pages.nilai.cetak_raport_personal', compact('siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'kelasModel', 'school'));
+        $classMapels = [];
+        $grades = [];
+        $ekskuls = [];
+        $attendance = [];
+        $catatan = null;
+        $waliKelas = null;
+        $ortuNama = '';
+        $kepsekNama = '';
+        $kepsekNip = '';
+        $ranking = 1;
+        $totalStudents = 1;
+        $ekskulText = '';
+
+        if ($selectedTa && $selectedSem) {
+            $classMapels = MataPelajaran::query()->where('kelas_id', $kelasId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->orderBy('nama_mata_pelajaran', 'asc')
+                ->get();
+
+            foreach ($classMapels as $mp) {
+                $nilaiRecord = Nilai::query()->where('siswa_id', $siswa->id)
+                    ->where('mata_pelajaran_id', $mp->id)
+                    ->where('semester_id', $selectedSem)
+                    ->where('tahun_ajaran_id', $selectedTa)
+                    ->first();
+                $grades[$mp->id] = $nilaiRecord;
+            }
+
+            $attendance = [
+                'Sakit' => \App\Models\Kehadiran::query()->where('siswa_id', $siswa->id)
+                    ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Sakit'); })
+                    ->count(),
+                'Izin' => \App\Models\Kehadiran::query()->where('siswa_id', $siswa->id)
+                    ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Izin'); })
+                    ->count(),
+                'Alpa' => \App\Models\Kehadiran::query()->where('siswa_id', $siswa->id)
+                    ->whereHas('jenisKehadiran', function($q) { $q->where('nama_kehadiran', 'Alpa')->orWhere('nama_kehadiran', 'Tanpa Keterangan'); })
+                    ->count(),
+            ];
+
+            $catatan = \App\Models\CatatanSiswa::query()->where('siswa_id', $siswa->id)
+                ->where('semester_id', $selectedSem)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+
+            $waliKelas = WaliKelas::query()
+                ->with(['guru.pegawai'])
+                ->where('kelas_id', $kelasId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+
+            if (!$waliKelas) {
+                $waliKelas = WaliKelas::query()
+                    ->with(['guru.pegawai'])
+                    ->where('kelas_id', $kelasId)
+                    ->first();
+            }
+
+            if (!$waliKelas) {
+                $guru = \App\Models\Guru::with('pegawai')->first();
+                if ($guru) {
+                    $waliKelas = new WaliKelas();
+                    $waliKelas->guru = $guru;
+                }
+            }
+
+            $ortuNama = $siswa->orangTua ? ($siswa->orangTua->nama_ayah ?: ($siswa->orangTua->nama_ibu ?: '..........................................')) : '..........................................';
+
+            $kepsek = \App\Models\Pegawai::where('jabatan', 'Kepala Sekolah')->first();
+            $kepsekNama = $school && $school->nama_kepala_sekolah ? $school->nama_kepala_sekolah : ($kepsek ? $kepsek->nama_pegawai : 'Yusal, S.Pd.');
+            $kepsekNip = $school && $school->nip_kepala_sekolah ? $school->nip_kepala_sekolah : ($kepsek ? $kepsek->nip : '196805121990031005');
+
+            $ekskuls = \App\Models\SiswaEkstrakurikuler::query()
+                ->with('ekstrakurikuler')
+                ->where('siswa_id', $siswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->get()
+                ->pluck('ekstrakurikuler');
+
+            // Calculate ranking
+            $siswaIdsInClass = PembagianKelas::query()
+                ->where('kelas_id', $kelasId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+
+            $studentAverages = [];
+            foreach ($siswaIdsInClass as $sId) {
+                $gradesList = Nilai::query()
+                    ->where('siswa_id', $sId)
+                    ->where('tahun_ajaran_id', $selectedTa)
+                    ->where('semester_id', $selectedSem)
+                    ->whereIn('mata_pelajaran_id', $classMapels->pluck('id'))
+                    ->pluck('nilai_raport');
+                
+                $validGrades = $gradesList->filter(fn($val) => $val !== null)->map(fn($val) => (int)$val);
+                $avg = $validGrades->count() > 0 ? $validGrades->sum() / $validGrades->count() : 0;
+                $studentAverages[$sId] = $avg;
+            }
+
+            arsort($studentAverages);
+
+            $rank = 1;
+            $ranking = 1;
+            foreach ($studentAverages as $sId => $avg) {
+                if ($sId == $siswa->id) {
+                    $ranking = $rank;
+                    break;
+                }
+                $rank++;
+            }
+            $totalStudents = count($studentAverages);
+
+            $ekskulText = $ekskuls->map(fn($e) => $e->nama_ekskul)->implode(', ');
+            if (empty($ekskulText)) {
+                $ekskulText = '-';
+            }
+        }
+
+        return view('pages.nilai.cetak_raport_personal', compact(
+            'siswa', 'tahunAjarans', 'selectedTa', 'selectedSemName', 'selectedSem', 'kelasModel', 'school',
+            'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas', 'ekskuls', 'ortuNama', 'kepsekNama', 'kepsekNip', 'ranking', 'totalStudents', 'ekskulText'
+        ));
     }
 }

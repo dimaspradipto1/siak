@@ -19,6 +19,10 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+        if ($user && $user->roles === 'siswa') {
+            return redirect()->route('siswa.profile');
+        }
+
         $activeRole = $user?->activeRole() ?? '';
 
         if ($user && $activeRole === 'kepala sekolah') {

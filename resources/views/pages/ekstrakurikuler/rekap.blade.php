@@ -96,7 +96,7 @@
                                                 @if($siswa->ekskul_list === '-')
                                                     <span class="text-muted">-</span>
                                                 @else
-                                                    <span class="badge bg-primary px-2 py-1 text-white" style="font-size: 0.85rem; border-radius: 4px;">{{ $siswa->ekskul_list }}</span>
+                                                    {{ $siswa->ekskul_list }}
                                                 @endif
                                             </td>
                                         </tr>
