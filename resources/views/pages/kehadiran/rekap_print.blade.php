@@ -45,11 +45,12 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            font-size: 11px;
         }
 
         table.main-table th, table.main-table td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 4px 2px;
             vertical-align: middle;
         }
 
@@ -119,11 +120,11 @@
                 display: none;
             }
             body {
-                padding: 20px;
+                padding: 10px;
             }
             @page {
-                size: A4;
-                margin: 2cm;
+                size: A4 landscape;
+                margin: 0.5cm;
             }
         }
     </style>

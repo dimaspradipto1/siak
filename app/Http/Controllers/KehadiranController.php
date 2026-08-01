@@ -473,12 +473,26 @@ class KehadiranController extends Controller
                 ->with('jenisKehadiran')
                 ->get();
 
-            $tanggalList = $kehadiranBulanIni->pluck('tanggal')
-                ->map(fn($t) => \Carbon\Carbon::parse($t)->format('Y-m-d'))
-                ->unique()
-                ->sort()
-                ->values()
-                ->all();
+            $selectedYear = date('Y');
+            $tahunAjaranModel = TahunAjaran::find($selectedTa);
+            if ($tahunAjaranModel) {
+                $firstRecord = $kehadiranBulanIni->first();
+                if ($firstRecord) {
+                    $selectedYear = (int) \Carbon\Carbon::parse($firstRecord->tanggal)->format('Y');
+                } else {
+                    if (in_array($selectedBulan, [7, 8, 9, 10, 11, 12])) {
+                        $selectedYear = $tahunAjaranModel->tahun_mulai;
+                    } else {
+                        $selectedYear = $tahunAjaranModel->tahun_selesai;
+                    }
+                }
+            }
+
+            $daysInMonth = \Carbon\Carbon::create($selectedYear, $selectedBulan, 1)->daysInMonth;
+            $tanggalList = [];
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $tanggalList[] = sprintf('%04d-%02d-%02d', $selectedYear, $selectedBulan, $day);
+            }
 
             foreach ($studentsList as $siswa) {
                 $siswa->kehadiran_by_date = $kehadiranBulanIni
@@ -570,12 +584,26 @@ class KehadiranController extends Controller
                 ->with('jenisKehadiran')
                 ->get();
 
-            $tanggalList = $kehadiranBulanIni->pluck('tanggal')
-                ->map(fn($t) => \Carbon\Carbon::parse($t)->format('Y-m-d'))
-                ->unique()
-                ->sort()
-                ->values()
-                ->all();
+            $selectedYear = date('Y');
+            $tahunAjaranModel = TahunAjaran::find($selectedTa);
+            if ($tahunAjaranModel) {
+                $firstRecord = $kehadiranBulanIni->first();
+                if ($firstRecord) {
+                    $selectedYear = (int) \Carbon\Carbon::parse($firstRecord->tanggal)->format('Y');
+                } else {
+                    if (in_array($selectedBulan, [7, 8, 9, 10, 11, 12])) {
+                        $selectedYear = $tahunAjaranModel->tahun_mulai;
+                    } else {
+                        $selectedYear = $tahunAjaranModel->tahun_selesai;
+                    }
+                }
+            }
+
+            $daysInMonth = \Carbon\Carbon::create($selectedYear, $selectedBulan, 1)->daysInMonth;
+            $tanggalList = [];
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $tanggalList[] = sprintf('%04d-%02d-%02d', $selectedYear, $selectedBulan, $day);
+            }
 
             foreach ($studentsList as $siswa) {
                 $siswa->kehadiran_by_date = $kehadiranBulanIni
