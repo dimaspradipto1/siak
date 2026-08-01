@@ -52,6 +52,9 @@ Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::post('guru/import', [GuruController::class, 'import'])->name('guru.import');
     Route::get('guru/template', [GuruController::class, 'template'])->name('guru.template');
     Route::resource('guru', GuruController::class);
+    Route::get('matapelajaranaktif/export', [MataPelajaranAktifController::class, 'export'])->name('matapelajaranaktif.export');
+    Route::post('matapelajaranaktif/import', [MataPelajaranAktifController::class, 'import'])->name('matapelajaranaktif.import');
+    Route::get('matapelajaranaktif/template', [MataPelajaranAktifController::class, 'template'])->name('matapelajaranaktif.template');
     Route::resource('matapelajaranaktif', MataPelajaranAktifController::class);
     Route::resource('tahun-ajaran', TahunAjaranController::class);
     Route::resource('semester', SemesterController::class);
