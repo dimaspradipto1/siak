@@ -191,7 +191,7 @@
                                                 @if (($user->roles ?? '') === 'guru' && $user->isWaliKelasAktif())
                                                     <span class="badge bg-light text-dark ms-1" style="font-size:11px;">Guru & Wali Kelas</span>
                                                 @endif
-                                                &nbsp;·&nbsp; SIAK SD Negeri 007 Sekupang
+                                                &nbsp;·&nbsp; SIAKAD SD Negeri 007 Sekupang
                                             </p>
                                         </div>
                                     </div>

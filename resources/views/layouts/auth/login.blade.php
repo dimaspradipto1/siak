@@ -4,9 +4,13 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Login - SIAK SD Negeri 007 Sekupang</title>
+    <title>Login - SIAKAD SD Negeri 007 Sekupang</title>
     <meta name="description" content="Sistem Informasi Akademik SD Negeri 007 Sekupang - Login">
-    <meta name="keywords" content="SIAK, SD Negeri 007, Sekupang, Akademik">
+    <meta name="keywords" content="SIAKAD, SD Negeri 007, Sekupang, Akademik">
+
+    <!-- Favicons -->
+    <link href="{{ asset('assets/img/favicon.png') }}?v=2" rel="icon">
+    <link href="{{ asset('assets/img/apple-touch-icon.png') }}?v=2" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -374,9 +378,9 @@
         <!-- Brand / Logo -->
         <div class="brand-section">
             <div class="brand-icon">
-                <i class="bi bi-mortarboard-fill"></i>
+                <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" style="max-height: 60px; max-width: 60px; object-fit: contain;">
             </div>
-            <div class="brand-title">SIAK</div>
+            <div class="brand-title">SIAKAD</div>
             <div class="brand-subtitle">SD NEGERI 007 SEKUPANG</div>
             <div class="brand-subtitle">Sistem Informasi Akademik</div>
         </div>

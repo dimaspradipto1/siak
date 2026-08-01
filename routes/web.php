@@ -28,7 +28,7 @@ use App\Http\Controllers\MateriPembelajaranController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - SIAK SD Negeri 007 Sekupang
+| Web Routes - SIAKAD SD Negeri 007 Sekupang
 |--------------------------------------------------------------------------
 */
 

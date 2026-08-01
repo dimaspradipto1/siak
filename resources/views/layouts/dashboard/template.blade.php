@@ -5,13 +5,13 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>@yield('title', 'Dashboard') - SIAK SD Negeri 007 Sekupang</title>
+  <title>@yield('title', 'Dashboard') - SIAKAD SD Negeri 007 Sekupang</title>
   <meta content="Sistem Informasi Akademik SD Negeri 007 Sekupang" name="description">
-  <meta content="SIAK, akademik, sekolah, Sekupang" name="keywords">
+  <meta content="SIAKAD, akademik, sekolah, Sekupang" name="keywords">
 
   <!-- Favicons -->
-  <link href="{{ asset('assets/img/favicon.png') }}" rel="icon">
-  <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+  <link href="{{ asset('assets/img/favicon.png') }}?v=2" rel="icon">
+  <link href="{{ asset('assets/img/apple-touch-icon.png') }}?v=2" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
