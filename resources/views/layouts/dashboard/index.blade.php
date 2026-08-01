@@ -24,136 +24,139 @@
     <section class="section dashboard">
         @if ($activeRole === 'kepala sekolah')
             <div class="row">
-                <!-- Left side columns -->
-                <div class="col-lg-8">
-                    <div class="row">
-                        <!-- Selamat Datang -->
-                        <div class="col-12 mb-4">
-                            <div class="card border-0 bg-light shadow-sm" style="border-radius: 12px;">
-                                <div class="card-body p-4">
-                                    <h4 class="text-dark fw-bold mb-1">Selamat Datang, Kepala Sekolah</h4>
-                                    <p class="text-secondary mb-0" style="font-size: 0.95rem;">Berikut adalah ringkasan data sekolah anda:</p>
-                                </div>
-                            </div>
+                <!-- Selamat Datang -->
+                <div class="col-12 mb-4">
+                    <div class="card border-0 bg-light shadow-sm" style="border-radius: 12px;">
+                        <div class="card-body p-4">
+                            <h4 class="text-dark fw-bold mb-1">Selamat Datang, Kepala Sekolah</h4>
+                            <p class="text-secondary mb-0" style="font-size: 0.95rem;">Berikut adalah ringkasan data sekolah anda:</p>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Card 1: Jumlah Pegawai -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
-                                <div class="card-body pt-4 text-center">
-                                    <h5 class="text-secondary fw-semibold mb-2" style="font-size: 1.15rem;">Jumlah Pegawai</h5>
-                                    <h2 class="text-dark fw-bold display-5 mb-2">{{ $totalPegawai }}</h2>
-                                    <div class="text-secondary mb-3" style="letter-spacing: 4px; font-size: 1.2rem; opacity: 0.5;">••••••••••</div>
-                                    <div class="d-flex justify-content-center gap-3 text-secondary" style="font-size: 0.85rem;">
-                                        <div><strong class="text-dark d-block" style="font-size: 1.1rem;">{{ $guruCount }}</strong> Guru</div>
-                                        <div style="border-left: 1px solid #dee2e6;"></div>
-                                        <div><strong class="text-dark d-block" style="font-size: 1.1rem;">{{ $adminCount }}</strong> Admin</div>
-                                        <div style="border-left: 1px solid #dee2e6;"></div>
-                                        <div><strong class="text-dark d-block" style="font-size: 1.1rem;">{{ $kebersihanCount }}</strong> Tenaga Kebersihan</div>
-                                    </div>
-                                </div>
+                <!-- Row 1: 3 Columns -->
+                <!-- Card 1: Jumlah Pegawai -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+                        <div class="card-body pt-4 text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <h5 class="text-secondary fw-semibold mb-2" style="font-size: 1.15rem;">Jumlah Pegawai</h5>
+                                <div class="text-secondary mb-3" style="letter-spacing: 4px; font-size: 1.2rem; opacity: 0.5;">••••••••••</div>
                             </div>
-                        </div>
-
-                        <!-- Card 2: Jumlah Siswa (dark theme!) -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm border-0 text-white h-100" style="background-color: #212529; border-radius: 12px;">
-                                <div class="card-body pt-4 text-center">
-                                    <h5 class="text-white-50 fw-semibold mb-2" style="font-size: 1.15rem;">Jumlah Siswa</h5>
-                                    <h2 class="text-white fw-bold display-5 mb-2">{{ $totalSiswa }}</h2>
-                                    <div class="text-white-50 mb-3" style="letter-spacing: 4px; font-size: 1.2rem; opacity: 0.5;">••••••••••</div>
-                                    <div class="d-flex justify-content-center flex-wrap gap-2 text-white-50 px-2" style="font-size: 0.8rem;">
-                                        @for ($t = 1; $t <= 6; $t++)
-                                            <div class="px-2 py-1 bg-secondary rounded-3 text-center" style="min-width: 45px; background-color: rgba(255,255,255,0.15) !important;">
-                                                <strong class="text-white d-block" style="font-size: 0.95rem;">{{ $siswaCountByTingkat[$t] ?? 0 }}</strong>
-                                                {{ $t == 1 ? 'I' : ($t == 2 ? 'II' : ($t == 3 ? 'III' : ($t == 4 ? 'IV' : ($t == 5 ? 'V' : 'VI')))) }}
-                                            </div>
-                                        @endfor
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 3: Kehadiran Siswa -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
-                                <div class="card-body pt-4 text-center">
-                                    <h5 class="text-secondary fw-semibold mb-2" style="font-size: 1.15rem;">Kehadiran Siswa</h5>
-                                    <h2 class="text-dark fw-bold display-5 mb-2">{{ $kehadiranPercentage }}%</h2>
-                                    <div class="text-secondary mb-3" style="letter-spacing: 4px; font-size: 1.2rem; opacity: 0.5;">••••••••••</div>
-                                    <p class="text-secondary mb-0" style="font-size: 0.9rem;">Naik 1.2% dibanding Kemarin</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 4: Akademik -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
-                                <div class="card-body pt-4 text-center">
-                                    <h5 class="text-secondary fw-semibold mb-2" style="font-size: 1.15rem;">Akademik</h5>
-                                    <h2 class="text-dark fw-bold display-5 mb-2">{{ $akademikPercentage }} %</h2>
-                                    <div class="d-flex flex-column align-items-center">
-                                        <p class="text-secondary mb-1" style="font-size: 0.9rem;">Baik</p>
-                                        <p class="text-secondary mb-0" style="font-size: 0.85rem;">Naik 0.8% dari Semester Lalu</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 5: Grafik Akademik -->
-                        <div class="col-12 mb-4">
-                            <div class="card shadow-sm border-0" style="border-radius: 12px;">
-                                <div class="card-body pt-4">
-                                    <h5 class="card-title text-dark fw-bold mb-4 p-0">Grafik Akademik</h5>
-                                    <canvas id="akademikChart" style="max-height: 280px;"></canvas>
-                                </div>
+                            <div class="d-flex justify-content-center gap-3 text-secondary" style="font-size: 0.85rem;">
+                                <div><strong class="text-dark d-block mb-1" style="font-size: 1.25rem;">{{ $guruCount }}</strong> Guru</div>
+                                <div style="border-left: 1px solid #dee2e6;"></div>
+                                <div><strong class="text-dark d-block mb-1" style="font-size: 1.25rem;">{{ $adminCount }}</strong> Admin</div>
+                                <div style="border-left: 1px solid #dee2e6;"></div>
+                                <div><strong class="text-dark d-block mb-1" style="font-size: 1.25rem;">{{ $kebersihanCount }}</strong> Tenaga Kebersihan</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right side columns -->
-                <div class="col-lg-4">
-                    <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <!-- Card 2: Jumlah Siswa (dark theme!) -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm border-0 text-white h-100" style="background-color: #212529; border-radius: 12px;">
+                        <div class="card-body pt-4 text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <h5 class="text-white-50 fw-semibold mb-2" style="font-size: 1.15rem;">Jumlah Siswa</h5>
+                                <div class="text-white-50 mb-3" style="letter-spacing: 4px; font-size: 1.2rem; opacity: 0.5;">••••••••••</div>
+                            </div>
+                            <div class="d-flex justify-content-center gap-3 text-white-50 px-2" style="font-size: 0.85rem;">
+                                @for ($t = 1; $t <= 6; $t++)
+                                    <div>
+                                        <strong class="text-white d-block mb-1" style="font-size: 1.25rem;">{{ $siswaCountByTingkat[$t] ?? 0 }}</strong>
+                                        {{ $t == 1 ? 'I' : ($t == 2 ? 'II' : ($t == 3 ? 'III' : ($t == 4 ? 'IV' : ($t == 5 ? 'V' : 'VI')))) }}
+                                    </div>
+                                    @if ($t < 6)
+                                        <div style="border-left: 1px solid rgba(255,255,255,0.15);"></div>
+                                    @endif
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Kehadiran Siswa -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+                        <div class="card-body pt-4 text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <h5 class="text-secondary fw-semibold mb-2" style="font-size: 1.15rem;">Kehadiran Siswa</h5>
+                                <div class="text-secondary mb-3" style="letter-spacing: 4px; font-size: 1.2rem; opacity: 0.5;">••••••••••</div>
+                            </div>
+                            <p class="text-secondary mb-0 fw-semibold" style="font-size: 0.95rem;">Naik 1.2% dibanding Kemarin</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: 3 Columns -->
+                <!-- Card 4: Akademik -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+                        <div class="card-body pt-4 text-center d-flex flex-column justify-content-between">
+                            <h5 class="text-secondary fw-semibold mb-2" style="font-size: 1.15rem;">Akademik</h5>
+                            <h2 class="text-dark fw-bold display-5 mb-2">{{ $akademikPercentage }}%</h2>
+                            <div class="d-flex flex-column align-items-center">
+                                <p class="text-secondary mb-1 fw-bold" style="font-size: 0.95rem;">Baik</p>
+                                <p class="text-secondary mb-0" style="font-size: 0.85rem;">Naik 0.8% dari Semester Lalu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5: Grafik Akademik -->
+                <div class="col-lg-5 col-md-6 mb-4">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
+                        <div class="card-body pt-4">
+                            <h5 class="card-title text-dark fw-bold mb-4 p-0">Grafik Akademik</h5>
+                            <canvas id="akademikChart" style="max-height: 180px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6: Profile Sekolah -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius: 12px;">
                         <div class="card-body pt-4 text-center">
-                            <h5 class="card-title text-dark fw-bold mb-4 p-0">Profile Sekolah</h5>
+                            <h5 class="card-title text-dark fw-bold mb-3 p-0">Profile Sekolah</h5>
                             
-                            <div class="mb-4 d-flex justify-content-center">
+                            <div class="mb-3 d-flex justify-content-center">
                                 @if ($schoolProfile && $schoolProfile->logo_sekolah)
-                                    <img src="{{ asset($schoolProfile->logo_sekolah) }}" alt="Logo Sekolah" class="img-fluid" style="max-height: 140px; object-fit: contain;">
+                                    <img src="{{ asset($schoolProfile->logo_sekolah) }}" alt="Logo Sekolah" class="img-fluid" style="max-height: 100px; object-fit: contain;">
                                 @else
-                                    <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 140px; height: 140px;">
-                                        <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
+                                    <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 100px; height: 100px;">
+                                        <i class="bi bi-image text-secondary" style="font-size: 2.5rem;"></i>
                                     </div>
                                 @endif
                             </div>
 
                             <div class="text-start px-2">
-                                <table class="table table-sm table-borderless text-dark" style="font-size: 0.9rem;">
+                                <table class="table table-sm table-borderless text-dark mb-0" style="font-size: 0.85rem;">
                                     <tr>
-                                        <td class="fw-semibold text-secondary" style="width: 120px; padding: 6px 0;">Nama Sekolah</td>
-                                        <td style="width: 10px; padding: 6px 0;">:</td>
-                                        <td class="fw-bold" style="padding: 6px 0;">{{ $schoolProfile->nama_sekolah ?? 'SD Negeri 007 Sekupang' }}</td>
+                                        <td class="fw-semibold text-secondary" style="width: 110px; padding: 4px 0;">Nama Sekolah</td>
+                                        <td style="width: 10px; padding: 4px 0;">:</td>
+                                        <td class="fw-bold" style="padding: 4px 0;">{{ $schoolProfile->nama_sekolah ?? 'SD Negeri 007 Sekupang' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold text-secondary" style="padding: 6px 0;">NPSN</td>
-                                        <td style="padding: 6px 0;">:</td>
-                                        <td class="fw-bold" style="padding: 6px 0;">{{ $schoolProfile->nis_nss_nds ?? '10403456' }}</td>
+                                        <td class="fw-semibold text-secondary" style="padding: 4px 0;">NPSN</td>
+                                        <td style="padding: 4px 0;">:</td>
+                                        <td class="fw-bold" style="padding: 4px 0;">{{ $schoolProfile->nis_nss_nds ?? '10403456' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold text-secondary" style="padding: 6px 0;">Alamat</td>
-                                        <td style="padding: 6px 0;">:</td>
-                                        <td class="fw-bold" style="padding: 6px 0;">{{ $schoolProfile->alamat_sekolah ?? '-' }}</td>
+                                        <td class="fw-semibold text-secondary" style="padding: 4px 0;">Alamat</td>
+                                        <td style="padding: 4px 0;">:</td>
+                                        <td class="fw-bold" style="padding: 4px 0;">{{ $schoolProfile->alamat_sekolah ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold text-secondary" style="padding: 6px 0;">Email</td>
-                                        <td style="padding: 6px 0;">:</td>
-                                        <td class="fw-bold text-primary" style="padding: 6px 0;">{{ $schoolProfile->email ?? 'sdn007sekupang@gmail.com' }}</td>
+                                        <td class="fw-semibold text-secondary" style="padding: 4px 0;">Email</td>
+                                        <td style="padding: 4px 0;">:</td>
+                                        <td class="fw-bold text-primary" style="padding: 4px 0;">{{ $schoolProfile->email ?? 'sdn007sekupang@gmail.com' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-semibold text-secondary" style="padding: 6px 0;">Kepala Sekolah</td>
-                                        <td style="padding: 6px 0;">:</td>
-                                        <td class="fw-bold" style="padding: 6px 0;">{{ $schoolProfile->nama_kepala_sekolah ?? 'Yusal, S.Pd.' }}</td>
+                                        <td class="fw-semibold text-secondary" style="padding: 4px 0;">Kepala Sekolah</td>
+                                        <td style="padding: 4px 0;">:</td>
+                                        <td class="fw-bold" style="padding: 4px 0;">{{ $schoolProfile->nama_kepala_sekolah ?? 'Yusal, S.Pd.' }}</td>
                                     </tr>
                                 </table>
                             </div>
