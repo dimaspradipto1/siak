@@ -51,26 +51,28 @@ class MateriPembelajaranDataTable extends DataTable
             })
             ->addColumn('action', function ($p) {
                 $user = auth()->user();
-                $buttons = '
-                <a href="' . route('materipembelajaran.download', $p->id) . '" class="btn btn-info btn-sm text-white" title="Download">
-                    <i class="bi bi-download"></i>
-                </a>';
+                $buttons = '';
 
                 if ($user && !in_array($user->roles, ['siswa', 'orang tua'])) {
                     $buttons .= '
-                    <a href="' . route('materipembelajaran.edit', $p->id) . '" class="btn btn-warning btn-sm" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </a>
                     <form action="' . route('materipembelajaran.destroy', $p->id) . '" method="POST" class="d-inline">
                         ' . csrf_field() . '
                         ' . method_field('DELETE') . '
-                        <button type="button" class="btn btn-danger btn-sm btn-hapus" data-nama="' . e($p->judul_materi) . '" title="Hapus">
-                            <i class="bi bi-trash"></i>
+                        <button type="button" class="btn-link text-dark border-0 bg-transparent btn-hapus p-0 me-2" data-nama="' . e($p->judul_materi) . '" title="Hapus" style="font-size: 0.9rem; text-decoration: none;">
+                            Delete
                         </button>
-                    </form>';
+                    </form>
+                    <a href="' . route('materipembelajaran.edit', $p->id) . '" class="text-dark me-2" title="Edit" style="font-size: 0.9rem; text-decoration: none;">
+                        Edit
+                    </a>';
                 }
 
-                return '<div class="d-flex gap-1 justify-content-center">' . $buttons . '</div>';
+                $buttons .= '
+                <a href="' . route('materipembelajaran.download', $p->id) . '" class="text-dark" title="Download" style="font-size: 0.9rem; text-decoration: none;">
+                    Download
+                </a>';
+
+                return '<div class="d-flex justify-content-center align-items-center">' . $buttons . '</div>';
             })
             ->rawColumns(['action'])
             ->setRowId('id');
