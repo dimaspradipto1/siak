@@ -10,39 +10,75 @@
             color: #000;
             background-color: #fff;
             margin: 0;
-            padding: 40px;
-            font-size: 14px;
-            line-height: 1.4;
+            padding: 30px;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        /* Kop Surat Styling */
+        .kop-container {
+            width: 100%;
+            border-bottom: 3px double #000;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .kop-pemerintah {
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .kop-dinas {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .kop-sekolah {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 2px 0;
+        }
+        .kop-npsn {
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .kop-detail {
+            font-size: 11px;
+            font-style: italic;
+            margin: 2px 0 0 0;
         }
 
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .header-table td {
-            padding: 4px;
+            padding: 3px;
             vertical-align: top;
         }
 
         .title {
             text-align: center;
             font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 25px;
+            font-size: 15px;
+            margin-bottom: 15px;
             text-transform: uppercase;
         }
 
         table.main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         table.main-table th, table.main-table td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 6px 4px;
             vertical-align: middle;
         }
 
@@ -50,6 +86,7 @@
             background-color: #f2f2f2;
             text-align: center;
             font-weight: bold;
+            font-size: 12px;
         }
 
         .text-center {
@@ -64,16 +101,29 @@
             font-weight: bold;
         }
 
-        .section-title {
+        .summary-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .summary-label {
+            width: 150px;
             font-weight: bold;
-            font-size: 15px;
-            margin-top: 20px;
-            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-weight: bold;
         }
 
         .signature-container {
             width: 100%;
-            margin-top: 40px;
+            margin-top: 25px;
             page-break-inside: avoid;
         }
 
@@ -85,224 +135,240 @@
 
         .signature-table td {
             border: none;
-            padding: 10px;
+            padding: 5px;
             text-align: center;
             vertical-align: top;
             width: 33%;
         }
 
-        .print-btn-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
+        /* Button Container and Action Buttons */
+        .action-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 20px;
         }
 
-        .btn-print {
-            background-color: #198754;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 24px;
+            font-size: 14px;
             font-weight: bold;
-            border-radius: 5px;
+            text-decoration: none;
+            border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: all 0.2s ease-in-out;
+            border: none;
         }
 
-        .btn-print:hover {
-            background-color: #157347;
+        .btn-action-kembali {
+            background-color: #f8f9fa;
+            color: #212529;
+            border: 1px solid #ced4da;
+        }
+
+        .btn-action-kembali:hover {
+            background-color: #e2e6ea;
+            border-color: #dae0e5;
+        }
+
+        .btn-action-cetak {
+            background-color: #212529;
+            color: #ffffff;
+        }
+
+        .btn-action-cetak:hover {
+            background-color: #000000;
         }
 
         @media print {
-            .print-btn-container {
-                display: none;
+            .action-container {
+                display: none !important;
+            }
+            .d-print-none {
+                display: none !important;
             }
             body {
-                padding: 20px;
+                padding: 10px;
             }
             @page {
                 size: A4;
-                margin: 2cm;
+                margin: 1.5cm;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="print-btn-container">
-        <button class="btn-print" onclick="window.print()"><i class="bi bi-printer"></i> Cetak Rapor</button>
+    @php
+    if (!function_exists('terbilang')) {
+        function terbilang($number) {
+            $number = abs($number);
+            $words = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+            $temp = "";
+            if ($number < 12) {
+                $temp = " " . $words[$number];
+            } else if ($number < 20) {
+                $temp = terbilang($number - 10) . " belas";
+            } else if ($number < 100) {
+                $temp = terbilang((int)($number / 10)) . " puluh" . terbilang($number % 10);
+            } else if ($number < 200) {
+                $temp = " seratus" . terbilang($number - 100);
+            }
+            return trim($temp);
+        }
+    }
+    @endphp
+
+    <!-- Kop Surat -->
+    <div class="kop-container">
+        <div class="kop-pemerintah">PEMERINTAH KOTA BATAM</div>
+        <div class="kop-dinas">DINAS PENDIDIKAN</div>
+        <div class="kop-sekolah">{{ strtoupper($school->nama_sekolah ?? 'SEKOLAH DASAR NEGERI 007 SEKUPANG') }}</div>
+        <div class="kop-npsn">NOMOR POKOK SEKOLAH NASIONAL : {{ $school->npsn ?? '11001560' }}</div>
+        <div class="kop-detail">
+            Alamat : {{ $school->alamat_sekolah ?? 'Jl. Tambelan Blok II Tiban Indah Kec. Sekupang Kota Batam' }}<br>
+            Telp. {{ $school->telp ?? '(0778) 324 471' }}, Fax. {{ $school->fax ?? '(0778) 324 471' }} Email: {{ $school->email ?? 'sdn7skp@gmail.com' }}
+        </div>
     </div>
 
-    <div class="title">LAPORAN HASIL BELAJAR (RAPOR)</div>
+    <div class="title">LAPORAN HASIL BELAJAR SISWA SUMATIF</div>
 
+    <!-- Student Info -->
     <table class="header-table">
         <tr>
-            <td style="width: 15%;">Nama Sekolah</td>
+            <td style="width: 18%;">Nama Siswa</td>
             <td style="width: 2%;">:</td>
-            <td style="width: 43%;" class="fw-bold">{{ $school->nama_sekolah ?? 'SD Negeri 007 Sekupang' }}</td>
+            <td style="width: 40%;" class="fw-bold">{{ $siswa->nama_siswa }}</td>
             <td style="width: 15%;">Kelas</td>
             <td style="width: 2%;">:</td>
             <td style="width: 23%;">{{ $kelasModel->nama_kelas ?? '-' }}</td>
         </tr>
         <tr>
-            <td>Alamat</td>
+            <td>NIS/NISN</td>
             <td>:</td>
-            <td>{{ $school->alamat_sekolah ?? 'Sekupang, Kota Batam' }}</td>
+            <td>{{ $siswa->nis ?? '-' }} / {{ $siswa->nisn }}</td>
             <td>Semester</td>
             <td>:</td>
             <td>{{ $semester->nama_semester ?? '-' }}</td>
         </tr>
         <tr>
-            <td>Nama Siswa</td>
+            <td>Nama Sekolah</td>
             <td>:</td>
-            <td class="fw-bold">{{ $siswa->nama_siswa }}</td>
+            <td class="fw-bold">{{ $school->nama_sekolah ?? 'SD NEGERI 007 SEKUPANG' }}</td>
             <td>Tahun Ajaran</td>
             <td>:</td>
             <td>{{ $tahunAjaran->nama_tahun_ajaran ?? '-' }}</td>
         </tr>
         <tr>
-            <td>NISN / NIS</td>
+            <td>Alamat Sekolah</td>
             <td>:</td>
-            <td>{{ $siswa->nisn }} / {{ $siswa->user->username ?? '-' }}</td>
+            <td>{{ $school->alamat_sekolah ?? 'Jl. Tambelan Blok II Tiban Indah Kec. Sekupang Kota Batam' }}</td>
             <td></td>
             <td></td>
             <td></td>
         </tr>
     </table>
 
-    <div class="section-title">A. Nilai Akademik</div>
+    <!-- Main Table -->
     <table class="main-table">
         <thead>
             <tr>
-                <th style="width: 5%;">No</th>
-                <th style="width: 25%;">Mata Pelajaran</th>
-                <th style="width: 10%;">KKM</th>
-                <th style="width: 10%;">Nilai</th>
-                <th style="width: 10%;">Predikat</th>
-                <th style="width: 40%;">Capaian Kompetensi / Deskripsi</th>
+                <th style="width: 4%;">No</th>
+                <th style="width: 18%;">Mata Pelajaran</th>
+                <th style="width: 6%;">KKM</th>
+                <th style="width: 6%;">Angka</th>
+                <th style="width: 16%;">Huruf</th>
+                <th style="width: 8%;">Keterangan</th>
+                <th style="width: 21%;">TP Yang Diukur dan Tercapai Optimal</th>
+                <th style="width: 21%;">TP Yang Perlu Peningkatan</th>
             </tr>
         </thead>
         <tbody>
+            @php
+                $totalNilai = 0;
+                $countNilai = 0;
+            @endphp
             @foreach($classMapels as $index => $mp)
                 @php
                     $rec = $grades[$mp->id] ?? null;
                     $nilai = $rec && $rec->nilai_raport !== null ? intval($rec->nilai_raport) : null;
                     $predikat = $rec && $rec->predikat ? $rec->predikat : null;
                     
-                    // Generate smart description. Prioritaskan TP yang dipilih guru secara
-                    // spesifik per siswa di form Input Nilai Raport, baru fallback ke master TP mapel.
+                    if ($nilai !== null) {
+                        $totalNilai += $nilai;
+                        $countNilai++;
+                    }
+
                     $tpOptimalSiswa = $rec->tp_optimal ?? null;
                     $tpPeningkatanSiswa = $rec->tp_perlu_peningkatan ?? null;
 
-                    $desc = '-';
-                    if ($nilai !== null) {
-                        if ($nilai >= 85) {
-                            $tp = $tpOptimalSiswa ?: $mp->tp_optimal;
-                            $desc = $tp
-                                ? 'Menunjukkan penguasaan yang sangat baik dalam ' . lcfirst($tp)
-                                : 'Menunjukkan penguasaan kompetensi mata pelajaran dengan sangat baik.';
-                        } elseif ($nilai >= 75) {
-                            $tp = $tpOptimalSiswa ?: $mp->tp_optimal;
-                            $desc = $tp
-                                ? 'Menunjukkan penguasaan yang baik dalam ' . lcfirst($tp)
-                                : 'Menunjukkan penguasaan kompetensi mata pelajaran dengan baik.';
-                        } else {
-                            $tp = $tpPeningkatanSiswa ?: $mp->tp_peningkatan;
-                            $desc = $tp
-                                ? 'Perlu bimbingan dan peningkatan dalam ' . lcfirst($tp)
-                                : 'Perlu bimbingan lebih lanjut untuk meningkatkan kompetensi mata pelajaran.';
-                        }
-                    }
+                    $optText = $tpOptimalSiswa ?: $mp->tp_optimal ?: 'Menunjukkan penguasaan kompetensi dengan sangat baik.';
+                    $impText = $tpPeningkatanSiswa ?: $mp->tp_peningkatan ?: 'Perlu bimbingan lebih lanjut untuk meningkatkan kompetensi.';
                 @endphp
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-start">{{ $mp->nama_mata_pelajaran }}</td>
-                    <td class="text-center">{{ $mp->kkm ?? 70 }}</td>
+                    <td class="text-start fw-semibold">{{ $mp->nama_mata_pelajaran }}</td>
+                    <td class="text-center">{{ $mp->kkm ?? 75 }}</td>
                     <td class="text-center fw-bold">{{ $nilai !== null ? $nilai : '-' }}</td>
+                    <td class="text-center" style="font-size: 11px; text-transform: capitalize;">
+                        {{ $nilai !== null ? terbilang($nilai) : '-' }}
+                    </td>
                     <td class="text-center fw-bold">{{ $predikat !== null ? $predikat : '-' }}</td>
-                    <td class="text-start" style="font-size: 13px;">{{ $desc }}</td>
+                    <td class="text-start" style="font-size: 11px;">{{ $optText }}</td>
+                    <td class="text-start" style="font-size: 11px;">{{ $impText }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    <div class="section-title">B. Kegiatan Ekstrakurikuler</div>
-    <table class="main-table">
-        <thead>
-            <tr>
-                <th style="width: 5%;">No</th>
-                <th style="width: 35%;">Kegiatan Ekstrakurikuler</th>
-                <th style="width: 60%;">Keterangan</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if(isset($ekskuls) && count($ekskuls) > 0)
-                @foreach($ekskuls as $index => $ekskul)
-                    @if($ekskul)
-                        <tr>
-                            <td class="text-center">{{ $index + 1 }}</td>
-                            <td class="text-start">{{ $ekskul->nama_ekskul }}</td>
-                            <td class="text-start">Aktif mengikuti kegiatan {{ strtolower($ekskul->nama_ekskul) }} dengan kriteria Sangat Baik.</td>
-                        </tr>
-                    @endif
-                @endforeach
-            @else
-                <tr>
-                    <td class="text-center">1</td>
-                    <td class="text-start">-</td>
-                    <td class="text-start">-</td>
-                </tr>
-            @endif
-        </tbody>
-    </table>
+    @php
+        $rataRata = $countNilai > 0 ? round($totalNilai / $countNilai, 1) : 0;
+    @endphp
 
-    <div style="display: flex; gap: 20px; justify-content: space-between; page-break-inside: avoid;">
-        <div style="flex: 1;">
-            <div class="section-title">C. Ketidakhadiran</div>
-            <table class="main-table" style="width: 100%;">
-                <tbody>
-                    <tr>
-                        <td style="width: 50%;" class="text-start">Sakit</td>
-                        <td style="width: 50%;" class="text-center fw-bold">{{ $attendance['Sakit'] }} hari</td>
-                    </tr>
-                    <tr>
-                        <td class="text-start">Izin</td>
-                        <td class="text-center fw-bold">{{ $attendance['Izin'] }} hari</td>
-                    </tr>
-                    <tr>
-                        <td class="text-start">Tanpa Keterangan</td>
-                        <td class="text-center fw-bold">{{ $attendance['Alpa'] }} hari</td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- Summary Details -->
+    <div class="summary-container">
+        <div class="summary-row">
+            <div class="summary-label">Jumlah Nilai</div>
+            <div class="summary-value">: {{ $totalNilai > 0 ? $totalNilai : '-' }}</div>
         </div>
-        <div style="flex: 1;">
-            <div class="section-title">D. Catatan Wali Kelas</div>
-            <div style="border: 1px solid #000; padding: 15px; min-height: 80px; font-size: 13px; font-style: italic;">
-                {{ $catatan->isi_catatan ?? 'Siswa menunjukkan sikap belajar yang positif. Terus pertahankan dan tingkatkan motivasi belajarmu di semester berikutnya.' }}
-            </div>
+        <div class="summary-row">
+            <div class="summary-label">Rata-Rata</div>
+            <div class="summary-value">: {{ $rataRata > 0 ? $rataRata : '-' }}</div>
+        </div>
+        <div class="summary-row">
+            <div class="summary-label">Rangking</div>
+            <div class="summary-value">: {{ $ranking }} dari {{ $totalStudents }} siswa</div>
+        </div>
+        <div class="summary-row">
+            <div class="summary-label">Ekstrakurikuler</div>
+            <div class="summary-value">: {{ $ekskulText }}</div>
         </div>
     </div>
 
+    <!-- Signatures -->
     <div class="signature-container">
         <table class="signature-table">
             <tr>
                 <td>
                     Mengetahui<br>
-                    Orang Tua/Wali Siswa,<br><br><br><br>
+                    Orang Tua/Wali Siswa,<br><br><br><br><br>
                     <strong><u>{{ $ortuNama }}</u></strong>
                 </td>
                 <td>
                     <br>
                     Mengetahui,<br>
-                    Kepala Sekolah<br><br><br>
+                    Kepala Sekolah<br><br><br><br>
                     <strong><u>{{ $kepsekNama }}</u></strong><br>
                     NIP. {{ $kepsekNip }}
                 </td>
                 <td>
                     Batam, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}<br>
-                    Wali Kelas,<br><br><br><br>
+                    Wali Kelas,<br><br><br><br><br>
                     <strong><u>{{ $waliKelas->guru?->pegawai?->nama_pegawai ?? '..........................................' }}</u></strong><br>
                     NIP. {{ $waliKelas->guru?->pegawai?->nip ?? '..........................................' }}
                 </td>
@@ -310,12 +376,11 @@
         </table>
     </div>
 
-    <script>
-        window.onload = function() {
-            setTimeout(function() {
-                window.print();
-            }, 500);
-        };
-    </script>
+    <!-- Print / Back buttons footer -->
+    <div class="action-container d-print-none">
+        <a href="{{ route('nilai.cetak-raport') }}" class="btn-action btn-action-kembali">Kembali</a>
+        <button onclick="window.print()" class="btn-action btn-action-cetak">Cetak</button>
+    </div>
+
 </body>
 </html>

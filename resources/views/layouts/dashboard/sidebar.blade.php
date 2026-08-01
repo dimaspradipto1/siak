@@ -236,7 +236,7 @@
       
       <li class="nav-heading">Nilai Siswa</li>
       <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('nilai.rekap-mapel') ? '' : 'collapsed' }}" href="{{ route('nilai.rekap-mapel') }}">
+        <a class="nav-link {{ request()->routeIs('nilai.rekap-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.rekap-raport') }}">
           <i class="bi bi-star"></i><span>Rekap Nilai</span>
         </a>
       </li>

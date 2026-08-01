@@ -942,7 +942,45 @@ class NilaiController extends Controller
             ->get()
             ->pluck('ekstrakurikuler');
 
-        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas', 'ekskuls', 'ortuNama', 'kepsekNama', 'kepsekNip'));
+        // Calculate ranking
+        $siswaIdsInClass = PembagianKelas::query()
+            ->where('kelas_id', $kelasId)
+            ->where('tahun_ajaran_id', $tahun_ajaran_id)
+            ->pluck('siswa_id');
+
+        $studentAverages = [];
+        foreach ($siswaIdsInClass as $sId) {
+            $gradesList = Nilai::query()
+                ->where('siswa_id', $sId)
+                ->where('tahun_ajaran_id', $tahun_ajaran_id)
+                ->where('semester_id', $semester_id)
+                ->whereIn('mata_pelajaran_id', $classMapels->pluck('id'))
+                ->pluck('nilai_raport');
+            
+            $validGrades = $gradesList->filter(fn($val) => $val !== null)->map(fn($val) => (int)$val);
+            $avg = $validGrades->count() > 0 ? $validGrades->sum() / $validGrades->count() : 0;
+            $studentAverages[$sId] = $avg;
+        }
+
+        arsort($studentAverages);
+
+        $rank = 1;
+        $ranking = 1;
+        foreach ($studentAverages as $sId => $avg) {
+            if ($sId == $siswa_id) {
+                $ranking = $rank;
+                break;
+            }
+            $rank++;
+        }
+        $totalStudents = count($studentAverages);
+
+        $ekskulText = $ekskuls->map(fn($e) => $e->nama_ekskul)->implode(', ');
+        if (empty($ekskulText)) {
+            $ekskulText = '-';
+        }
+
+        return view('pages.nilai.cetak_raport_print', compact('siswa', 'tahunAjaran', 'semester', 'kelasModel', 'school', 'classMapels', 'grades', 'attendance', 'catatan', 'waliKelas', 'ekskuls', 'ortuNama', 'kepsekNama', 'kepsekNip', 'ranking', 'totalStudents', 'ekskulText'));
     }
 
     public function cetakRaportPersonal(\Illuminate\Http\Request $request)
