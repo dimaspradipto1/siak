@@ -184,7 +184,6 @@
       <li class="nav-heading">Laporan & Rekapitulasi</li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('nilai.cetak-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.cetak-raport') }}"><i class="bi bi-printer"></i><span>Cetak Raport</span></a></li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}" href="{{ route('kehadiran.rekap') }}"><i class="bi bi-calendar-check"></i><span>Rekap Kehadiran</span></a></li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('catatansiswa.*') ? '' : 'collapsed' }}" href="{{ route('catatansiswa.index') }}"><i class="bi bi-journal-text"></i><span>Rekap Catatan</span></a></li>
 
       <li class="nav-heading">Informasi & Pengaturan</li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}"><i class="bi bi-megaphone"></i><span>Pengumuman</span></a></li>
