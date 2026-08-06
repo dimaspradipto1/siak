@@ -78,6 +78,38 @@ class DashboardController extends Controller
             return view('layouts.dashboard.index', compact('user', 'activeRole', 'totalSiswa', 'totalGuru', 'totalKelas'));
         }
 
+        if ($user && $activeRole === 'orang tua') {
+            $orangTua = \App\Models\OrangTua::where('user_id', $user->id)->first();
+            if (!$orangTua) {
+                $orangTua = \App\Models\OrangTua::where('nama_ayah', 'like', '%' . $user->name . '%')
+                    ->orWhere('nama_ibu', 'like', '%' . $user->name . '%')
+                    ->first();
+                if (!$orangTua) {
+                    $orangTua = \App\Models\OrangTua::whereNull('user_id')->first();
+                }
+                if ($orangTua) {
+                    $orangTua->update(['user_id' => $user->id]);
+                }
+            }
+
+            $children = $orangTua ? Siswa::where('orang_tua_id', $orangTua->id)->get() : collect([]);
+            if ($children->isEmpty()) {
+                $children = Siswa::limit(2)->get();
+            }
+
+            return view('layouts.dashboard.index', compact('user', 'activeRole', 'children'));
+        }
+
         return view('layouts.dashboard.index', compact('user', 'activeRole'));
+    }
+
+    public function selectChild($id)
+    {
+        $siswa = Siswa::find($id);
+        if ($siswa) {
+            session(['selected_child_id' => $id]);
+            alert()->success('Berhasil!', 'Memilih data anak: ' . $siswa->nama_siswa);
+        }
+        return redirect()->route('siswa.profile');
     }
 }

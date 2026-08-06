@@ -99,56 +99,94 @@
                             <input type="hidden" name="mata_pelajaran_id" value="{{ $selectedMapel }}">
 
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover align-middle text-center">
-                                    <thead class="table-light fw-bold text-dark">
+                                <table class="table table-bordered table-hover align-middle text-center" id="tabel-raport">
+                                    <thead style="background-color:#1976d2; color:#fff;" class="fw-bold">
                                         <tr>
-                                            <th style="width: 50px;">No</th>
-                                            <th style="width: 120px;">NISN</th>
-                                            <th class="text-start">Nama Siswa</th>
-                                            <th style="width: 110px;">Nilai Harian</th>
-                                            <th style="width: 110px;">Nilai MID+</th>
-                                            <th style="width: 110px;">Nilai PAS+</th>
-                                            <th style="width: 110px;">Nilai Rata2</th>
-                                            <th style="width: 150px;">Nilai Rapot</th>
-                                            <th style="width: 220px;">TP Optimal</th>
-                                            <th style="width: 220px;">TP Perlu Peningkatan</th>
+                                            <th style="width:45px;">No</th>
+                                            <th class="text-start" style="min-width:140px;">Nama Siswa</th>
+                                            <th style="width:110px;">NISN / NIS</th>
+                                            <th style="width:100px;">Nilai</th>
+                                            <th class="text-start" style="min-width:240px;">TP Yang diukur dan Tercapai dengan Optimal</th>
+                                            <th class="text-start" style="min-width:240px;">TP yang diukur dan Perlu Peningkatan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($students as $index => $siswa)
                                             @php
-                                                $rec = $siswa->nilai_record;
-                                                $rata2 = $siswa->nilai_rata2_calc;
+                                                $rec    = $siswa->nilai_record;
+                                                $rata2  = $siswa->nilai_rata2_calc;
+
+                                                // Ambil TP yang sudah tersimpan (bisa JSON array atau null)
+                                                $savedOptimal = [];
+                                                $savedPeningkatan = [];
+                                                if ($rec) {
+                                                    $raw = $rec->tp_optimal;
+                                                    if (is_array($raw)) $savedOptimal = $raw;
+                                                    elseif (is_string($raw) && $raw !== '') {
+                                                        $dec = json_decode($raw, true);
+                                                        $savedOptimal = is_array($dec) ? $dec : [$raw];
+                                                    }
+
+                                                    $rawP = $rec->tp_perlu_peningkatan;
+                                                    if (is_array($rawP)) $savedPeningkatan = $rawP;
+                                                    elseif (is_string($rawP) && $rawP !== '') {
+                                                        $decP = json_decode($rawP, true);
+                                                        $savedPeningkatan = is_array($decP) ? $decP : [$rawP];
+                                                    }
+                                                }
                                             @endphp
                                             <tr data-siswa-id="{{ $siswa->id }}" data-rata2="{{ $rata2 ?? '' }}">
                                                 <td>{{ $index + 1 }}</td>
-                                                <td>{{ $siswa->nisn }}</td>
                                                 <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
-                                                <td class="harian-val">{{ $rec && $rec->nilai_harian !== null ? number_format($rec->nilai_harian, 1) : '.....' }}</td>
-                                                <td class="mid-val">{{ $rec && $rec->nilai_mid_plus !== null ? number_format($rec->nilai_mid_plus, 1) : '.....' }}</td>
-                                                <td class="pas-val">{{ $rec && $rec->nilai_pas_plus !== null ? number_format($rec->nilai_pas_plus, 1) : '.....' }}</td>
-                                                <td class="rata2-val fw-semibold text-primary">{{ $rata2 !== null ? number_format($rata2, 1) : '.....' }}</td>
+                                                <td class="small">
+                                                    {{ $siswa->nisn }}<br>
+                                                    <span class="text-muted">{{ $siswa->nis }}</span>
+                                                </td>
                                                 <td>
                                                     <input type="number" step="1" min="0" max="100"
                                                         name="nilai[{{ $siswa->id }}][nilai_raport]"
                                                         class="form-control text-center score-input raport-input"
                                                         value="{{ $rec && $rec->nilai_raport !== null ? intval($rec->nilai_raport) : '' }}">
                                                 </td>
-                                                <td>
-                                                    <select name="nilai[{{ $siswa->id }}][tp_optimal]" class="form-select form-select-sm">
-                                                        <option value="">-- Pilih TP --</option>
+
+                                                {{-- TP Optimal: checkboxes --}}
+                                                <td class="text-start px-2 py-2">
+                                                    @if(count($tpOptimalOptions) > 0)
                                                         @foreach($tpOptimalOptions as $opt)
-                                                            <option value="{{ $opt }}" {{ $rec && $rec->tp_optimal === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                                            <div class="form-check mb-1">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="nilai[{{ $siswa->id }}][tp_optimal][]"
+                                                                    value="{{ $opt }}"
+                                                                    id="opt_{{ $siswa->id }}_{{ $loop->index }}"
+                                                                    {{ in_array($opt, $savedOptimal) ? 'checked' : '' }}>
+                                                                <label class="form-check-label small" for="opt_{{ $siswa->id }}_{{ $loop->index }}">
+                                                                    {{ $opt }}
+                                                                </label>
+                                                            </div>
                                                         @endforeach
-                                                    </select>
+                                                    @else
+                                                        <span class="text-muted small fst-italic">Belum ada TP</span>
+                                                    @endif
                                                 </td>
-                                                <td>
-                                                    <select name="nilai[{{ $siswa->id }}][tp_perlu_peningkatan]" class="form-select form-select-sm">
-                                                        <option value="">-- Pilih TP --</option>
+
+                                                {{-- TP Peningkatan: checkboxes --}}
+                                                <td class="text-start px-2 py-2">
+                                                    @if(count($tpPeningkatanOptions) > 0)
                                                         @foreach($tpPeningkatanOptions as $opt)
-                                                            <option value="{{ $opt }}" {{ $rec && $rec->tp_perlu_peningkatan === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                                            <div class="form-check mb-1">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="nilai[{{ $siswa->id }}][tp_perlu_peningkatan][]"
+                                                                    value="{{ $opt }}"
+                                                                    id="pkt_{{ $siswa->id }}_{{ $loop->index }}"
+                                                                    {{ in_array($opt, $savedPeningkatan) ? 'checked' : '' }}>
+                                                                <label class="form-check-label small" for="pkt_{{ $siswa->id }}_{{ $loop->index }}">
+                                                                    {{ $opt }}
+                                                                </label>
+                                                            </div>
                                                         @endforeach
-                                                    </select>
+                                                    @else
+                                                        <span class="text-muted small fst-italic">Belum ada TP</span>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -172,23 +210,31 @@
 
     <style>
         .score-input {
-            width: 80px;
-            height: 30px;
-            padding: 2px;
-            font-size: 0.85rem;
+            width: 75px;
+            height: 32px;
+            padding: 2px 4px;
+            font-size: 0.9rem;
             border: 1px solid #ced4da;
             border-radius: 4px;
             margin: 0 auto;
-            display: inline-block;
+            display: block;
+            text-align: center;
         }
         .score-input::-webkit-outer-spin-button,
-        .score-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .score-input {
-            -moz-appearance: textfield;
-        }
+        .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .score-input { -moz-appearance: textfield; }
+
+        /* Tabel TP Checkbox styling */
+        #tabel-raport td { vertical-align: top; padding: 8px 6px; }
+        #tabel-raport .form-check { margin-bottom: 4px; }
+        #tabel-raport .form-check-input { cursor: pointer; }
+        #tabel-raport .form-check-label { cursor: pointer; line-height: 1.4; }
+        #tabel-raport thead th { vertical-align: middle; text-align: center; }
+        #tabel-raport tbody td:nth-child(2) { vertical-align: middle; }
+        #tabel-raport tbody td:nth-child(4) { vertical-align: middle; }
+
+        /* Stripe rows */
+        #tabel-raport tbody tr:nth-child(even) { background-color: #f8f9ff; }
     </style>
 @endsection
 

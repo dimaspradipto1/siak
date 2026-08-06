@@ -88,11 +88,11 @@
         </a>
       </li>
 
-      {{-- <li class="nav-item">
+      <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('walikelas.*') ? '' : 'collapsed' }}" href="{{ route('walikelas.index') }}">
           <i class="bi bi-person-workspace"></i><span>Wali Kelas</span>
         </a>
-      </li> --}}
+      </li>
 
       <li class="nav-item">
         <a class="nav-link {{ request()->routeIs('matapelajaranaktif.*') ? '' : 'collapsed' }}" href="{{ route('matapelajaranaktif.index') }}">
@@ -175,19 +175,6 @@
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('siswa.*') ? '' : 'collapsed' }}" href="{{ route('siswa.index') }}"><i class="bi bi-person-lines-fill"></i><span>Siswa</span></a></li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('guru.*') ? '' : 'collapsed' }}" href="{{ route('guru.index') }}"><i class="bi bi-person-badge"></i><span>Guru</span></a></li>
       <li class="nav-item"><a class="nav-link {{ request()->routeIs('pegawai.*') ? '' : 'collapsed' }}" href="{{ route('pegawai.index') }}"><i class="bi bi-people"></i><span>Pegawai</span></a></li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('jabatan.*') ? '' : 'collapsed' }}" href="{{ route('jabatan.index') }}"><i class="bi bi-briefcase"></i><span>Jabatan</span></a></li>
-
-      <li class="nav-heading">Data Akademik</li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('kelas.*') ? '' : 'collapsed' }}" href="{{ route('kelas.index') }}"><i class="bi bi-door-open"></i><span>Kelas</span></a></li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('matapelajaran.*') ? '' : 'collapsed' }}" href="{{ route('matapelajaran.index') }}"><i class="bi bi-book"></i><span>Mata Pelajaran</span></a></li>
-
-      <li class="nav-heading">Laporan & Rekapitulasi</li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('nilai.cetak-raport') ? '' : 'collapsed' }}" href="{{ route('nilai.cetak-raport') }}"><i class="bi bi-printer"></i><span>Cetak Raport</span></a></li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('kehadiran.*') ? '' : 'collapsed' }}" href="{{ route('kehadiran.rekap') }}"><i class="bi bi-calendar-check"></i><span>Rekap Kehadiran</span></a></li>
-
-      <li class="nav-heading">Informasi & Pengaturan</li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('pengumuman.*') ? '' : 'collapsed' }}" href="{{ route('pengumuman.index') }}"><i class="bi bi-megaphone"></i><span>Pengumuman</span></a></li>
-      <li class="nav-item"><a class="nav-link {{ request()->routeIs('materipembelajaran.*') ? '' : 'collapsed' }}" href="{{ route('materipembelajaran.index') }}"><i class="bi bi-file-earmark-text"></i><span>Materi Pembelajaran</span></a></li>
     @endif
 
     {{-- ==========================================

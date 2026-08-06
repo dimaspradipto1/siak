@@ -25,10 +25,11 @@ class JenisCatatanController extends Controller
         $validated = $request->validated();
         $jenis = JenisCatatan::create($validated);
 
-        alert()->success(
+        alert()->html(
             'Berhasil!',
-            'Jenis Catatan <strong>' . e($jenis->nama_jenis_catatan) . '</strong> berhasil ditambahkan.'
-        )->html();
+            'Jenis Catatan <strong>' . e($jenis->nama_jenis_catatan) . '</strong> berhasil ditambahkan.',
+            'success'
+        );
 
         return redirect()->route('jeniscatatan.index');
     }
@@ -48,10 +49,11 @@ class JenisCatatanController extends Controller
         $validated = $request->validated();
         $jeniscatatan->update($validated);
 
-        alert()->success(
+        alert()->html(
             'Diperbarui!',
-            'Jenis Catatan <strong>' . e($jeniscatatan->nama_jenis_catatan) . '</strong> berhasil diperbarui.'
-        )->html();
+            'Jenis Catatan <strong>' . e($jeniscatatan->nama_jenis_catatan) . '</strong> berhasil diperbarui.',
+            'success'
+        );
 
         return redirect()->route('jeniscatatan.index');
     }
@@ -61,10 +63,11 @@ class JenisCatatanController extends Controller
         $nama = $jeniscatatan->nama_jenis_catatan;
         $jeniscatatan->delete();
 
-        alert()->success(
+        alert()->html(
             'Dihapus!',
-            'Jenis Catatan <strong>' . e($nama) . '</strong> berhasil dihapus.'
-        )->html();
+            'Jenis Catatan <strong>' . e($nama) . '</strong> berhasil dihapus.',
+            'success'
+        );
 
         return redirect()->route('jeniscatatan.index');
     }

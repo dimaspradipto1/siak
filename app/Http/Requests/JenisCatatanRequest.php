@@ -20,9 +20,14 @@ class JenisCatatanRequest extends FormRequest
     public function rules(): array
     {
 
-        $id = $this->route('jenis_catatan') ? (is_object($this->route('jenis_catatan')) ? $this->route('jenis_catatan')->id : $this->route('jenis_catatan')) : null;
+        $id = null;
+        $routeModel = $this->route('jeniscatatan');
+        if ($routeModel) {
+            $id = is_object($routeModel) ? $routeModel->id : $routeModel;
+        }
+
         return [
-            'kode'               => ['required', 'integer', 'unique:jenis_catatans,kode,' . $id],
+            'kode'               => ['required', 'integer', \Illuminate\Validation\Rule::unique('jenis_catatans', 'kode')->ignore($id)],
             'nama_jenis_catatan' => ['required', 'string', 'max:100'],
             'keterangan'         => ['nullable', 'string'],
         ];

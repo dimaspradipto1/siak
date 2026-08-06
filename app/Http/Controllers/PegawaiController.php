@@ -26,7 +26,11 @@ class PegawaiController extends Controller
      */
     public function create()
     {
-        return view('pages.pegawai.create');
+        $jabatans = \App\Models\Jabatan::where('status', 'Aktif')->get();
+        if ($jabatans->isEmpty()) {
+            $jabatans = \App\Models\Jabatan::all();
+        }
+        return view('pages.pegawai.create', compact('jabatans'));
     }
 
     /**
@@ -106,7 +110,11 @@ class PegawaiController extends Controller
     public function edit(Pegawai $pegawai)
     {
         $pegawai->load('user');
-        return view('pages.pegawai.edit', compact('pegawai'));
+        $jabatans = \App\Models\Jabatan::where('status', 'Aktif')->get();
+        if ($jabatans->isEmpty()) {
+            $jabatans = \App\Models\Jabatan::all();
+        }
+        return view('pages.pegawai.edit', compact('pegawai', 'jabatans'));
     }
 
     /**

@@ -382,7 +382,6 @@ class KehadiranController extends Controller
         }
 
         $tahunAjarans = TahunAjaran::query()->get();
-        $jenisKehadirans = JenisKehadiran::query()->get();
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
@@ -395,17 +394,6 @@ class KehadiranController extends Controller
             $selectedSemName = 'Semester 1 (Ganjil)';
         }
 
-        if ($isPersonal && $mySiswa) {
-            $pk = PembagianKelas::where('siswa_id', $mySiswa->id)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->first();
-            $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
-            $kelas = Kelas::query()->where('id', $selectedKelas)->get();
-        } else {
-            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
-            $selectedKelas = $request->get('kelas_id');
-        }
-
         $semester = null;
         if ($selectedTa && $selectedSemName) {
             $semester = Semester::query()
@@ -415,12 +403,52 @@ class KehadiranController extends Controller
         }
         $selectedSem = $semester ? $semester->id : null;
 
-        $selectedStatus = $request->get('jenis_kehadiran_id');
+        if ($isPersonal && $mySiswa) {
+            $pk = PembagianKelas::where('siswa_id', $mySiswa->id)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first();
+            $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
+            $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+        } elseif ($isGuru) {
+            $guru = $user->pegawai?->guru ?? $user->guru;
+            $guruId = $guru ? $guru->id : 0;
+            $guruMapelKelasIds = MataPelajaran::query()
+                ->where('guru_id', $guruId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->where('semester_id', $selectedSem)
+                ->pluck('kelas_id');
+            $kelas = Kelas::query()->whereIn('id', $guruMapelKelasIds)->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
+            if ($selectedKelas && !in_array($selectedKelas, $kelas->pluck('id')->toArray())) {
+                $selectedKelas = null;
+            }
+        } else {
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
+        }
+
+        // Mapels query
+        $mapelsQuery = MataPelajaran::query()
+            ->where('tahun_ajaran_id', $selectedTa)
+            ->where('semester_id', $selectedSem);
+
+        if ($selectedKelas) {
+            $mapelsQuery->where('kelas_id', $selectedKelas);
+        }
+
+        if ($isGuru) {
+            $guru = $user->pegawai?->guru ?? $user->guru;
+            $mapelsQuery->where('guru_id', $guru ? $guru->id : 0);
+        }
+
+        $mapels = $mapelsQuery->orderBy('nama_mata_pelajaran', 'asc')->get();
+        $selectedMapel = $request->get('mata_pelajaran_id');
 
         $students = [];
-        $classMapels = [];
+        $dates = [];
+        $attendanceMatrix = [];
 
-        if ($selectedTa && $selectedSem && $selectedKelas && $selectedStatus) {
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedMapel) {
             $siswaIdsQuery = PembagianKelas::query()
                 ->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa);
@@ -430,34 +458,38 @@ class KehadiranController extends Controller
             }
 
             $siswaIds = $siswaIdsQuery->pluck('siswa_id');
-
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
-            $classMapels = MataPelajaran::query()
-                ->where('kelas_id', $selectedKelas)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->orderBy('nama_mata_pelajaran', 'asc')
-                ->get();
+            // Distinct dates where attendance was recorded
+            $dates = Kehadiran::query()
+                ->where('mata_pelajaran_id', $selectedMapel)
+                ->whereIn('siswa_id', $siswaIds)
+                ->select('tanggal')
+                ->distinct()
+                ->orderBy('tanggal', 'asc')
+                ->pluck('tanggal')
+                ->toArray();
 
-            foreach ($studentsList as $siswa) {
-                $counts = [];
-                foreach ($classMapels as $mp) {
-                    $counts[$mp->id] = Kehadiran::query()
-                        ->where('siswa_id', $siswa->id)
-                        ->where('mata_pelajaran_id', $mp->id)
-                        ->where('jenis_kehadiran_id', $selectedStatus)
-                        ->count();
+            if (!empty($dates)) {
+                $attendanceRecords = Kehadiran::query()
+                    ->with('jenisKehadiran')
+                    ->where('mata_pelajaran_id', $selectedMapel)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->whereIn('tanggal', $dates)
+                    ->get();
+
+                foreach ($attendanceRecords as $rec) {
+                    $attendanceMatrix[$rec->siswa_id][$rec->tanggal] = $rec;
                 }
-                $siswa->attendance_counts = $counts;
-                $students[] = $siswa;
             }
+
+            $students = $studentsList;
         }
 
         return view('pages.kehadiran.rekap', compact(
-            'kelas', 'tahunAjarans', 'jenisKehadirans',
-            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedStatus',
-            'students', 'classMapels'
+            'kelas', 'tahunAjarans', 'mapels',
+            'selectedTa', 'selectedSemName', 'selectedSem', 'selectedKelas', 'selectedMapel',
+            'students', 'dates', 'attendanceMatrix'
         ));
     }
 
@@ -480,7 +512,8 @@ class KehadiranController extends Controller
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedStatus = $request->get('jenis_kehadiran_id');
+        $selectedKelas = $request->get('kelas_id');
+        $selectedMapel = $request->get('mata_pelajaran_id');
 
         $tahunAjaran = TahunAjaran::find($selectedTa);
 
@@ -495,17 +528,17 @@ class KehadiranController extends Controller
                 ->where('tahun_ajaran_id', $selectedTa)
                 ->first();
             $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
-        } else {
-            $selectedKelas = $request->get('kelas_id');
         }
 
         $kelasModel = Kelas::find($selectedKelas);
-        $statusModel = JenisKehadiran::find($selectedStatus);
+        $mapelModel = MataPelajaran::find($selectedMapel);
         $school = \App\Models\ProfilSekolah::query()->first();
 
         $students = [];
-        $classMapels = [];
-        if ($selectedTa && $selectedSem && $selectedKelas && $selectedStatus) {
+        $dates = [];
+        $attendanceMatrix = [];
+
+        if ($selectedTa && $selectedSem && $selectedKelas && $selectedMapel) {
             $siswaIdsQuery = PembagianKelas::query()->where('kelas_id', $selectedKelas)
                 ->where('tahun_ajaran_id', $selectedTa);
 
@@ -514,28 +547,31 @@ class KehadiranController extends Controller
             }
 
             $siswaIds = $siswaIdsQuery->pluck('siswa_id');
-
             $studentsList = Siswa::query()->whereIn('id', $siswaIds)->orderBy('nama_siswa', 'asc')->get();
 
-            $classMapels = MataPelajaran::query()
-                ->where('kelas_id', $selectedKelas)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->orderBy('nama_mata_pelajaran', 'asc')
-                ->get();
+            $dates = Kehadiran::query()
+                ->where('mata_pelajaran_id', $selectedMapel)
+                ->whereIn('siswa_id', $siswaIds)
+                ->select('tanggal')
+                ->distinct()
+                ->orderBy('tanggal', 'asc')
+                ->pluck('tanggal')
+                ->toArray();
 
-            foreach ($studentsList as $siswa) {
-                $counts = [];
-                foreach ($classMapels as $mp) {
-                    $counts[$mp->id] = Kehadiran::query()
-                        ->where('siswa_id', $siswa->id)
-                        ->where('mata_pelajaran_id', $mp->id)
-                        ->where('jenis_kehadiran_id', $selectedStatus)
-                        ->count();
+            if (!empty($dates)) {
+                $attendanceRecords = Kehadiran::query()
+                    ->with('jenisKehadiran')
+                    ->where('mata_pelajaran_id', $selectedMapel)
+                    ->whereIn('siswa_id', $siswaIds)
+                    ->whereIn('tanggal', $dates)
+                    ->get();
+
+                foreach ($attendanceRecords as $rec) {
+                    $attendanceMatrix[$rec->siswa_id][$rec->tanggal] = $rec;
                 }
-                $siswa->attendance_counts = $counts;
-                $students[] = $siswa;
             }
+
+            $students = $studentsList;
         }
 
         $waliKelas = \App\Models\WaliKelas::query()->where('kelas_id', $selectedKelas)
@@ -543,8 +579,8 @@ class KehadiranController extends Controller
             ->first();
 
         return view('pages.kehadiran.rekap_print', compact(
-            'tahunAjaran', 'semester', 'kelasModel', 'statusModel', 'school',
-            'students', 'classMapels', 'waliKelas', 'selectedSemName'
+            'tahunAjaran', 'semester', 'kelasModel', 'mapelModel', 'school',
+            'students', 'dates', 'attendanceMatrix', 'waliKelas', 'selectedSemName'
         ));
     }
 

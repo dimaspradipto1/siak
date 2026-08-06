@@ -38,6 +38,11 @@ class Nilai extends Model
         'predikat',
     ];
 
+    protected $casts = [
+        'tp_optimal'          => 'array',
+        'tp_perlu_peningkatan' => 'array',
+    ];
+
     public static function hitungPredikat($nilai): string
     {
         if ($nilai >= 85) {

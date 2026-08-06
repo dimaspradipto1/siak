@@ -33,6 +33,49 @@
                         </div>
                     </div>
                 </div>
+        @elseif ($activeRole === 'orang tua')
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                        <div class="card-body p-4">
+                            <h4 class="text-dark fw-bold mb-4">Selamat Datang Bapak/Ibu</h4>
+                            
+                            <div class="p-4 rounded-3" style="background-color: #e2e4e8; border-radius: 12px;">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless align-middle mb-0">
+                                        <tbody>
+                                            @forelse($children ?? [] as $child)
+                                                <tr>
+                                                    <td class="fw-semibold text-dark fs-6 ps-3" style="width: 30%;">
+                                                        {{ $child->nisn ? 'NISN. '.$child->nisn : 'No. NISN' }}
+                                                    </td>
+                                                    <td class="fw-bold text-dark fs-6" style="width: 45%;">
+                                                        {{ $child->nama_siswa }}
+                                                    </td>
+                                                    <td class="text-end pe-3">
+                                                        <a href="{{ route('orangtua.select-child', $child->id) }}" class="btn btn-dark px-4 py-2" style="border-radius: 8px; font-weight: bold; background-color: #212529;">
+                                                            Lihat Data
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                @if(!$loop->last)
+                                                    <tr><td colspan="3" style="padding: 6px 0;"></td></tr>
+                                                @endif
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="text-center text-muted py-3">
+                                                        Belum ada data anak yang terhubung.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                 <!-- Row 1: 3 Columns -->
                 <!-- Card 1: Jumlah Pegawai -->

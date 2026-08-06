@@ -179,6 +179,22 @@
                                 </div>
                             </div>
 
+                            {{-- Row 6: Jabatan --}}
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-12">
+                                    <label for="jabatan" class="form-label fw-medium text-secondary">Jabatan (Master Jabatan)</label>
+                                    <select id="jabatan" name="jabatan" class="form-select rounded-3 @error('jabatan') is-invalid @enderror">
+                                        <option value="" disabled selected>-- Pilih Jabatan --</option>
+                                        @foreach($jabatans as $j)
+                                            <option value="{{ $j->nama_jabatan }}" {{ old('jabatan') == $j->nama_jabatan ? 'selected' : '' }}>
+                                                {{ $j->nama_jabatan }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('jabatan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+
                             <!-- ==========================================
                                  FOOTER BUTTONS
                                  ========================================== -->

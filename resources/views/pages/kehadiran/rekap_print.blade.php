@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap_Kehadiran_{{ $kelasModel->nama_kelas ?? 'Kelas' }}</title>
+    <title>Rekap_Kehadiran_{{ $kelasModel->nama_kelas ?? 'Kelas' }}_{{ $mapelModel->nama_mata_pelajaran ?? 'Mapel' }}</title>
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -11,7 +11,7 @@
             background-color: #fff;
             margin: 0;
             padding: 30px;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.3;
         }
 
@@ -22,7 +22,7 @@
         }
 
         .header-table td {
-            padding: 4px;
+            padding: 3px 4px;
             vertical-align: top;
         }
 
@@ -37,7 +37,7 @@
         .subtitle {
             text-align: center;
             font-size: 13px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: bold;
         }
 
@@ -49,7 +49,7 @@
 
         table.main-table th, table.main-table td {
             border: 1px solid #000;
-            padding: 6px 4px;
+            padding: 5px 3px;
             vertical-align: middle;
         }
 
@@ -131,7 +131,7 @@
     </div>
 
     <div class="title">REKAPITULASI KEHADIRAN SISWA</div>
-    <div class="subtitle">STATUS KEHADIRAN: {{ strtoupper($statusModel->nama_kehadiran ?? '-') }}</div>
+    <div class="subtitle">MATA PELAJARAN: {{ strtoupper($mapelModel->nama_mata_pelajaran ?? '-') }}</div>
 
     <table class="header-table">
         <tr>
@@ -154,20 +154,20 @@
             <td>Tahun Ajaran</td>
             <td>:</td>
             <td class="fw-bold">{{ $tahunAjaran->nama_tahun_ajaran ?? '-' }}</td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>Mata Pelajaran</td>
+            <td>:</td>
+            <td class="fw-bold">{{ $mapelModel->nama_mata_pelajaran ?? '-' }}</td>
         </tr>
     </table>
 
     <table class="main-table">
         <thead>
             <tr>
-                <th style="width: 5%;">No</th>
-                <th style="width: 15%;">NISN</th>
+                <th style="width: 4%;">No</th>
+                <th style="width: 12%;">NISN</th>
                 <th class="text-start">Nama Siswa</th>
-                @foreach($classMapels as $mp)
-                    <th>{{ $mp->nama_mata_pelajaran }}</th>
+                @foreach($dates as $d)
+                    <th style="width: 35px;">{{ \Carbon\Carbon::parse($d)->format('d/m') }}</th>
                 @endforeach
             </tr>
         </thead>
@@ -177,15 +177,35 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-center">{{ $siswa->nisn }}</td>
                     <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
-                    @foreach($classMapels as $mp)
+                    @foreach($dates as $d)
+                        @php
+                            $rec = $attendanceMatrix[$siswa->id][$d] ?? null;
+                            $stName = $rec?->jenisKehadiran?->nama_kehadiran;
+                        @endphp
                         <td class="text-center">
-                            {{ $siswa->attendance_counts[$mp->id] ?? 0 }}
+                            @if($stName === 'Hadir')
+                                H
+                            @elseif($stName === 'Sakit')
+                                S
+                            @elseif($stName === 'Izin')
+                                I
+                            @elseif($stName === 'Alpa' || $stName === 'Tanpa Keterangan')
+                                A
+                            @elseif($stName)
+                                {{ strtoupper(substr($stName, 0, 1)) }}
+                            @else
+                                -
+                            @endif
                         </td>
                     @endforeach
                 </tr>
             @endforeach
         </tbody>
     </table>
+
+    <div style="font-size: 11px; margin-bottom: 15px;">
+        <strong>Keterangan:</strong> H = Hadir, S = Sakit, I = Izin, A = Alpa
+    </div>
 
     <div class="signature-container">
         <table class="signature-table">
@@ -215,3 +235,4 @@
     </script>
 </body>
 </html>
+

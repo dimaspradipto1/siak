@@ -220,18 +220,26 @@ class NilaiController extends Controller
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
         if ($isGuru) {
-            $guru = $user->pegawai?->guru;
+            $guru = $user->pegawai?->guru ?? $user->guru;
             $guruId = $guru ? $guru->id : 0;
-            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
-            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+                ->where('semester_id', $selectedSem);
+            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
         } else {
-            $mapels = MataPelajaran::query()
+            $mapelQuery = MataPelajaran::query()
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
+                ->where('semester_id', $selectedSem);
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -358,18 +366,26 @@ class NilaiController extends Controller
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
         if ($isGuru) {
-            $guru = $user->pegawai?->guru;
+            $guru = $user->pegawai?->guru ?? $user->guru;
             $guruId = $guru ? $guru->id : 0;
-            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
-            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+                ->where('semester_id', $selectedSem);
+            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
         } else {
-            $mapels = MataPelajaran::query()
+            $mapelQuery = MataPelajaran::query()
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
+                ->where('semester_id', $selectedSem);
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -449,18 +465,26 @@ class NilaiController extends Controller
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
         if ($isGuru) {
-            $guru = $user->pegawai?->guru;
+            $guru = $user->pegawai?->guru ?? $user->guru;
             $guruId = $guru ? $guru->id : 0;
-            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
-            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+                ->where('semester_id', $selectedSem);
+            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
         } else {
-            $mapels = MataPelajaran::query()
+            $mapelQuery = MataPelajaran::query()
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
+                ->where('semester_id', $selectedSem);
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -540,18 +564,26 @@ class NilaiController extends Controller
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
         if ($isGuru) {
-            $guru = $user->pegawai?->guru;
+            $guru = $user->pegawai?->guru ?? $user->guru;
             $guruId = $guru ? $guru->id : 0;
-            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
-            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+                ->where('semester_id', $selectedSem);
+            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
         } else {
-            $mapels = MataPelajaran::query()
+            $mapelQuery = MataPelajaran::query()
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
+                ->where('semester_id', $selectedSem);
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -560,17 +592,46 @@ class NilaiController extends Controller
             ? Semester::query()->where('tahun_ajaran_id', $selectedTa)->get()
             : Semester::query()->get();
 
-        // Master TP (Tujuan Pembelajaran) diambil dari data Mata Pelajaran terpilih.
-        // Setiap baris non-kosong pada tp_optimal/tp_peningkatan dijadikan satu opsi pilihan.
-        $tpOptimalOptions = [];
+        // Master TP (Tujuan Pembelajaran) diambil dari Mata Pelajaran terpilih.
+        // Jika record aktif tidak punya TP (null/kosong), fallback ke master mapel
+        // (record dengan nama_mata_pelajaran yang sama dan kelas_id = null).
+        $tpOptimalOptions    = [];
         $tpPeningkatanOptions = [];
         if ($selectedMapel) {
             $mapelTerpilih = MataPelajaran::query()->find($selectedMapel);
             if ($mapelTerpilih) {
-                $tpOptimalOptions = collect(preg_split('/\r\n|\r|\n/', (string) $mapelTerpilih->tp_optimal))
-                    ->map(fn($line) => trim($line))->filter()->values()->all();
-                $tpPeningkatanOptions = collect(preg_split('/\r\n|\r|\n/', (string) $mapelTerpilih->tp_peningkatan))
-                    ->map(fn($line) => trim($line))->filter()->values()->all();
+                $rawOptimal     = $mapelTerpilih->tp_optimal;
+                $rawPeningkatan = $mapelTerpilih->tp_peningkatan;
+
+                // Jika record aktif tidak punya TP, cari dari master mapel
+                $tpKosong = empty($rawOptimal) && empty($rawPeningkatan);
+                if ($tpKosong) {
+                    $masterMapel = MataPelajaran::query()
+                        ->whereNull('kelas_id')
+                        ->where('nama_mata_pelajaran', $mapelTerpilih->nama_mata_pelajaran)
+                        ->first();
+                    if ($masterMapel) {
+                        $rawOptimal     = $masterMapel->tp_optimal;
+                        $rawPeningkatan = $masterMapel->tp_peningkatan;
+                    }
+                }
+
+                // Parse: support array (JSON cast baru) dan string lama
+                $parseTp = function($raw): array {
+                    if (is_array($raw)) return array_values(array_filter($raw));
+                    if (is_string($raw) && $raw !== '') {
+                        $dec = json_decode($raw, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($dec)) {
+                            return array_values(array_filter($dec));
+                        }
+                        // string lama: pisah per baris
+                        return array_values(array_filter(preg_split('/\r\n|\r|\n/', $raw)));
+                    }
+                    return [];
+                };
+
+                $tpOptimalOptions    = $parseTp($rawOptimal);
+                $tpPeningkatanOptions = $parseTp($rawPeningkatan);
             }
         }
 
@@ -619,16 +680,23 @@ class NilaiController extends Controller
         $gradesInput = $request->nilai;
 
         foreach ($gradesInput as $siswaId => $data) {
-            $nilaiRaport = $data['nilai_raport'] !== '' ? round(floatval($data['nilai_raport'])) : null;
+            $nilaiRaport = isset($data['nilai_raport']) && $data['nilai_raport'] !== ''
+                ? round(floatval($data['nilai_raport'])) : null;
             $predikat = $nilaiRaport !== null ? Nilai::hitungPredikat($nilaiRaport) : null;
-            $tpOptimal = $data['tp_optimal'] ?? null;
-            $tpPeningkatan = $data['tp_perlu_peningkatan'] ?? null;
+
+            // TP dipilih sebagai array checkbox (bisa lebih dari 1)
+            $tpOptimal     = isset($data['tp_optimal']) && is_array($data['tp_optimal'])
+                ? array_values(array_filter($data['tp_optimal']))
+                : null;
+            $tpPeningkatan = isset($data['tp_perlu_peningkatan']) && is_array($data['tp_perlu_peningkatan'])
+                ? array_values(array_filter($data['tp_perlu_peningkatan']))
+                : null;
 
             $existing = Nilai::query()->where([
-                'siswa_id' => $siswaId,
-                'mata_pelajaran_id' => $mapelId,
-                'semester_id' => $semId,
-                'tahun_ajaran_id' => $taId,
+                'siswa_id'         => $siswaId,
+                'mata_pelajaran_id'=> $mapelId,
+                'semester_id'      => $semId,
+                'tahun_ajaran_id'  => $taId,
             ])->first();
 
             $rata2 = null;
@@ -638,18 +706,18 @@ class NilaiController extends Controller
 
             Nilai::query()->updateOrCreate(
                 [
-                    'siswa_id' => $siswaId,
+                    'siswa_id'          => $siswaId,
                     'mata_pelajaran_id' => $mapelId,
-                    'semester_id' => $semId,
-                    'tahun_ajaran_id' => $taId,
+                    'semester_id'       => $semId,
+                    'tahun_ajaran_id'   => $taId,
                 ],
                 [
-                    'nilai_rata2' => $rata2,
-                    'nilai_raport' => $nilaiRaport,
-                    'tp_optimal' => $tpOptimal ?: null,
-                    'tp_perlu_peningkatan' => $tpPeningkatan ?: null,
-                    'nilai' => $nilaiRaport, // sync main fallback column
-                    'predikat' => $predikat,
+                    'nilai_rata2'          => $rata2,
+                    'nilai_raport'         => $nilaiRaport,
+                    'tp_optimal'           => $tpOptimal ? json_encode($tpOptimal) : null,
+                    'tp_perlu_peningkatan' => $tpPeningkatan ? json_encode($tpPeningkatan) : null,
+                    'nilai'                => $nilaiRaport,
+                    'predikat'             => $predikat,
                 ]
             );
         }
@@ -686,16 +754,24 @@ class NilaiController extends Controller
         if ($isGuru) {
             $guru = $user->pegawai?->guru;
             $guruId = $guru ? $guru->id : 0;
-            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
-            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+                ->where('semester_id', $selectedSem);
+            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
         } else {
-            $mapels = MataPelajaran::query()
+            $mapelQuery = MataPelajaran::query()
                 ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem)
-                ->get();
+                ->where('semester_id', $selectedSem);
+            if ($selectedKelas) {
+                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
+            } else {
+                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -942,7 +1018,7 @@ class NilaiController extends Controller
             ->get()
             ->pluck('ekstrakurikuler');
 
-        // Calculate ranking
+        // Calculate ranking with high precision
         $siswaIdsInClass = PembagianKelas::query()
             ->where('kelas_id', $kelasId)
             ->where('tahun_ajaran_id', $tahun_ajaran_id)
@@ -957,7 +1033,7 @@ class NilaiController extends Controller
                 ->whereIn('mata_pelajaran_id', $classMapels->pluck('id'))
                 ->pluck('nilai_raport');
             
-            $validGrades = $gradesList->filter(fn($val) => $val !== null)->map(fn($val) => (int)$val);
+            $validGrades = $gradesList->filter(fn($val) => $val !== null && $val !== '')->map(fn($val) => (float)$val);
             $avg = $validGrades->count() > 0 ? $validGrades->sum() / $validGrades->count() : 0;
             $studentAverages[$sId] = $avg;
         }
@@ -965,15 +1041,21 @@ class NilaiController extends Controller
         arsort($studentAverages);
 
         $rank = 1;
-        $ranking = 1;
+        $prevAvg = null;
+        $actualRank = 1;
+        $studentRanks = [];
+
         foreach ($studentAverages as $sId => $avg) {
-            if ($sId == $siswa_id) {
-                $ranking = $rank;
-                break;
+            if ($prevAvg !== null && $avg < $prevAvg) {
+                $actualRank = $rank;
             }
+            $studentRanks[$sId] = $actualRank;
+            $prevAvg = $avg;
             $rank++;
         }
-        $totalStudents = count($studentAverages);
+
+        $ranking = $studentRanks[$siswa_id] ?? 1;
+        $totalStudents = count($siswaIdsInClass) > 0 ? count($siswaIdsInClass) : count($studentAverages);
 
         $ekskulText = $ekskuls->map(fn($e) => $e->nama_ekskul)->implode(', ');
         if (empty($ekskulText)) {
@@ -1108,7 +1190,7 @@ class NilaiController extends Controller
                 ->get()
                 ->pluck('ekstrakurikuler');
 
-            // Calculate ranking
+            // Calculate ranking with high precision
             $siswaIdsInClass = PembagianKelas::query()
                 ->where('kelas_id', $kelasId)
                 ->where('tahun_ajaran_id', $selectedTa)
@@ -1123,7 +1205,7 @@ class NilaiController extends Controller
                     ->whereIn('mata_pelajaran_id', $classMapels->pluck('id'))
                     ->pluck('nilai_raport');
                 
-                $validGrades = $gradesList->filter(fn($val) => $val !== null)->map(fn($val) => (int)$val);
+                $validGrades = $gradesList->filter(fn($val) => $val !== null && $val !== '')->map(fn($val) => (float)$val);
                 $avg = $validGrades->count() > 0 ? $validGrades->sum() / $validGrades->count() : 0;
                 $studentAverages[$sId] = $avg;
             }
@@ -1131,15 +1213,21 @@ class NilaiController extends Controller
             arsort($studentAverages);
 
             $rank = 1;
-            $ranking = 1;
+            $prevAvg = null;
+            $actualRank = 1;
+            $studentRanks = [];
+
             foreach ($studentAverages as $sId => $avg) {
-                if ($sId == $siswa->id) {
-                    $ranking = $rank;
-                    break;
+                if ($prevAvg !== null && $avg < $prevAvg) {
+                    $actualRank = $rank;
                 }
+                $studentRanks[$sId] = $actualRank;
+                $prevAvg = $avg;
                 $rank++;
             }
-            $totalStudents = count($studentAverages);
+
+            $ranking = $studentRanks[$siswa->id] ?? 1;
+            $totalStudents = count($siswaIdsInClass) > 0 ? count($siswaIdsInClass) : count($studentAverages);
 
             $ekskulText = $ekskuls->map(fn($e) => $e->nama_ekskul)->implode(', ');
             if (empty($ekskulText)) {

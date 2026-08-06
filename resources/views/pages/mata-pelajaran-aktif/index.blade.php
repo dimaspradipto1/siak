@@ -22,6 +22,7 @@
                             <h5 class="card-title mb-0">Daftar Mata Pelajaran Aktif</h5>
                             @if(in_array(auth()->user()->roles, ['admin', 'kepala sekolah']))
                             <div class="d-flex gap-2">
+                                @if(auth()->user()->roles !== 'admin')
                                 <a href="{{ route('matapelajaranaktif.template') }}" class="btn btn-secondary btn-sm" title="Download Template Import">
                                     <i class="bi bi-download"></i> Template
                                 </a>
@@ -31,6 +32,7 @@
                                 <a href="{{ route('matapelajaranaktif.export') }}" class="btn btn-info btn-sm text-white" title="Export Data">
                                     <i class="bi bi-file-earmark-arrow-down"></i> Export
                                 </a>
+                                @endif
                                 <a href="{{ route('matapelajaranaktif.create') }}" class="btn btn-primary btn-sm">
                                     <i class="bi bi-plus-circle-fill"></i> Tambah Data
                                 </a>

@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name'      => 'Administrator',
+                'username'  => 'admin',
                 'email'     => 'admin@gmail.com',
                 'password'  => Hash::make('admin1234'),
                 'roles'     => 'admin',
@@ -27,6 +28,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name'      => 'Budi Santoso, S.Pd.',
+                'username'  => 'guru',
                 'email'     => 'guru@gmail.com',
                 'password'  => Hash::make('guru1234'),
                 'roles'     => 'guru',
@@ -36,6 +38,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name'      => 'Siti Aminah, S.Pd.I',
+                'username'  => 'walikelas',
                 'email'     => 'walikelas@gmail.com',
                 'password'  => Hash::make('walikelas1234'),
                 'roles'     => 'wali kelas',
@@ -45,6 +48,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name'      => 'Yusal, S.Pd.',
+                'username'  => 'kepsek',
                 'email'     => 'kepsek@gmail.com',
                 'password'  => Hash::make('kepsek1234'),
                 'roles'     => 'kepala sekolah',
@@ -54,6 +58,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name'      => 'Suparman',
+                'username'  => 'orangtua',
                 'email'     => 'orangtua@gmail.com',
                 'password'  => Hash::make('orangtua1234'),
                 'roles'     => 'orang tua',
@@ -104,6 +109,7 @@ class UserSeeder extends Seeder
             $username = strtolower(str_replace([' ', "'", '.'], '', $name));
             $users[] = [
                 'name'      => $name,
+                'username'  => $username,
                 'email'     => $username . '@siswa.com',
                 'password'  => Hash::make('siswa1234'),
                 'roles'     => 'siswa',

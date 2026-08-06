@@ -32,7 +32,7 @@ class SiswaDataTable extends DataTable
                 return $siswa->orangTua ? ($siswa->orangTua->nomor_wa ?? $siswa->orangTua->nomor_wa_ibu ?? '-') : ($siswa->nomor_wa ?? '-');
             })
             ->addColumn('action', function ($siswa) {
-                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
+                if (auth()->user()?->roles !== 'admin') return '';
                 return '
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="' . route('siswa.edit', $siswa->id) . '" class="btn btn-warning btn-sm" title="Edit">
@@ -77,7 +77,7 @@ class SiswaDataTable extends DataTable
 
     public function getColumns(): array
     {
-        return [
+        $cols = [
             Column::make('DT_RowIndex')->title('No')->searchable(false)->orderable(false),
             Column::make('nisn')->title('NISN'),
             Column::make('nama_siswa')->title('Nama Siswa'),
@@ -86,12 +86,17 @@ class SiswaDataTable extends DataTable
             Column::make('tempat_lahir')->title('Tempat Lahir'),
             Column::make('tgl_lahir')->title('Tanggal Lahir'),
             Column::make('no_wa_ortu')->title('No. Wa Ortu')->searchable(false)->orderable(false),
-            Column::computed('action')
+        ];
+
+        if (auth()->user()?->roles === 'admin') {
+            $cols[] = Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
                   ->width(100)
-                  ->addClass('text-center'),
-        ];
+                  ->addClass('text-center');
+        }
+
+        return $cols;
     }
 
     protected function filename(): string

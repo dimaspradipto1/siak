@@ -45,20 +45,52 @@
 
                             {{-- TP yang Diukur & Tercapai Optimal --}}
                             <div class="mb-3">
-                                <label for="tp_optimal" class="form-label fw-medium text-secondary">TP yang Diukur & Tercapai Optimal</label>
-                                <input type="text" id="tp_optimal" name="tp_optimal" 
-                                    class="form-control rounded-3 @error('tp_optimal') is-invalid @enderror" 
-                                    value="{{ old('tp_optimal') }}" placeholder="Masukkan TP yang Diukur & Tercapai Optimal">
-                                @error('tp_optimal')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <label class="form-label fw-medium text-secondary">
+                                    TP yang Diukur &amp; Tercapai Optimal
+                                    <span class="badge bg-primary ms-1" style="font-size:0.7rem;">Bisa lebih dari 1</span>
+                                </label>
+                                @error('tp_optimal')
+                                    <div class="text-danger small mb-1">{{ $message }}</div>
+                                @enderror
+                                <div id="tp-optimal-list" class="d-flex flex-column gap-2 mb-2">
+                                    <div class="input-group tp-optimal-item">
+                                        <span class="input-group-text bg-primary text-white border-0" style="width:32px;">1</span>
+                                        <input type="text" name="tp_optimal[]"
+                                            class="form-control rounded-end-3"
+                                            placeholder="Masukkan Tujuan Pembelajaran ke-1">
+                                        <button type="button" class="btn btn-outline-danger btn-sm ms-1 rounded-3 remove-tp" title="Hapus" style="display:none;">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" id="add-tp-optimal" class="btn btn-sm btn-outline-primary rounded-3">
+                                    <i class="bi bi-plus-circle"></i> Tambah TP Optimal
+                                </button>
                             </div>
 
                             {{-- TP yang Diukur & Perlu Peningkatan --}}
                             <div class="mb-4">
-                                <label for="tp_peningkatan" class="form-label fw-medium text-secondary">TP yang Diukur & Perlu Peningkatan</label>
-                                <input type="text" id="tp_peningkatan" name="tp_peningkatan" 
-                                    class="form-control rounded-3 @error('tp_peningkatan') is-invalid @enderror" 
-                                    value="{{ old('tp_peningkatan') }}" placeholder="Masukkan TP yang Diukur & Perlu Peningkatan">
-                                @error('tp_peningkatan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <label class="form-label fw-medium text-secondary">
+                                    TP yang Diukur &amp; Perlu Peningkatan
+                                    <span class="badge bg-warning text-dark ms-1" style="font-size:0.7rem;">Bisa lebih dari 1</span>
+                                </label>
+                                @error('tp_peningkatan')
+                                    <div class="text-danger small mb-1">{{ $message }}</div>
+                                @enderror
+                                <div id="tp-peningkatan-list" class="d-flex flex-column gap-2 mb-2">
+                                    <div class="input-group tp-peningkatan-item">
+                                        <span class="input-group-text bg-warning text-dark border-0" style="width:32px;">1</span>
+                                        <input type="text" name="tp_peningkatan[]"
+                                            class="form-control rounded-end-3"
+                                            placeholder="Masukkan Tujuan Pembelajaran ke-1">
+                                        <button type="button" class="btn btn-outline-danger btn-sm ms-1 rounded-3 remove-tp" title="Hapus" style="display:none;">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" id="add-tp-peningkatan" class="btn btn-sm btn-outline-warning rounded-3">
+                                    <i class="bi bi-plus-circle"></i> Tambah TP Peningkatan
+                                </button>
                             </div>
 
                             {{-- Tombol Aksi --}}
@@ -89,5 +121,49 @@
                 confirmButtonColor: '#d33',
             });
         @endif
+
+        // =============================================
+        // Dynamic TP List (Tambah / Hapus baris TP)
+        // =============================================
+        function setupTpList(listId, addBtnId, itemClass, nameAttr, badgeBg, badgeText) {
+            function renumber() {
+                const items = $('#' + listId + ' .' + itemClass);
+                items.each(function(i) {
+                    $(this).find('span.input-group-text').text(i + 1);
+                    $(this).find('input').attr('placeholder', 'Masukkan Tujuan Pembelajaran ke-' + (i + 1));
+                });
+                // Tampilkan/sembunyikan tombol hapus
+                items.find('.remove-tp').show();
+                if (items.length === 1) {
+                    items.first().find('.remove-tp').hide();
+                }
+            }
+
+            $('#' + addBtnId).click(function() {
+                const count = $('#' + listId + ' .' + itemClass).length + 1;
+                const html = `
+                    <div class="input-group ${itemClass}">
+                        <span class="input-group-text ${badgeBg} ${badgeText} border-0" style="width:32px;">${count}</span>
+                        <input type="text" name="${nameAttr}[]"
+                            class="form-control rounded-end-3"
+                            placeholder="Masukkan Tujuan Pembelajaran ke-${count}">
+                        <button type="button" class="btn btn-outline-danger btn-sm ms-1 rounded-3 remove-tp" title="Hapus">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>`;
+                $('#' + listId).append(html);
+                renumber();
+                $('#' + listId + ' .' + itemClass + ':last input').focus();
+            });
+
+            $(document).on('click', '#' + listId + ' .remove-tp', function() {
+                $(this).closest('.' + itemClass).remove();
+                renumber();
+            });
+        }
+
+        setupTpList('tp-optimal-list',     'add-tp-optimal',     'tp-optimal-item',     'tp_optimal',     'bg-primary',  'text-white');
+        setupTpList('tp-peningkatan-list',  'add-tp-peningkatan', 'tp-peningkatan-item', 'tp_peningkatan', 'bg-warning',  'text-dark');
     </script>
 @endpush
+

@@ -25,8 +25,9 @@ class PembagianKelasController extends Controller
         $siswas = Siswa::orderBy('nama_siswa', 'asc')->get();
         $kelas = Kelas::with(['waliKelas.guru.pegawai'])->get();
         $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
+        $waliKelasList = \App\Models\WaliKelas::with(['guru.pegawai'])->get();
 
-        return view('pages.pembagiankelas.create', compact('siswas', 'kelas', 'tahunAjarans'));
+        return view('pages.pembagiankelas.create', compact('siswas', 'kelas', 'tahunAjarans', 'waliKelasList'));
     }
 
     public function store(PembagianKelasRequest $request)
@@ -59,12 +60,14 @@ class PembagianKelasController extends Controller
         $siswas = Siswa::orderBy('nama_siswa', 'asc')->get();
         $kelas = Kelas::with(['waliKelas.guru.pegawai'])->get();
         $tahunAjarans = TahunAjaran::orderBy('tahun_mulai', 'desc')->get();
+        $waliKelasList = \App\Models\WaliKelas::with(['guru.pegawai'])->get();
 
         return view('pages.pembagiankelas.edit', [
             'pembagianKelas' => $pembagiankela,
             'siswas' => $siswas,
             'kelas' => $kelas,
-            'tahunAjarans' => $tahunAjarans
+            'tahunAjarans' => $tahunAjarans,
+            'waliKelasList' => $waliKelasList,
         ]);
     }
 

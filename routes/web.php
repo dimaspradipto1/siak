@@ -42,6 +42,7 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware(['auth', 'checkrole'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/orang-tua/pilih-anak/{id}', [DashboardController::class, 'selectChild'])->name('orangtua.select-child');
     Route::post('switch-role/{role}', [AuthController::class, 'switchRole'])->name('switch-role');
     Route::resource('user', UserController::class);
     Route::get('pegawai/export', [PegawaiController::class, 'export'])->name('pegawai.export');

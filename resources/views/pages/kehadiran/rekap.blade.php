@@ -1,29 +1,5 @@
 @extends('layouts.dashboard.template')
 
-@php
-if (!function_exists('abbreviateMapel')) {
-    function abbreviateMapel($name) {
-        $map = [
-            'Pendidikan Agama Islam' => 'PAI',
-            'Pendidikan Agama Islam dan Budi Pekerti' => 'PAI',
-            'Pendidikan Pancasila dan Kewarganegaraan' => 'PKN',
-            'Pendidikan Pancasila' => 'PKN',
-            'Bahasa Indonesia' => 'B.INDO',
-            'Matematika' => 'MTK',
-            'Ilmu Pengetahuan Alam dan Sosial' => 'IPAS',
-            'Ilmu Pengetahuan Alam' => 'IPA',
-            'Ilmu Pengetahuan Sosial' => 'IPS',
-            'Seni Budaya dan Prakarya' => 'SBDP',
-            'Seni Budaya dan Musik' => 'SBDM',
-            'Seni Rupa' => 'Seni Rupa',
-            'Bahasa Inggris' => 'B.ING',
-            'Pendidikan Jasmani, Olahraga, dan Kesehatan' => 'PJOK',
-        ];
-        return $map[$name] ?? $name;
-    }
-}
-@endphp
-
 @section('title', 'Rekap Kehadiran Siswa')
 
 @section('content')
@@ -69,7 +45,7 @@ if (!function_exists('abbreviateMapel')) {
                             <div class="col-md-6">
                                 <label for="kelas_id" class="form-label fw-semibold text-dark">Kelas</label>
                                 <select name="kelas_id" id="kelas_id" class="form-select py-2" style="border-radius: 8px;" required>
-                                    <option value="" disabled selected></option>
+                                    <option value="" disabled selected>-- Pilih Kelas --</option>
                                     @foreach($kelas as $k)
                                         <option value="{{ $k->id }}" {{ $selectedKelas == $k->id ? 'selected' : '' }}>
                                             {{ $k->nama_kelas }}
@@ -79,12 +55,12 @@ if (!function_exists('abbreviateMapel')) {
                             </div>
 
                             <div class="col-md-6">
-                                <label for="jenis_kehadiran_id" class="form-label fw-semibold text-dark">Status Kehadiran</label>
-                                <select name="jenis_kehadiran_id" id="jenis_kehadiran_id" class="form-select py-2" style="border-radius: 8px;" required>
-                                    <option value="" disabled selected></option>
-                                    @foreach($jenisKehadirans as $jk)
-                                        <option value="{{ $jk->id }}" {{ $selectedStatus == $jk->id ? 'selected' : '' }}>
-                                            {{ $jk->nama_kehadiran }}
+                                <label for="mata_pelajaran_id" class="form-label fw-semibold text-dark">Mata Pelajaran</label>
+                                <select name="mata_pelajaran_id" id="mata_pelajaran_id" class="form-select py-2" style="border-radius: 8px;" required>
+                                    <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
+                                    @foreach($mapels as $mp)
+                                        <option value="{{ $mp->id }}" {{ $selectedMapel == $mp->id ? 'selected' : '' }}>
+                                            {{ $mp->nama_mata_pelajaran }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -95,28 +71,39 @@ if (!function_exists('abbreviateMapel')) {
                                     Reset
                                 </a>
                                 <button type="submit" class="btn btn-dark px-4 py-2" style="background-color: #212529; border-color: #212529; border-radius: 8px; font-weight: bold; font-size: 0.95rem;">
-                                    Get Data
+                                    Tampilkan Data
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                @if($selectedTa && $selectedSem && $selectedKelas && $selectedStatus)
+                @if($selectedTa && $selectedSem && $selectedKelas && $selectedMapel)
                 <div class="card shadow-sm border-0" style="border-radius: 12px;">
                     <div class="card-body pt-4">
-                        <h5 class="card-title text-dark fw-bold mb-4 p-0">Jumlah Kehadiran</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title text-dark fw-bold m-0 p-0">Detail Kehadiran Siswa</h5>
+                            <div class="small fw-semibold text-secondary">
+                                Keterangan: 
+                                <span class="badge bg-success ms-1">H</span> Hadir | 
+                                <span class="badge bg-warning text-dark ms-1">S</span> Sakit | 
+                                <span class="badge bg-info text-dark ms-1">I</span> Izin | 
+                                <span class="badge bg-danger ms-1">A</span> Alpa
+                            </div>
+                        </div>
 
-                        @if(count($students) > 0)
+                        @if(count($students) > 0 && !empty($dates))
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover align-middle text-center">
                                 <thead class="table-light fw-bold text-dark">
                                     <tr>
-                                        <th style="width: 60px;">No</th>
-                                        <th style="width: 140px;">NISN</th>
-                                        <th class="text-start">Nama Siswa</th>
-                                        @foreach($classMapels as $mp)
-                                            <th>{{ abbreviateMapel($mp->nama_mata_pelajaran) }}</th>
+                                        <th style="width: 50px;">No</th>
+                                        <th style="width: 120px;">NISN</th>
+                                        <th class="text-start" style="min-width: 180px;">Nama Siswa</th>
+                                        @foreach($dates as $d)
+                                            <th style="width: 45px;" title="{{ \Carbon\Carbon::parse($d)->translatedFormat('d F Y') }}">
+                                                {{ \Carbon\Carbon::parse($d)->format('d') }}
+                                            </th>
                                         @endforeach
                                     </tr>
                                 </thead>
@@ -126,9 +113,25 @@ if (!function_exists('abbreviateMapel')) {
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $siswa->nisn }}</td>
                                             <td class="text-start fw-semibold">{{ $siswa->nama_siswa }}</td>
-                                            @foreach($classMapels as $mp)
+                                            @foreach($dates as $d)
+                                                @php
+                                                    $rec = $attendanceMatrix[$siswa->id][$d] ?? null;
+                                                    $stName = $rec?->jenisKehadiran?->nama_kehadiran;
+                                                @endphp
                                                 <td>
-                                                    {{ $siswa->attendance_counts[$mp->id] ?? 0 }}
+                                                    @if($stName === 'Hadir')
+                                                        <span class="badge bg-success">H</span>
+                                                    @elseif($stName === 'Sakit')
+                                                        <span class="badge bg-warning text-dark">S</span>
+                                                    @elseif($stName === 'Izin')
+                                                        <span class="badge bg-info text-dark">I</span>
+                                                    @elseif($stName === 'Alpa' || $stName === 'Tanpa Keterangan')
+                                                        <span class="badge bg-danger">A</span>
+                                                    @elseif($stName)
+                                                        <span class="badge bg-secondary">{{ strtoupper(substr($stName, 0, 1)) }}</span>
+                                                    @else
+                                                        <span class="text-muted small">-</span>
+                                                    @endif
                                                 </td>
                                             @endforeach
                                         </tr>
@@ -143,7 +146,9 @@ if (!function_exists('abbreviateMapel')) {
                             </a>
                         </div>
                         @else
-                        <div class="alert alert-warning text-center my-3"><i class="bi bi-exclamation-triangle-fill"></i> Tidak ada data siswa atau mata pelajaran yang terdaftar.</div>
+                        <div class="alert alert-warning text-center my-3">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Tidak ada data absensi yang pernah diisi untuk mata pelajaran ini.
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -152,3 +157,4 @@ if (!function_exists('abbreviateMapel')) {
         </div>
     </section>
 @endsection
+

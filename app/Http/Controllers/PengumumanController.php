@@ -29,7 +29,17 @@ class PengumumanController extends Controller
         $kelas = \App\Models\Kelas::orderBy('nama_kelas', 'asc')->get();
         $tahunAjarans = \App\Models\TahunAjaran::all();
         $semesters = \App\Models\Semester::all();
-        $matapelajarans = \App\Models\MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
+        $matapelajarans = \App\Models\MataPelajaran::query()
+            ->whereNull('kelas_id')
+            ->orderBy('nama_mata_pelajaran', 'asc')
+            ->get();
+        if ($matapelajarans->isEmpty()) {
+            $matapelajarans = \App\Models\MataPelajaran::query()
+                ->select('id', 'nama_mata_pelajaran')
+                ->orderBy('nama_mata_pelajaran', 'asc')
+                ->get()
+                ->unique('nama_mata_pelajaran');
+        }
         return view('pages.pengumuman.create', compact('kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
     }
 
@@ -58,7 +68,17 @@ class PengumumanController extends Controller
         $kelas = \App\Models\Kelas::orderBy('nama_kelas', 'asc')->get();
         $tahunAjarans = \App\Models\TahunAjaran::all();
         $semesters = \App\Models\Semester::all();
-        $matapelajarans = \App\Models\MataPelajaran::orderBy('nama_mata_pelajaran', 'asc')->get();
+        $matapelajarans = \App\Models\MataPelajaran::query()
+            ->whereNull('kelas_id')
+            ->orderBy('nama_mata_pelajaran', 'asc')
+            ->get();
+        if ($matapelajarans->isEmpty()) {
+            $matapelajarans = \App\Models\MataPelajaran::query()
+                ->select('id', 'nama_mata_pelajaran')
+                ->orderBy('nama_mata_pelajaran', 'asc')
+                ->get()
+                ->unique('nama_mata_pelajaran');
+        }
         return view('pages.pengumuman.edit', compact('pengumuman', 'kelas', 'tahunAjarans', 'semesters', 'matapelajarans'));
     }
 

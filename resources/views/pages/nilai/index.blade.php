@@ -21,7 +21,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="card-title mb-0">Rekap Nilai Siswa</h5>
                             <div class="d-flex gap-2">
-                                @if(!in_array(auth()->user()->roles, ['siswa', 'orang tua']))
+                                @if(!in_array(auth()->user()->roles, ['siswa', 'orang tua', 'admin']))
                                 <a href="{{ route('nilai.template') }}" class="btn btn-secondary btn-sm" title="Download Template Import">
                                     <i class="bi bi-download"></i> Template
                                 </a>
@@ -31,6 +31,8 @@
                                 <a href="{{ route('nilai.export') }}" class="btn btn-info btn-sm text-white" title="Export Data">
                                     <i class="bi bi-file-earmark-arrow-down"></i> Export
                                 </a>
+                                @endif
+                                @if(!in_array(auth()->user()->roles, ['siswa', 'orang tua']))
                                 <a href="{{ route('nilai.create') }}" class="btn btn-primary btn-sm">
                                     <i class="bi bi-plus-circle-fill"></i> Input Nilai
                                 </a>

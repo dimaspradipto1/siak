@@ -118,7 +118,28 @@
 @push('script')
     <script>
         $(document).ready(function() {
+            const waliKelasData = [
+                @foreach($waliKelasList as $wk)
+                    {
+                        tahun_ajaran_id: "{{ $wk->tahun_ajaran_id }}",
+                        kelas_id: "{{ $wk->kelas_id }}",
+                        nama_walikelas: "{{ addslashes($wk->guru->pegawai->nama_pegawai ?? 'Belum ada wali kelas') }}"
+                    },
+                @endforeach
+            ];
+
             function updateWaliKelas() {
+                const selectedTa = $('#tahun_ajaran_id').val();
+                const selectedKelas = $('#kelas_id').val();
+
+                if (selectedTa && selectedKelas) {
+                    const found = waliKelasData.find(item => item.tahun_ajaran_id == selectedTa && item.kelas_id == selectedKelas);
+                    if (found) {
+                        $('#nama_walikelas').val(found.nama_walikelas);
+                        return;
+                    }
+                }
+
                 const selectedOption = $('#kelas_id option:selected');
                 const wali = selectedOption.data('walikelas');
                 if (wali) {
@@ -128,11 +149,10 @@
                 }
             }
 
-            $('#kelas_id').on('change', function() {
+            $('#tahun_ajaran_id, #kelas_id').on('change', function() {
                 updateWaliKelas();
             });
 
-            // If a class is already selected on page load (e.g. old input)
             updateWaliKelas();
 
             // Filter Kelas berdasarkan Tingkat

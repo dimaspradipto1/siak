@@ -20,7 +20,7 @@
                     <div class="card-body pt-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="card-title mb-0">Daftar Siswa</h5>
-                            @if(in_array(auth()->user()->roles, ['admin', 'kepala sekolah']))
+                            @if(auth()->user()->roles === 'admin')
                             <div class="d-flex gap-2">
                                 <a href="{{ route('siswa.template') }}" class="btn btn-secondary btn-sm" title="Download Template Import">
                                     <i class="bi bi-download"></i> Template

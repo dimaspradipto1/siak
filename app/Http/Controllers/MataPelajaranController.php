@@ -35,6 +35,11 @@ class MataPelajaranController extends Controller
     public function store(MataPelajaranRequest $request)
     {
         $validated = $request->validated();
+
+        // Filter item TP yang kosong
+        $validated['tp_optimal']     = array_values(array_filter($validated['tp_optimal'] ?? [], fn($v) => trim($v) !== ''));
+        $validated['tp_peningkatan'] = array_values(array_filter($validated['tp_peningkatan'] ?? [], fn($v) => trim($v) !== ''));
+
         $mapel = MataPelajaran::create($validated);
 
         alert()->html(
@@ -64,6 +69,11 @@ class MataPelajaranController extends Controller
     public function update(MataPelajaranRequest $request, MataPelajaran $matapelajaran)
     {
         $validated = $request->validated();
+
+        // Filter item TP yang kosong
+        $validated['tp_optimal']     = array_values(array_filter($validated['tp_optimal'] ?? [], fn($v) => trim($v) !== ''));
+        $validated['tp_peningkatan'] = array_values(array_filter($validated['tp_peningkatan'] ?? [], fn($v) => trim($v) !== ''));
+
         $matapelajaran->update($validated);
 
         alert()->html(

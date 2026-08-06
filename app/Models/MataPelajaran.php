@@ -28,6 +28,11 @@ class MataPelajaran extends Model
         'status',
     ];
 
+    protected $casts = [
+        'tp_optimal'     => 'array',
+        'tp_peningkatan' => 'array',
+    ];
+
     public function kelas(): BelongsTo
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');

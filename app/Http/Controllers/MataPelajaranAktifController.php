@@ -54,11 +54,20 @@ class MataPelajaranAktifController extends Controller
             $masterMapel = MataPelajaran::where('kode_mapel', $validated['master_mapel_id'])->first();
         }
 
-        $namaMapel = $masterMapel ? $masterMapel->nama_mata_pelajaran : 'Mata Pelajaran';
-        $kodeMapel = $masterMapel ? $masterMapel->kode_mapel : 'MP';
-        $kkm = $masterMapel ? $masterMapel->kkm : 75;
-        $tpOptimal = $masterMapel ? $masterMapel->tp_optimal : null;
-        $tpPeningkatan = $masterMapel ? $masterMapel->tp_peningkatan : null;
+        $namaMapel    = $masterMapel ? $masterMapel->nama_mata_pelajaran : 'Mata Pelajaran';
+        $kodeMapel    = $masterMapel ? $masterMapel->kode_mapel : 'MP';
+        $kkm          = $masterMapel ? $masterMapel->kkm : 75;
+
+        // Ambil TP dari master (pastikan disimpan sebagai JSON array)
+        $tpOptimal    = null;
+        $tpPeningkatan = null;
+        if ($masterMapel) {
+            $rawOpt = $masterMapel->tp_optimal;
+            $rawPkt = $masterMapel->tp_peningkatan;
+            // Jika sudah array (karena JSON cast), encode ulang ke JSON string
+            $tpOptimal    = is_array($rawOpt) ? (empty(array_filter($rawOpt)) ? null : json_encode(array_values(array_filter($rawOpt)))) : $rawOpt;
+            $tpPeningkatan = is_array($rawPkt) ? (empty(array_filter($rawPkt)) ? null : json_encode(array_values(array_filter($rawPkt)))) : $rawPkt;
+        }
 
         $mapel = MataPelajaran::create([
             'kelas_id'            => $validated['kelas_id'],
@@ -120,11 +129,22 @@ class MataPelajaranAktifController extends Controller
             $masterMapel = MataPelajaran::where('kode_mapel', $validated['master_mapel_id'])->first();
         }
 
-        $namaMapel = $masterMapel ? $masterMapel->nama_mata_pelajaran : $mapel->nama_mata_pelajaran;
-        $kodeMapel = $masterMapel ? $masterMapel->kode_mapel : $mapel->kode_mapel;
-        $kkm = $masterMapel ? $masterMapel->kkm : $mapel->kkm;
-        $tpOptimal = $masterMapel ? $masterMapel->tp_optimal : $mapel->tp_optimal;
-        $tpPeningkatan = $masterMapel ? $masterMapel->tp_peningkatan : $mapel->tp_peningkatan;
+        $namaMapel    = $masterMapel ? $masterMapel->nama_mata_pelajaran : $mapel->nama_mata_pelajaran;
+        $kodeMapel    = $masterMapel ? $masterMapel->kode_mapel : $mapel->kode_mapel;
+        $kkm          = $masterMapel ? $masterMapel->kkm : $mapel->kkm;
+
+        // Ambil TP dari master (pastikan disimpan sebagai JSON array)
+        $tpOptimal    = null;
+        $tpPeningkatan = null;
+        if ($masterMapel) {
+            $rawOpt = $masterMapel->tp_optimal;
+            $rawPkt = $masterMapel->tp_peningkatan;
+            $tpOptimal    = is_array($rawOpt) ? (empty(array_filter($rawOpt)) ? null : json_encode(array_values(array_filter($rawOpt)))) : $rawOpt;
+            $tpPeningkatan = is_array($rawPkt) ? (empty(array_filter($rawPkt)) ? null : json_encode(array_values(array_filter($rawPkt)))) : $rawPkt;
+        } else {
+            $tpOptimal    = $mapel->tp_optimal;
+            $tpPeningkatan = $mapel->tp_peningkatan;
+        }
 
         $mapel->update([
             'kelas_id'            => $validated['kelas_id'],
