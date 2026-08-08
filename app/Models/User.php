@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class User extends Authenticatable
 {
@@ -50,9 +51,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function guru(): HasOne
+    public function guru(): HasOneThrough
     {
-        return $this->hasOne(Guru::class);
+        return $this->hasOneThrough(Guru::class, Pegawai::class, 'user_id', 'pegawai_id', 'id', 'id');
     }
 
     public function pengumuman()
