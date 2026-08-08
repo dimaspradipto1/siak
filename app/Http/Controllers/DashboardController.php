@@ -23,6 +23,23 @@ class DashboardController extends Controller
             return redirect()->route('siswa.profile');
         }
 
+        // Dual role teacher check: if teacher has 2 roles and active_role session is NOT set yet
+        if ($user && $user->roles === 'guru' && $user->isWaliKelasAktif() && !session()->has('active_role')) {
+            $hideNav = true;
+            $isDualRoleSelection = true;
+
+            $guru = $user->pegawai?->guru ?? $user->guru;
+            $guruId = $guru ? $guru->id : 0;
+            $waliRecord = \App\Models\WaliKelas::where('guru_id', $guruId)
+                ->whereHas('tahunAjaran', fn($q) => $q->where('status', 'Aktif'))
+                ->first();
+
+            $kelasWaliNama = $waliRecord && $waliRecord->kelas ? $waliRecord->kelas->nama_kelas : 'Perwalian';
+            $activeRole = '';
+
+            return view('layouts.dashboard.index', compact('user', 'activeRole', 'hideNav', 'isDualRoleSelection', 'kelasWaliNama'));
+        }
+
         $activeRole = $user?->activeRole() ?? '';
 
         if ($user && $activeRole === 'kepala sekolah') {
@@ -97,7 +114,8 @@ class DashboardController extends Controller
                 $children = Siswa::limit(2)->get();
             }
 
-            return view('layouts.dashboard.index', compact('user', 'activeRole', 'children'));
+            $hideNav = true;
+            return view('layouts.dashboard.index', compact('user', 'activeRole', 'children', 'hideNav'));
         }
 
         return view('layouts.dashboard.index', compact('user', 'activeRole'));

@@ -87,16 +87,19 @@ class KehadiranController extends Controller
         if ($isGuru) {
             $guru = $user->pegawai?->guru;
             $guruId = $guru ? $guru->id : 0;
-            $mapels = MataPelajaran::query()->where('guru_id', $guruId)
+            $mapelsRaw = MataPelajaran::query()->where('guru_id', $guruId)
                 ->where('tahun_ajaran_id', $selectedTa)
                 ->where('semester_id', $selectedSem)
                 ->get();
-            $kelas = Kelas::query()->whereIn('id', $mapels->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            $kelas = Kelas::query()->whereIn('id', $mapelsRaw->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
+            $mapels = $mapelsRaw->unique('nama_mata_pelajaran')->values();
         } else {
             $mapels = MataPelajaran::query()
                 ->where('tahun_ajaran_id', $selectedTa)
                 ->where('semester_id', $selectedSem)
-                ->get();
+                ->get()
+                ->unique('nama_mata_pelajaran')
+                ->values();
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -409,6 +412,17 @@ class KehadiranController extends Controller
                 ->first();
             $selectedKelas = $pk ? $pk->kelas_id : $mySiswa->kelas_id;
             $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+        } elseif ($user && $user->roles === 'wali kelas') {
+            $guru = $user->pegawai?->guru ?? $user->guru;
+            $guruId = $guru ? $guru->id : 0;
+            $waliRecord = WaliKelas::where('guru_id', $guruId)->where('tahun_ajaran_id', $selectedTa)->first() ?? WaliKelas::where('guru_id', $guruId)->first();
+            if ($waliRecord) {
+                $selectedKelas = $waliRecord->kelas_id;
+                $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+            } else {
+                $kelas = collect();
+                $selectedKelas = null;
+            }
         } elseif ($isGuru) {
             $guru = $user->pegawai?->guru ?? $user->guru;
             $guruId = $guru ? $guru->id : 0;
@@ -428,21 +442,27 @@ class KehadiranController extends Controller
         }
 
         // Mapels query
-        $mapelsQuery = MataPelajaran::query()
-            ->where('tahun_ajaran_id', $selectedTa)
-            ->where('semester_id', $selectedSem);
-
-        if ($selectedKelas) {
-            $mapelsQuery->where('kelas_id', $selectedKelas);
-        }
+        $mapelsQuery = MataPelajaran::query();
 
         if ($isGuru) {
             $guru = $user->pegawai?->guru ?? $user->guru;
-            $mapelsQuery->where('guru_id', $guru ? $guru->id : 0);
+            $guruId = $guru ? $guru->id : 0;
+            $mapelsQuery->where(function($q) use ($guruId) {
+                $q->where('guru_id', $guruId)->orWhereNull('guru_id')->orWhere('guru_id', 0);
+            });
         }
 
-        $mapels = $mapelsQuery->orderBy('nama_mata_pelajaran', 'asc')->get();
+        $mapels = $mapelsQuery->orderByRaw('CASE WHEN kelas_id IS NOT NULL THEN 0 ELSE 1 END')
+            ->orderBy('nama_mata_pelajaran', 'asc')
+            ->get()
+            ->unique('nama_mata_pelajaran')
+            ->values();
+
         $selectedMapel = $request->get('mata_pelajaran_id');
+        $selectedMapelModel = $selectedMapel ? MataPelajaran::find($selectedMapel) : null;
+        $matchingMapelIds = $selectedMapelModel
+            ? MataPelajaran::where('nama_mata_pelajaran', $selectedMapelModel->nama_mata_pelajaran)->pluck('id')->toArray()
+            : ($selectedMapel ? [$selectedMapel] : []);
 
         $students = [];
         $dates = [];
@@ -462,7 +482,7 @@ class KehadiranController extends Controller
 
             // Distinct dates where attendance was recorded
             $dates = Kehadiran::query()
-                ->where('mata_pelajaran_id', $selectedMapel)
+                ->whereIn('mata_pelajaran_id', $matchingMapelIds)
                 ->whereIn('siswa_id', $siswaIds)
                 ->select('tanggal')
                 ->distinct()
@@ -473,7 +493,7 @@ class KehadiranController extends Controller
             if (!empty($dates)) {
                 $attendanceRecords = Kehadiran::query()
                     ->with('jenisKehadiran')
-                    ->where('mata_pelajaran_id', $selectedMapel)
+                    ->whereIn('mata_pelajaran_id', $matchingMapelIds)
                     ->whereIn('siswa_id', $siswaIds)
                     ->whereIn('tanggal', $dates)
                     ->get();

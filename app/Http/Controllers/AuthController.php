@@ -68,12 +68,17 @@ class AuthController extends Controller
     public function switchRole(Request $request, string $role)
     {
         $user = Auth::user();
-        $target = $role === 'wali-kelas' ? 'wali kelas' : 'guru';
 
         if ($user->roles !== 'guru' || !$user->isWaliKelasAktif()) {
             abort(403, 'Anda tidak memiliki akses untuk beralih peran.');
         }
 
+        if ($role === 'reset') {
+            $request->session()->forget('active_role');
+            return redirect()->route('dashboard');
+        }
+
+        $target = $role === 'wali-kelas' ? 'wali kelas' : 'guru';
         $request->session()->put('active_role', $target);
 
         toast('Anda sekarang login sebagai ' . ucwords($target) . '.', 'success');

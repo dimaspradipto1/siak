@@ -3,15 +3,17 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Dashboard</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
-        </nav>
-    </div>
+    @unless ($hideNav ?? false)
+        <div class="pagetitle">
+            <h1>Dashboard</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+    @endunless
 
     {{-- Flash success --}}
     @if (session('success'))
@@ -22,7 +24,68 @@
     @endif
 
     <section class="section dashboard">
-        @if ($activeRole === 'kepala sekolah')
+        @if ($isDualRoleSelection ?? false)
+            <div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+                <div class="col-lg-8 col-md-10">
+                    <div class="card border-0 shadow-lg mb-4" style="border-radius: 16px;">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                                <div>
+                                    <h4 class="text-dark fw-bold mb-1">Selamat Datang, {{ $user->name }}</h4>
+                                    <p class="text-muted small mb-0">Anda memiliki 2 peran. Silakan pilih mode login Anda:</p>
+                                </div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Keluar
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="row g-4 pt-2">
+                                <!-- Option 1: Guru Pengajar -->
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center p-4" style="border-radius: 14px; background-color: #f8f9fa;">
+                                        <div class="mb-3">
+                                            <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle shadow-sm" style="width: 64px; height: 64px; font-size: 1.8rem;">
+                                                <i class="bi bi-person-video3"></i>
+                                            </div>
+                                        </div>
+                                        <h5 class="fw-bold text-dark mb-2">Guru Pengajar</h5>
+                                        <p class="text-muted small mb-4">Input Nilai Harian, MID, PAS, Kehadiran, & Materi Pembelajaran.</p>
+                                        <form method="POST" action="{{ route('switch-role', 'guru') }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 10px;">
+                                                Masuk sebagai Guru
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Option 2: Wali Kelas -->
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm text-center p-4" style="border-radius: 14px; background-color: #f8f9fa;">
+                                        <div class="mb-3">
+                                            <div class="d-inline-flex align-items-center justify-content-center bg-dark text-white rounded-circle shadow-sm" style="width: 64px; height: 64px; font-size: 1.8rem;">
+                                                <i class="bi bi-easel"></i>
+                                            </div>
+                                        </div>
+                                        <h5 class="fw-bold text-dark mb-2">Wali Kelas ({{ $kelasWaliNama ?? 'Perwalian' }})</h5>
+                                        <p class="text-muted small mb-4">Rekap Nilai Raport, Cetak Raport, Rekap Kehadiran, & Catatan Siswa.</p>
+                                        <form method="POST" action="{{ route('switch-role', 'wali-kelas') }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-dark w-100 py-2 fw-bold" style="border-radius: 10px; background-color: #212529;">
+                                                Masuk sebagai Wali Kelas
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif ($activeRole === 'kepala sekolah')
             <div class="row">
                 <!-- Selamat Datang -->
                 <div class="col-12 mb-4">
@@ -33,49 +96,6 @@
                         </div>
                     </div>
                 </div>
-        @elseif ($activeRole === 'orang tua')
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                        <div class="card-body p-4">
-                            <h4 class="text-dark fw-bold mb-4">Selamat Datang Bapak/Ibu</h4>
-                            
-                            <div class="p-4 rounded-3" style="background-color: #e2e4e8; border-radius: 12px;">
-                                <div class="table-responsive">
-                                    <table class="table table-borderless align-middle mb-0">
-                                        <tbody>
-                                            @forelse($children ?? [] as $child)
-                                                <tr>
-                                                    <td class="fw-semibold text-dark fs-6 ps-3" style="width: 30%;">
-                                                        {{ $child->nisn ? 'NISN. '.$child->nisn : 'No. NISN' }}
-                                                    </td>
-                                                    <td class="fw-bold text-dark fs-6" style="width: 45%;">
-                                                        {{ $child->nama_siswa }}
-                                                    </td>
-                                                    <td class="text-end pe-3">
-                                                        <a href="{{ route('orangtua.select-child', $child->id) }}" class="btn btn-dark px-4 py-2" style="border-radius: 8px; font-weight: bold; background-color: #212529;">
-                                                            Lihat Data
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                                @if(!$loop->last)
-                                                    <tr><td colspan="3" style="padding: 6px 0;"></td></tr>
-                                                @endif
-                                            @empty
-                                                <tr>
-                                                    <td colspan="3" class="text-center text-muted py-3">
-                                                        Belum ada data anak yang terhubung.
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
                 <!-- Row 1: 3 Columns -->
                 <!-- Card 1: Jumlah Pegawai -->
@@ -202,6 +222,58 @@
                                         <td class="fw-bold" style="padding: 4px 0;">{{ $schoolProfile->nama_kepala_sekolah ?? 'Yusal, S.Pd.' }}</td>
                                     </tr>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif ($activeRole === 'orang tua')
+            <div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+                <div class="col-lg-10 col-xl-9">
+                    <div class="card border-0 shadow-lg mb-4" style="border-radius: 16px;">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                                <div>
+                                    <h4 class="text-dark fw-bold mb-1">Selamat Datang Bapak/Ibu</h4>
+                                    <p class="text-muted small mb-0">Silakan pilih data anak yang ingin Anda lihat:</p>
+                                </div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Keluar
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="row g-4 pt-2">
+                                @forelse($children ?? [] as $child)
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm text-center p-4" style="border-radius: 14px; background-color: #f8f9fa;">
+                                            <div class="mb-3">
+                                                <div class="d-inline-flex align-items-center justify-content-center bg-dark text-white rounded-circle shadow-sm" style="width: 64px; height: 64px; font-size: 1.8rem;">
+                                                    <i class="bi bi-person-fill"></i>
+                                                </div>
+                                            </div>
+                                            <h5 class="fw-bold text-dark mb-1" style="font-size: 1.05rem;">{{ $child->nama_siswa }}</h5>
+                                            <p class="text-muted small mb-3">
+                                                @if($child->kelas)
+                                                    <span class="badge bg-secondary mb-1">Kelas {{ $child->kelas->nama_kelas }}</span><br>
+                                                @endif
+                                                <span class="fw-semibold text-secondary" style="font-size: 0.85rem;">{{ $child->nisn ? 'NISN. '.$child->nisn : 'No NISN' }}</span>
+                                            </p>
+                                            <a href="{{ route('orangtua.select-child', $child->id) }}" class="btn btn-dark w-100 py-2 fw-bold mt-auto" style="border-radius: 10px; background-color: #212529;">
+                                                Lihat Data
+                                            </a>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="text-center text-muted py-5">
+                                            <i class="bi bi-exclamation-circle text-secondary" style="font-size: 2.5rem;"></i>
+                                            <p class="mt-2 mb-0">Belum ada data anak yang terhubung.</p>
+                                        </div>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -482,7 +554,7 @@
 @endsection
 
 @push('script')
-    @if ($activeRole === 'kepala sekolah')
+    @if (($activeRole ?? '') === 'kepala sekolah')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {

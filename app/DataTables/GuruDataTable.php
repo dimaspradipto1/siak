@@ -24,24 +24,6 @@ class GuruDataTable extends DataTable
             ->addColumn('status', function ($guru) {
                 return $guru->status ?? 'Aktif';
             })
-            ->addColumn('action', function($guru) {
-                if (!in_array(auth()->user()->roles, ['admin', 'kepala sekolah'])) return '';
-                return '
-                <div class="d-flex gap-1 justify-content-center">
-                    <a href="' . route('guru.edit', $guru->id) . '" class="btn btn-warning btn-sm" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <form action="' . route('guru.destroy', $guru->id) . '" method="POST" class="d-inline">
-                        ' . csrf_field() . '
-                        ' . method_field('DELETE') . '
-                        <button type="button" class="btn btn-danger btn-sm btn-hapus" data-nama="' . e($guru->nama_pegawai) . '" title="Hapus">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </div>
-                ';
-            })
-            ->rawColumns(['action'])
             ->setRowId('id');
     }
 
@@ -96,11 +78,6 @@ class GuruDataTable extends DataTable
             Column::make('golongan')->title('Golongan'),
             Column::make('pendidikan_terakhir')->title('Pendidikan Terakhir'),
             Column::make('status')->title('Status')->searchable(false)->orderable(false),
-            Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(100)
-                  ->addClass('text-center'),
         ];
     }
 

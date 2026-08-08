@@ -33,7 +33,7 @@ class NilaiController extends Controller
     public function index(NilaiDataTable $dataTable, Request $request)
     {
         $user = auth()->user();
-        if (auth()->check() && $user->roles === 'wali kelas') {
+        if (auth()->check() && in_array($user->roles, ['admin', 'kepala sekolah', 'wali kelas'])) {
             return redirect()->route('nilai.rekap-raport');
         }
 
@@ -209,6 +209,27 @@ class NilaiController extends Controller
         return [$selectedTa, $selectedSem, $selectedKelas, $selectedMapel];
     }
 
+    /**
+     * Helper to retrieve available Mata Pelajaran options for grading.
+     * Includes both active class mapels and master mapels.
+     */
+    private function getMapelOptions($selectedTa, $selectedSem, $selectedKelas, $isGuru, $guruId = null)
+    {
+        $query = MataPelajaran::query();
+
+        if ($isGuru && $guruId) {
+            $query->where(function($q) use ($guruId) {
+                $q->where('guru_id', $guruId)->orWhereNull('guru_id')->orWhere('guru_id', 0);
+            });
+        }
+
+        return $query->orderByRaw('CASE WHEN kelas_id IS NOT NULL THEN 0 ELSE 1 END')
+            ->orderBy('nama_mata_pelajaran', 'asc')
+            ->get()
+            ->unique('nama_mata_pelajaran')
+            ->values();
+    }
+
     // ----------------------------------------------------
     // BULK GRADING: NILAI HARIAN
     // ----------------------------------------------------
@@ -216,30 +237,20 @@ class NilaiController extends Controller
     {
         $user = auth()->user();
         $isGuru = $user->roles === 'guru';
+        $guru = $user->pegawai?->guru ?? $user->guru;
+        $guruId = $guru ? $guru->id : null;
         
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
+        $mapels = $this->getMapelOptions($selectedTa, $selectedSem, $selectedKelas, $isGuru, $guruId);
+
         if ($isGuru) {
-            $guru = $user->pegawai?->guru ?? $user->guru;
-            $guruId = $guru ? $guru->id : 0;
-            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            $kelasIds = MataPelajaran::query()->where('guru_id', $guruId)->whereNotNull('kelas_id')->pluck('kelas_id');
+            $kelas = Kelas::query()->whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelas->isEmpty()) {
+                $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
             }
         } else {
-            $mapelQuery = MataPelajaran::query()
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
-            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -362,30 +373,20 @@ class NilaiController extends Controller
     {
         $user = auth()->user();
         $isGuru = $user->roles === 'guru';
+        $guru = $user->pegawai?->guru ?? $user->guru;
+        $guruId = $guru ? $guru->id : null;
         
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
+        $mapels = $this->getMapelOptions($selectedTa, $selectedSem, $selectedKelas, $isGuru, $guruId);
+
         if ($isGuru) {
-            $guru = $user->pegawai?->guru ?? $user->guru;
-            $guruId = $guru ? $guru->id : 0;
-            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            $kelasIds = MataPelajaran::query()->where('guru_id', $guruId)->whereNotNull('kelas_id')->pluck('kelas_id');
+            $kelas = Kelas::query()->whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelas->isEmpty()) {
+                $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
             }
         } else {
-            $mapelQuery = MataPelajaran::query()
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
-            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -461,30 +462,20 @@ class NilaiController extends Controller
     {
         $user = auth()->user();
         $isGuru = $user->roles === 'guru';
+        $guru = $user->pegawai?->guru ?? $user->guru;
+        $guruId = $guru ? $guru->id : null;
         
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
+        $mapels = $this->getMapelOptions($selectedTa, $selectedSem, $selectedKelas, $isGuru, $guruId);
+
         if ($isGuru) {
-            $guru = $user->pegawai?->guru ?? $user->guru;
-            $guruId = $guru ? $guru->id : 0;
-            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            $kelasIds = MataPelajaran::query()->where('guru_id', $guruId)->whereNotNull('kelas_id')->pluck('kelas_id');
+            $kelas = Kelas::query()->whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelas->isEmpty()) {
+                $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
             }
         } else {
-            $mapelQuery = MataPelajaran::query()
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
-            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -563,27 +554,18 @@ class NilaiController extends Controller
 
         list($selectedTa, $selectedSem, $selectedKelas, $selectedMapel) = $this->resolveFilters($request);
 
+        $guru = $user->pegawai?->guru ?? $user->guru;
+        $guruId = $guru ? $guru->id : null;
+
+        $mapels = $this->getMapelOptions($selectedTa, $selectedSem, $selectedKelas, $isGuru, $guruId);
+
         if ($isGuru) {
-            $guru = $user->pegawai?->guru ?? $user->guru;
-            $guruId = $guru ? $guru->id : 0;
-            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            $kelasIds = MataPelajaran::query()->where('guru_id', $guruId)->whereNotNull('kelas_id')->pluck('kelas_id');
+            $kelas = Kelas::query()->whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelas->isEmpty()) {
+                $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
             }
         } else {
-            $mapelQuery = MataPelajaran::query()
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
-            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -592,9 +574,7 @@ class NilaiController extends Controller
             ? Semester::query()->where('tahun_ajaran_id', $selectedTa)->get()
             : Semester::query()->get();
 
-        // Master TP (Tujuan Pembelajaran) diambil dari Mata Pelajaran terpilih.
-        // Jika record aktif tidak punya TP (null/kosong), fallback ke master mapel
-        // (record dengan nama_mata_pelajaran yang sama dan kelas_id = null).
+        // Master TP (Tujuan Pembelajaran) diambil dari Mata Pelajaran terpilih & Master Mapel
         $tpOptimalOptions    = [];
         $tpPeningkatanOptions = [];
         if ($selectedMapel) {
@@ -603,15 +583,19 @@ class NilaiController extends Controller
                 $rawOptimal     = $mapelTerpilih->tp_optimal;
                 $rawPeningkatan = $mapelTerpilih->tp_peningkatan;
 
-                // Jika record aktif tidak punya TP, cari dari master mapel
-                $tpKosong = empty($rawOptimal) && empty($rawPeningkatan);
-                if ($tpKosong) {
-                    $masterMapel = MataPelajaran::query()
-                        ->whereNull('kelas_id')
-                        ->where('nama_mata_pelajaran', $mapelTerpilih->nama_mata_pelajaran)
-                        ->first();
-                    if ($masterMapel) {
-                        $rawOptimal     = $masterMapel->tp_optimal;
+                // Selalu cek ke master mapel (kelas_id null / tahun_ajaran_id null) jika master mapel punya TP yang diinput admin
+                $masterMapel = MataPelajaran::query()
+                    ->where('nama_mata_pelajaran', $mapelTerpilih->nama_mata_pelajaran)
+                    ->where(function($q) {
+                        $q->whereNull('kelas_id')->orWhereNull('tahun_ajaran_id');
+                    })
+                    ->first();
+
+                if ($masterMapel) {
+                    if (!empty($masterMapel->tp_optimal)) {
+                        $rawOptimal = $masterMapel->tp_optimal;
+                    }
+                    if (!empty($masterMapel->tp_peningkatan)) {
                         $rawPeningkatan = $masterMapel->tp_peningkatan;
                     }
                 }
@@ -751,27 +735,18 @@ class NilaiController extends Controller
             }
         }
 
+        $guru = $user->pegawai?->guru ?? $user->guru;
+        $guruId = $guru ? $guru->id : null;
+
+        $mapels = $this->getMapelOptions($selectedTa, $selectedSem, $selectedKelas, $isGuru, $guruId);
+
         if ($isGuru) {
-            $guru = $user->pegawai?->guru;
-            $guruId = $guru ? $guru->id : 0;
-            $mapelQuery = MataPelajaran::query()->where('guru_id', $guruId)
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            $kelas = Kelas::query()->whereIn('id', (clone $mapelQuery)->pluck('kelas_id'))->orderBy('nama_kelas', 'asc')->get();
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
+            $kelasIds = MataPelajaran::query()->where('guru_id', $guruId)->whereNotNull('kelas_id')->pluck('kelas_id');
+            $kelas = Kelas::query()->whereIn('id', $kelasIds)->orderBy('nama_kelas', 'asc')->get();
+            if ($kelas->isEmpty()) {
+                $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
             }
         } else {
-            $mapelQuery = MataPelajaran::query()
-                ->where('tahun_ajaran_id', $selectedTa)
-                ->where('semester_id', $selectedSem);
-            if ($selectedKelas) {
-                $mapels = (clone $mapelQuery)->where('kelas_id', $selectedKelas)->get();
-            } else {
-                $mapels = (clone $mapelQuery)->get()->unique('nama_mata_pelajaran');
-            }
             $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -813,13 +788,15 @@ class NilaiController extends Controller
 
     public function rekapRaport(Request $request)
     {
-        $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        $user = auth()->user();
+        $isWali = $user && $user->roles === 'wali kelas';
+        $guru = $user?->pegawai?->guru ?? $user?->guru;
+        $guruId = $guru ? $guru->id : 0;
+
         $tahunAjarans = TahunAjaran::query()->get();
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedKelas = $request->get('kelas_id');
-        $selectedSiswa = $request->get('siswa_id');
 
         if (!$selectedTa) {
             $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
@@ -828,6 +805,25 @@ class NilaiController extends Controller
         if (!$selectedSemName) {
             $selectedSemName = 'Semester 1 (Ganjil)';
         }
+
+        if ($isWali) {
+            $waliRecord = WaliKelas::where('guru_id', $guruId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first() ?? WaliKelas::where('guru_id', $guruId)->first();
+
+            if ($waliRecord) {
+                $selectedKelas = $waliRecord->kelas_id;
+                $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+            } else {
+                $kelas = collect();
+                $selectedKelas = null;
+            }
+        } else {
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
+        }
+
+        $selectedSiswa = $request->get('siswa_id');
 
         $semester = null;
         if ($selectedTa && $selectedSemName) {
@@ -851,12 +847,27 @@ class NilaiController extends Controller
         }
 
         if ($selectedTa && $selectedSem && $selectedKelas) {
-            // Get all mapels bound to this class in academic year
-            $classMapels = MataPelajaran::query()->where('kelas_id', $selectedKelas)
+            $siswaIds = PembagianKelas::query()->where('kelas_id', $selectedKelas)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->pluck('siswa_id');
+
+            $mapelIdsFromGrades = Nilai::query()->whereIn('siswa_id', $siswaIds)
                 ->where('tahun_ajaran_id', $selectedTa)
                 ->where('semester_id', $selectedSem)
+                ->pluck('mata_pelajaran_id');
+
+            $classMapels = MataPelajaran::query()
+                ->where(function($q) use ($selectedKelas, $selectedTa, $selectedSem, $mapelIdsFromGrades) {
+                    $q->where(function($sub) use ($selectedKelas, $selectedTa, $selectedSem) {
+                        $sub->where('kelas_id', $selectedKelas)
+                            ->where('tahun_ajaran_id', $selectedTa)
+                            ->where('semester_id', $selectedSem);
+                    })
+                    ->orWhereIn('id', $mapelIdsFromGrades);
+                })
                 ->orderBy('nama_mata_pelajaran', 'asc')
-                ->get();
+                ->get()
+                ->unique('nama_mata_pelajaran');
 
             $studentsList = $siswaOptions;
             if ($selectedSiswa) {
@@ -899,12 +910,15 @@ class NilaiController extends Controller
 
     public function cetakRaportList(Request $request)
     {
-        $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+        $user = auth()->user();
+        $isWali = $user && $user->roles === 'wali kelas';
+        $guru = $user?->pegawai?->guru ?? $user?->guru;
+        $guruId = $guru ? $guru->id : 0;
+
         $tahunAjarans = TahunAjaran::query()->get();
 
         $selectedTa = $request->get('tahun_ajaran_id');
         $selectedSemName = $request->get('semester_name');
-        $selectedKelas = $request->get('kelas_id');
 
         if (!$selectedTa) {
             $activeTa = TahunAjaran::query()->where('status', 'Aktif')->first() ?? TahunAjaran::query()->first();
@@ -912,6 +926,23 @@ class NilaiController extends Controller
         }
         if (!$selectedSemName) {
             $selectedSemName = 'Semester 1 (Ganjil)';
+        }
+
+        if ($isWali) {
+            $waliRecord = WaliKelas::where('guru_id', $guruId)
+                ->where('tahun_ajaran_id', $selectedTa)
+                ->first() ?? WaliKelas::where('guru_id', $guruId)->first();
+
+            if ($waliRecord) {
+                $selectedKelas = $waliRecord->kelas_id;
+                $kelas = Kelas::query()->where('id', $selectedKelas)->get();
+            } else {
+                $kelas = collect();
+                $selectedKelas = null;
+            }
+        } else {
+            $kelas = Kelas::query()->orderBy('nama_kelas', 'asc')->get();
+            $selectedKelas = $request->get('kelas_id');
         }
 
         $semester = null;
@@ -937,6 +968,21 @@ class NilaiController extends Controller
 
     public function cetakRaportPrint($siswa_id, $tahun_ajaran_id, $semester_id)
     {
+        $user = auth()->user();
+        if ($user && $user->roles === 'wali kelas') {
+            $guru = $user->pegawai?->guru ?? $user->guru;
+            $guruId = $guru ? $guru->id : 0;
+            $waliRecord = WaliKelas::where('guru_id', $guruId)->where('tahun_ajaran_id', $tahun_ajaran_id)->first() ?? WaliKelas::where('guru_id', $guruId)->first();
+            if ($waliRecord) {
+                $pembagian = PembagianKelas::where('siswa_id', $siswa_id)->where('tahun_ajaran_id', $tahun_ajaran_id)->first();
+                $siswaKelasId = $pembagian ? $pembagian->kelas_id : Siswa::find($siswa_id)?->kelas_id;
+                if ($siswaKelasId != $waliRecord->kelas_id) {
+                    alert()->error('Akses Ditolak', 'Anda hanya dapat mencetak raport siswa dari kelas perwalian Anda.');
+                    return redirect()->route('nilai.cetak-raport');
+                }
+            }
+        }
+
         $siswa = Siswa::query()->findOrFail($siswa_id);
         $tahunAjaran = TahunAjaran::query()->findOrFail($tahun_ajaran_id);
         $semester = Semester::query()->findOrFail($semester_id);

@@ -88,14 +88,18 @@
 
 <body>
 
+  @unless ($hideNav ?? false)
     @include('layouts.dashboard.header')
     @include('layouts.dashboard.sidebar')
+  @endunless
 
-  <main id="main" class="main">
+  <main id="main" class="main" @if ($hideNav ?? false) style="margin-left: 0 !important; padding: 30px 15px !important; min-height: 100vh; background-color: #f6f9ff;" @endif>
     @yield('content')
   </main><!-- End #main -->
 
-  @include('layouts.dashboard.footer')
+  @unless ($hideNav ?? false)
+    @include('layouts.dashboard.footer')
+  @endunless
 
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

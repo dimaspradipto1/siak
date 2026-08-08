@@ -61,14 +61,6 @@
             </li>
             <li><hr class="dropdown-divider"></li>
 
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <i class="bi bi-person"></i>
-                <span>Profil Saya</span>
-              </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-
             @if ($canSwitchRole)
               <li>
                 <form method="POST" action="{{ route('switch-role', $currentActiveRole === 'wali kelas' ? 'guru' : 'wali-kelas') }}" id="switchRoleForm">
@@ -78,24 +70,26 @@
                     <i class="bi bi-arrow-repeat"></i>
                     <span>
                       @if ($currentActiveRole === 'wali kelas')
-                        Login sebagai Guru
+                        Beralih ke Peran Guru
                       @else
-                        Login sebagai Wali Kelas
+                        Beralih ke Peran Wali Kelas
                       @endif
                     </span>
                   </a>
                 </form>
               </li>
+              <li>
+                <form method="POST" action="{{ route('switch-role', 'reset') }}" id="resetRoleForm">
+                  @csrf
+                  <a class="dropdown-item d-flex align-items-center text-secondary" href="#"
+                     onclick="event.preventDefault(); document.getElementById('resetRoleForm').submit();">
+                    <i class="bi bi-grid-fill"></i>
+                    <span>Pilih Peran Login...</span>
+                  </a>
+                </form>
+              </li>
               <li><hr class="dropdown-divider"></li>
             @endif
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <i class="bi bi-gear"></i>
-                <span>Pengaturan Akun</span>
-              </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
 
             <li>
               <form method="POST" action="{{ route('logout') }}" id="logoutForm">
